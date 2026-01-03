@@ -17,7 +17,7 @@ struct mallinfo {
 // ====================================
 
 void UserStartInit() {
-  CSET_PORTS::initDOutputs(); // Определение дискретных выходов микроконтроллера (pins)
+  CSET_PORTS::initDOutputs(); // Инициализация дискретных выходов микроконтроллера (pins)
   CDIN_STORAGE::UserLedOn();  // Визуальный контроль начала инициализации
   CSET_EMC::initAndCheck();   // Инициализации ext RAM и шины расширения. Контроль ext RAM
 }
