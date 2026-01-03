@@ -1,0 +1,46 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build IAR Debug",
+      "type": "shell",
+      "command": "C:\\Program Files\\IAR Systems\\Embedded Workbench 9.0\\common\\bin\\iarbuild.exe",
+      "args": [
+        "cl_p.ewp",
+        "-build",
+        "Debug"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "iar",
+      "command": "clean",
+      "project": "${command:iar-config.project-file}",
+      "config": "${command:iar-config.project-configuration}",
+      "builder": "${command:iar-config.toolchain}/common/bin/iarbuild.exe",
+      "label": "iar: Clean Project",
+      "argumentVariablesFile": "${command:iar-config.workspace-file}",
+      "problemMatcher": [
+        "$iar-cc",
+        "$iar-linker"
+      ]
+    },
+    {
+      "type": "iar",
+      "command": "build",
+      "project": "${command:iar-config.project-file}",
+      "config": "${command:iar-config.project-configuration}",
+      "builder": "${command:iar-config.toolchain}/common/bin/iarbuild.exe",
+      "label": "iar: Build Project",
+      "argumentVariablesFile": "${command:iar-config.workspace-file}",
+      "problemMatcher": [
+        "$iar-cc",
+        "$iar-linker"
+      ]
+    }
+  ]
+}

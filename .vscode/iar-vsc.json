@@ -1,0 +1,18 @@
+{
+  "workspace": {
+    "path": "${workspaceFolder}\\cl_p.eww"
+  },
+  "workspaces": {
+    "${workspaceFolder}\\cl_p.eww": {
+      "configs": {
+        "${workspaceFolder}\\cl_p.ewp": "Debug"
+      },
+      "selected": {
+        "path": "${workspaceFolder}\\cl_p.ewp"
+      }
+    }
+  },
+  "workbench": {
+    "path": "C:\\Program Files\\IAR Systems\\Embedded Workbench 9.0"
+  }
+}
