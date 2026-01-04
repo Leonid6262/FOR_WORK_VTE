@@ -6,13 +6,15 @@
 #include "dIOStorage.hpp"
 #include "din_cpu.hpp"
 #include "version.hpp"
+#include "SystemManager.hpp" 
+#include "Adjustment.hpp" 
 
 namespace menu_alias {
   using id   = NProxyVar::ProxyVarID;
   using vt   = NProxyVar::EVarType;
   using un   = NProxyVar::Unit;
-  using x    = CMenuManager::MenuNode;
-  using nm   = CMenuManager::ENodeMode;
+  using x    = CMenuNavigation::MenuNode;
+  using nm   = CMenuNavigation::ENodeMode;
   using sadc = CADC_STORAGE;
   using sbin = CDIN_STORAGE::EIBNumber;
   using sbon = CDIN_STORAGE::EOBNumber;
@@ -40,8 +42,9 @@ static const struct {
 
 
 // Фабрика дерева меню.
-inline std::vector<menu_alias::x> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings& rSet) {
+inline std::vector<menu_alias::x> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings& rSet, CSystemManager& rSysMgr) {
   auto& set = rSet.getSettings();
+  //rSysMgr.rAdj_mode.set_adj_mode=9;
   using namespace menu_alias;
   
   unsigned short l = set.Language;                              // Установка языка отображения согласно уставке

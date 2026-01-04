@@ -17,12 +17,14 @@
 #include "puls_calc.hpp"
 #include "handlers_IRQ.hpp"
 #include "terminalUartDriver.hpp"
-#include "menu_manager.hpp"
-#include "message_manager.hpp"
+#include "menu_navigation.hpp"
+#include "message_display.hpp"
 #include "terminal_manager.hpp"
 #include "AdcStorage.hpp"
 #include "proxy_pointer_var.hpp"
 #include "bool_name.hpp"
+#include "Adjustment.hpp" 
+#include "SystemManager.hpp" 
 
 class CFactory {
 public:
@@ -50,9 +52,9 @@ public:
    
     static CRTC createRTC();
     
-    static CMenuManager createMenuManager();
-    static CMessageManager createMessageManager();
-    static CTerminalManager& createTM();
+    static CSystemManager createSysManager();
+    
+    static CTerminalManager& createTM(CSystemManager&);
     
     static void start_puls_system(CDMAcontroller&);
 };

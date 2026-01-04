@@ -1,11 +1,12 @@
-#include "menu_manager.hpp"
+#include "menu_navigation.hpp"
 #include <algorithm>
 #include "string_utils.hpp"
 #include "menu_factory.hpp"
 #include "pause_us.hpp"
 #include "settings_eep.hpp"
 
-CMenuManager::CMenuManager(CTerminalUartDriver& uartDrv) : uartDrv(uartDrv) {
+CMenuNavigation::CMenuNavigation(CTerminalUartDriver& uartDrv, CSystemManager& rSysMgr ) :
+  uartDrv(uartDrv) {
   // очистка экрана
   unsigned char clr_data[] = {"                \r\n"};
   uartDrv.sendBuffer(clr_data, sizeof(clr_data));
@@ -26,14 +27,14 @@ CMenuManager::CMenuManager(CTerminalUartDriver& uartDrv) : uartDrv(uartDrv) {
   d.delta_timer_ms = 0;
   
   // Создание дерева узлов меню
-  MENU = MENU_Factory(CADC_STORAGE::getInstance(), CEEPSettings::getInstance());
-  MENU.shrink_to_fit();
+  MENU = MENU_Factory(CADC_STORAGE::getInstance(), CEEPSettings::getInstance(), rSysMgr);
+  //MENU.shrink_to_fit();
   currentList = &MENU;
   render_menu();        // первая отрисовка
 }
 
 // Конструктор узла универсальный (все поля из меню)
-CMenuManager::MenuNode::MenuNode(const char* t,
+CMenuNavigation::MenuNode::MenuNode(const char* t,
                                  std::vector<MenuNode> c,
                                  void* v,
                                  const char* u,
@@ -55,7 +56,7 @@ min_value(min_value),
 max_value(max_value) {}
 
 // Конструктор узла переменных реестра
-CMenuManager::MenuNode::MenuNode(const char* t,
+CMenuNavigation::MenuNode::MenuNode(const char* t,
                                  std::vector<MenuNode> c,
                                  NProxyVar::ProxyVarID id,
                                  unsigned char p,
@@ -77,8 +78,8 @@ max_value(max_value)
 }
 
 // DualReg
-CMenuManager::MenuNode
-CMenuManager::MenuNode::DualReg(const char* title1,
+CMenuNavigation::MenuNode
+CMenuNavigation::MenuNode::DualReg(const char* title1,
                                 NProxyVar::ProxyVarID id1,
                                 unsigned char precision1,
                                 const char* title2,
@@ -98,8 +99,8 @@ CMenuManager::MenuNode::DualReg(const char* title1,
 }
 
 // DualRaw
-CMenuManager::MenuNode
-CMenuManager::MenuNode::DualRaw(const char* title1,
+CMenuNavigation::MenuNode
+CMenuNavigation::MenuNode::DualRaw(const char* title1,
                                 void* pVar1,
                                 const char* unit1,
                                 float scale1,
@@ -124,12 +125,12 @@ CMenuManager::MenuNode::DualRaw(const char* title1,
                     m);
 }
 
-void CMenuManager::set_pTerminal(CTerminalManager* pTerminal_manager){
+void CMenuNavigation::set_pTerminal(CTerminalManager* pTerminal_manager){
   this->pTerminal_manager = pTerminal_manager;
 }
 
 // "Опрос" клавиатуры
-void CMenuManager::get_key() {
+void CMenuNavigation::get_key() {
   unsigned char input_key;
   if (uartDrv.poll_rx(input_key)) {
     Key_Handler(static_cast<EKey_code>(input_key));
@@ -139,7 +140,7 @@ void CMenuManager::get_key() {
 }
 
 // Manager Renders
-void CMenuManager::render_node(ETitleType title_type) {
+void CMenuNavigation::render_node(ETitleType title_type) {
   unsigned short listIndex = screenPosition + cursorLine;
   const auto& node = (*currentList)[listIndex];
   
@@ -161,7 +162,7 @@ void CMenuManager::render_node(ETitleType title_type) {
 }
 
 // Отображение двух строк меню. Рендер Меню.
-void CMenuManager::render_menu() {
+void CMenuNavigation::render_menu() {
   // выводим два элемента списка начиная с screenPosition
   for (int line = 0; line < 2; ++line) {
     int listIndex = screenPosition + line;
@@ -185,7 +186,7 @@ void CMenuManager::render_menu() {
 }
 
 // Отображение окна с одной переменной
-void CMenuManager::render_1var(ETitleType title_type) {
+void CMenuNavigation::render_1var(ETitleType title_type) {
   unsigned short listIndex = screenPosition + cursorLine;
   const auto& node = (*currentList)[listIndex];
   if (title_type == ETitleType::TitleName) {
@@ -231,7 +232,7 @@ void CMenuManager::render_1var(ETitleType title_type) {
 }
 
 // Отображение окна с двумя переменными
-void CMenuManager::render_2var(ETitleType title_type) {
+void CMenuNavigation::render_2var(ETitleType title_type) {
   unsigned short listIndex = screenPosition + cursorLine;
   const auto& parent = (*currentList)[listIndex];
   
@@ -305,7 +306,7 @@ void CMenuManager::render_2var(ETitleType title_type) {
   uartDrv.sendBuffer(reinterpret_cast<const unsigned char*>(line.c_str()), line.size());
 }
 
-void CMenuManager::Key_Handler(EKey_code key) {
+void CMenuNavigation::Key_Handler(EKey_code key) {
   unsigned short listIndex = screenPosition + cursorLine;
   const auto& node = (*currentList)[listIndex];  // ← берём текущий узел
   
@@ -403,7 +404,7 @@ void CMenuManager::Key_Handler(EKey_code key) {
 }
 
 // Навигация вниз по меню
-void CMenuManager::navigateDownMenu() {
+void CMenuNavigation::navigateDownMenu() {
   unsigned short listIndex = screenPosition + cursorLine;
   if (listIndex + 1 < currentList->size()) {
     if (cursorLine == FirstLine) {
@@ -419,7 +420,7 @@ void CMenuManager::navigateDownMenu() {
   render_menu();
 }
 // Навигация вверх по меню
-void CMenuManager::navigateUpMenu() {
+void CMenuNavigation::navigateUpMenu() {
   unsigned short listIndex = screenPosition + cursorLine;
   if (listIndex > 0) {
     if (cursorLine == SecondLine) {
@@ -440,7 +441,7 @@ void CMenuManager::navigateUpMenu() {
   render_menu();
 }
 // Навигация вниз по узлам с переменными / редактированием
-void CMenuManager::navigateDownVar() {
+void CMenuNavigation::navigateDownVar() {
   unsigned short listIndex = screenPosition + cursorLine;
 
   if (start_e_data.edit_mode) {
@@ -468,7 +469,7 @@ void CMenuManager::navigateDownVar() {
   render_node(ETitleType::TitleName);
 }
 // Навигация вверх по узлам с переменными / редактирование
-void CMenuManager::navigateUpVar() {
+void CMenuNavigation::navigateUpVar() {
   
   unsigned short listIndex = screenPosition + cursorLine;
 
@@ -502,7 +503,7 @@ void CMenuManager::navigateUpVar() {
   render_node(ETitleType::TitleName);
 }
 // Обработка ENTER
-void CMenuManager::handleEnter() {
+void CMenuNavigation::handleEnter() {
   unsigned short listIndex = screenPosition + cursorLine;
   auto& node = (*currentList)[listIndex];
 
@@ -537,7 +538,7 @@ void CMenuManager::handleEnter() {
 }
 
 // Обработка ESCAPE
-void CMenuManager::handleEscape() {
+void CMenuNavigation::handleEscape() {
   if (start_e_data.edit_mode) {
     exitEditMode();
     return;
@@ -555,7 +556,7 @@ void CMenuManager::handleEscape() {
 }
 
 //  Обработка Fn+UP, Fn+DOWN и Fn+ESC (изменеие приращения)
-void CMenuManager::edit_delta(float mul) {
+void CMenuNavigation::edit_delta(float mul) {
   if(!start_e_data.edit_mode) return;
 
   switch (start_e_data.var_type) {
@@ -596,7 +597,7 @@ void CMenuManager::edit_delta(float mul) {
 }
 
 // Обработка Fn+ENTER (запись уставок в EEPROM)
-void CMenuManager::save_settings() {
+void CMenuNavigation::save_settings() {
   unsigned char led_green[] = {static_cast<unsigned char>(ELED::LED_GREEN), '\r'};
   uartDrv.sendBuffer(led_green, sizeof(led_green));
   CEEPSettings::getInstance().saveSettings();
@@ -606,7 +607,7 @@ void CMenuManager::save_settings() {
 }
 
 // Вход в режим редактирования
-void CMenuManager::enterEditMode(MenuNode& parent) { 
+void CMenuNavigation::enterEditMode(MenuNode& parent) { 
   start_e_data.edit_mode = true; 
   MenuNode* targetNode = nullptr; 
   
@@ -647,7 +648,7 @@ void CMenuManager::enterEditMode(MenuNode& parent) {
   render_node(ETitleType::NoTitle);
 }
 
-void CMenuManager::exitEditMode() {
+void CMenuNavigation::exitEditMode() {
   if (!start_e_data.edit_mode) return;
   
   switch (start_e_data.var_type) {
@@ -671,7 +672,7 @@ void CMenuManager::exitEditMode() {
   render_node(ETitleType::NoTitle);
 }
 
-void CMenuManager::editValue(MenuNode& node, signed short dir) {
+void CMenuNavigation::editValue(MenuNode& node, signed short dir) {
   switch (node.varType) {
   case NProxyVar::EVarType::sshort: {
     short* pRaw = static_cast<short*>(node.pVariable);
@@ -735,7 +736,7 @@ void CMenuManager::editValue(MenuNode& node, signed short dir) {
   render_node(ETitleType::NoTitle);
 }
 
-void CMenuManager::formatValue(const MenuNode& node, char* buf, unsigned short bufSize) {
+void CMenuNavigation::formatValue(const MenuNode& node, char* buf, unsigned short bufSize) {
   switch (node.varType) {
   case NProxyVar::EVarType::sshort: {
     signed short raw = *static_cast<signed short*>(node.pVariable);
@@ -790,7 +791,7 @@ void CMenuManager::formatValue(const MenuNode& node, char* buf, unsigned short b
 }
 
 // Возвращает индекс бита или -1 
-unsigned char CMenuManager::bitIndex(NProxyVar::EVarType t) {
+unsigned char CMenuNavigation::bitIndex(NProxyVar::EVarType t) {
   switch(t) { 
   case NProxyVar::EVarType::eb_0: return 0; 
   case NProxyVar::EVarType::eb_1: return 1; 

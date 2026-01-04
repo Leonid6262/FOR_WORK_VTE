@@ -2929,14 +2929,23 @@
             </file>
         </group>
         <group>
+            <name>SYSTEM</name>
+            <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\Adjustment.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\SystemManager.cpp</name>
+            </file>
+        </group>
+        <group>
             <name>TERMINAL</name>
             <group>
                 <name>TERMINAL_CODE</name>
                 <file>
-                    <name>$PROJ_DIR$\SRC\TERMINAL\TERMINAL_CODE\menu_manager.cpp</name>
+                    <name>$PROJ_DIR$\SRC\TERMINAL\TERMINAL_CODE\menu_navigation.cpp</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\SRC\TERMINAL\TERMINAL_CODE\message_manager.cpp</name>
+                    <name>$PROJ_DIR$\SRC\TERMINAL\TERMINAL_CODE\message_display.cpp</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\SRC\TERMINAL\TERMINAL_CODE\string_utils.cpp</name>

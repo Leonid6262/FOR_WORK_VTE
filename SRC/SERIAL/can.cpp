@@ -79,7 +79,7 @@ void CCAN::setBaudrate(unsigned int baudrate, unsigned int PClock) {
   CAN_N->MOD = 0;
 }
 
-/*--- transfer_short и  receive_short - Тестовые методы! ---*/
+/*-- transfer_short и  receive_short - Тестовые методы! --*/
 
 void CCAN::transfer_short(unsigned short data) {
   if (CAN_N->SR & CAN_SR_TBS1) {

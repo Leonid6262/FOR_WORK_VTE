@@ -40,7 +40,8 @@ void main(void) {
 
   CFactory::start_puls_system(cont_dma);                // Запуск СИФУ и всех её зависимостей.
   
-  static auto& term_manager = CFactory::createTM();     // Создание и управление объектами пультового терминал
+  static auto sys_manager = CFactory::createSysManager();       // Сисремный менеджер
+  static auto& term_manager = CFactory::createTM(sys_manager);  // Создание и управление объектами пультового терминал
   
   CDIN_STORAGE::UserLedOff();                           // Визуальный контроль окончания инициализации
   
@@ -59,6 +60,8 @@ void main(void) {
     spi_ports.rw();             // Запись в дискретные выходы и чтение дискретных входов доступных по SPI
     rt_clock.update_now();      // Обновление экземпляра структуы SDateTime данными из RTC
     term_manager.dispatch();    // Управление объектами (режимами) пультового терминал
+    
+    sys_manager.rAdj_mode.read_request();
     
     Pause_us(3);
   }

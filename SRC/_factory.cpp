@@ -23,16 +23,23 @@ CSPI_ports CFactory::createSPIports() {
   return CSPI_ports(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_0));
 }
 
+CSystemManager CFactory::createSysManager() {   
+  
+  static CAdjustmentMode ajustment;                             
+  
+  return CSystemManager(ajustment);                                                       
+}
+
 // Инициализация драйвера и создание объектов Пультового терминала
-CTerminalManager& CFactory::createTM() {   
-  LPC_UART_TypeDef* U0 = CSET_UART::configure(CSET_UART::EUartInstance::UART_0); // Конфигурация UART-0 - пультовый терминал
-  CTerminalUartDriver::getInstance().init(U0, UART0_IRQn);                       // Инициализация драйвера UART-0             
-  static CMenuManager menu_manager(CTerminalUartDriver::getInstance());          // Пультовый терминал (менеджер меню).
-  static CMessageManager mes_manager(CTerminalUartDriver::getInstance());        // Пультовый терминал (менеджер сообщений).
-  static CTerminalManager terminal_manager(menu_manager, mes_manager);           // Управление режимами пультового терминал
-  mes_manager.set_pTerminal(&terminal_manager);                                  // Создание циклической зависимости mes_manager
-  menu_manager.set_pTerminal(&terminal_manager);                                 // Создание циклической зависимости menu_manager
-  return terminal_manager;                                                       // Возврат ссылки на менеджер терминпла
+CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {   
+  LPC_UART_TypeDef* U0 = CSET_UART::configure(CSET_UART::EUartInstance::UART_0);        // Конфигурация UART-0 - пультовый терминал
+  CTerminalUartDriver::getInstance().init(U0, UART0_IRQn);                              // Инициализация драйвера UART-0             
+  static CMenuNavigation menu_navigation(CTerminalUartDriver::getInstance(), rSysMgr);  // Пультовый терминал (менеджер меню).
+  static CMessageDisplay mes_display(CTerminalUartDriver::getInstance());               // Пультовый терминал (менеджер сообщений).
+  static CTerminalManager terminal_manager(menu_navigation, mes_display);               // Управление режимами пультового терминал
+  menu_navigation.set_pTerminal(&terminal_manager);                                     // Создание циклической зависимости menu  
+  mes_display.set_pTerminal(&terminal_manager);                                         // Создание циклической зависимости mes
+  return terminal_manager;                                                              // Возврат ссылки на менеджер терминпла
 }
 extern "C" void UART0_IRQHandler(void) { CTerminalUartDriver::getInstance().irq_handler(); }  // Вызов обработчика UART-0
 

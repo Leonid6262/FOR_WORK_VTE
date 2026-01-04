@@ -1,7 +1,7 @@
-#include "message_manager.hpp"
+#include "message_display.hpp"
 #include "string_utils.hpp"
 
-CMessageManager::CMessageManager(CTerminalUartDriver& uartDrv) : 
+CMessageDisplay::CMessageDisplay(CTerminalUartDriver& uartDrv) : 
   uartDrv(uartDrv), l(CEEPSettings::getInstance().getSettings().Language),
   COUNT_CATEGORIES(static_cast<unsigned char>(ECategory::COUNT)) {
   // Регистрация категорий в CategoryContext
@@ -23,12 +23,12 @@ CMessageManager::CMessageManager(CTerminalUartDriver& uartDrv) :
       static_cast<unsigned char>(EWarningId::COUNT)};
 }
 
-void CMessageManager::set_pTerminal(CTerminalManager* pTerminal_manager){
+void CMessageDisplay::set_pTerminal(CTerminalManager* pTerminal_manager){
   this->pTerminal_manager = pTerminal_manager;
 }
 
 // Вывод сообщения на терминал
-void CMessageManager::render_messages(signed char cat, bool print_title) {
+void CMessageDisplay::render_messages(signed char cat, bool print_title) {
   if (cat == not_mes) {
     sendLine("Not", newline);
     sendLine("Messages");
@@ -41,7 +41,7 @@ void CMessageManager::render_messages(signed char cat, bool print_title) {
 }
 
 // Отправки строки
-void CMessageManager::sendLine(const std::string& s, bool newline) {
+void CMessageDisplay::sendLine(const std::string& s, bool newline) {
     std::string text = StringUtils::padTo16(s);
     text += newline ? "\r\n" : "\r";
     uartDrv.sendBuffer(reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
@@ -69,7 +69,7 @@ void CMessageManager::render_messages(signed char cat, bool print_title) {
 */
 
 
-void CMessageManager::rotate_messages() {
+void CMessageDisplay::rotate_messages() {
   static unsigned char cur_cat = 0;
   static unsigned char emp_num = 0;
   static bool print_title = true;
@@ -105,7 +105,7 @@ void CMessageManager::rotate_messages() {
 }
 
 // "Опрос" клавиатуры
-void CMessageManager::get_key() {
+void CMessageDisplay::get_key() {
   unsigned char input_key;
   if (uartDrv.poll_rx(input_key)) {
     Key_Handler(static_cast<EKey_code>(input_key));
@@ -114,7 +114,7 @@ void CMessageManager::get_key() {
   }
 }
 
-void CMessageManager::Key_Handler(EKey_code key) {
+void CMessageDisplay::Key_Handler(EKey_code key) {
   switch (key) {
   case EKey_code::ESCAPE:
     pTerminal_manager->switchToMenu(); // переключаемся в меню

@@ -6,10 +6,10 @@
 
 class CTerminalManager;
 
-class CMessageManager { 
+class CMessageDisplay { 
  
 public: 
-  CMessageManager(CTerminalUartDriver&);
+  CMessageDisplay(CTerminalUartDriver&);
   void get_key();
   void set_pTerminal(CTerminalManager*);
   

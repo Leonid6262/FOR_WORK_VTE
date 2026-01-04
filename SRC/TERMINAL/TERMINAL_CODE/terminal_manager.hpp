@@ -1,17 +1,17 @@
 #pragma once
 
-class CMenuManager;
-class CMessageManager;
+class CMenuNavigation;
+class CMessageDisplay;
 
 class CTerminalManager {
 public:
-  CTerminalManager(CMenuManager& menuManager, CMessageManager& messageManager);
+  CTerminalManager(CMenuNavigation&, CMessageDisplay&);
   void dispatch();
   void switchToMenu();
   void switchToMessages();
   
 private:
   enum class ETerminalMode { Menu_mode, Mess_mode } mode;
-  CMenuManager& menuManager;
-  CMessageManager& messageManager;
+  CMenuNavigation& menuNavigation;
+  CMessageDisplay& messageDisplay;
 };

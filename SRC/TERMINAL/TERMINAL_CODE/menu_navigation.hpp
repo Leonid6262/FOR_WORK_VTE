@@ -7,10 +7,11 @@
 #include "terminalUartDriver.hpp"
 #include "terminal_manager.hpp"
 #include "proxy_pointer_var.hpp"
+#include "SystemManager.hpp" 
 
-class CMenuManager {
+class CMenuNavigation {
 public:
-  CMenuManager(CTerminalUartDriver&);
+  CMenuNavigation(CTerminalUartDriver&, CSystemManager&);
   void get_key();
   void set_pTerminal(CTerminalManager*);
 
