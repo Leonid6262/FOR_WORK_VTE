@@ -6,78 +6,136 @@ void CAdjustmentMode::parsing_request(Mode mode) {
   
   // 0. Если наладка запрещена - всё обнуляем
   if(mode == Mode::FORBIDDEN) {
-    state.prevBits = 0;
-    state.currBits = 0;
+    prevBits = 0;
     req_adj_mode = 0;           // обратная связь по индикации
     return;
   }
   
   // 1. Если снят AdjMode - всё выключаем 
   if (!(req_adj_mode & AdjMode)) {
-    applyChanges(state.prevBits, 0);
-    state.prevBits = 0;
+    applyChanges(prevBits, 0);
+    prevBits = 0;
     req_adj_mode   = 0;         // обратная связь по индикации
     return;
   }
   
   // 2. Проверка штатного отключения любого режима (tmp var для нпглядности)
-  unsigned short prev_active   = state.prevBits & ~AdjMode;   // что было реально включено
+  unsigned short prev_active   = prevBits & ~AdjMode;   // что было реально включено
   unsigned short req_active    = req_adj_mode  & ~AdjMode;    // что пользователь хочет сейчас
   unsigned short disabled_mask = prev_active & ~req_active;   // что пользователь штатно снял
   
   if (disabled_mask != 0) {  // Если снят любой из режимов - отключаем все остальные
     unsigned short normalized = AdjMode;
-    applyChanges(state.prevBits, normalized);
-    state.prevBits = normalized;
+    applyChanges(prevBits, normalized);
+    prevBits = normalized;
     req_adj_mode   = normalized; // обратная связь по индикации
+    cur_mode = EModeAdj::None;
     return;
   }
   
   // 3. Проверка соответствия с таблицей правил
   unsigned short req_functions = req_adj_mode;
-  for (auto const& rule : rules) {
-    if (req_functions & rule.req_reg) {
-      bool okRequired  = (req_functions & rule.requiredMask) == rule.requiredMask;
-      bool okForbidden = (req_functions & rule.forbiddenMask) == 0;
-      if (!okRequired || !okForbidden) {
-        req_functions &= ~rule.req_reg;
+  for (unsigned short bit : check_bits) {
+    if (req_functions & bit) {
+      // Если бит уже был активен — сохраняем приоритет
+      if (prevBits & bit) {
+        continue; // не снимаем, даже если конфликт
+      }     
+      // Новый бит — проверяем правила
+      bool valid = false;
+      for (auto const& rule : rules) {
+        if (rule.req_reg == bit) {
+          bool okRequired  = (req_functions & rule.requiredMask) == rule.requiredMask;
+          bool okForbidden = (req_functions & rule.forbiddenMask) == 0;
+          if (okRequired && okForbidden) {
+            valid = true;
+            break; // достаточно одного совпадения
+          }
+        }
+      }     
+      if (!valid) {
+        req_functions &= ~bit; // снимаем только если ни одно правило не прошло
       }
     }
   }
   
   // 4. Применение изменений проверенных на соответствии таблицы правил
-  unsigned short changed = req_functions ^ state.prevBits;
+  unsigned short changed = req_functions ^ prevBits;
   applyChanges(changed, req_functions);
-  state.prevBits = req_functions;
-  req_adj_mode   = state.prevBits; // обратная связь по индикации
+  prevBits = req_functions;
+  req_adj_mode   = prevBits; // обратная связь по индикации
+  
+  ex_mode(cur_mode);
 }
 
 // Включение/Отключение наладочнвх режимов
-void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normalized) {
+void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normalized) {  
+  
   if (changed & PulsesF) {
-    if (normalized & PulsesF) rSIFU.set_forcing_bridge();
-    else rSIFU.pulses_stop();
+    if (normalized & PulsesF) { 
+      rSIFU.set_forcing_bridge();
+      cur_mode = EModeAdj::ForcingPulses;
+    }
+    else {
+      rSIFU.pulses_stop();      
+    }
   }
+  
   if (changed & PulsesM) {
-    if (normalized & PulsesM) rSIFU.set_main_bridge();
-    else rSIFU.pulses_stop();
+    if (normalized & PulsesM) {
+      rSIFU.set_main_bridge();
+      cur_mode = EModeAdj::MainPulses;
+    }
+    else {
+      rSIFU.pulses_stop();
+    }
   }
+  
   if (changed & CurrReg) {
-    if (normalized & CurrReg) EnableCurrentReg();
-    else DisableCurrentReg();
+    if (normalized & CurrReg) {
+      //EnableCurrentReg();
+      cur_mode = (normalized & PulsesF) ? EModeAdj::CurrentRegF : EModeAdj::CurrentRegM;
+    } else {
+      //DisableCurrentReg();
+    }
   }
+  
   if (changed & CurrCycle) {
-    if (normalized & CurrCycle) EnableCurrentCycles();
-    else DisableCurrentCycles();
+    if (normalized & CurrCycle) {
+      //EnableCurrentCycles();
+      cur_mode = (normalized & PulsesF) ? EModeAdj::CurrentCycleF : EModeAdj::CurrentCycleM;
+    } else {
+      //DisableCurrentCycles();
+    }
   }
+  
   if (changed & Phase) {
-    if (normalized & Phase) rSIFU.start_phasing_mode();
-    else rSIFU.stop_phasing_mode();
+    if (normalized & Phase) {
+      rSIFU.start_phasing_mode();
+      cur_mode = (normalized & PulsesF) ? EModeAdj::PhasingF : EModeAdj::PhasingM;
+    } else {
+      rSIFU.stop_phasing_mode();
+    }
+  }
+  
+}
+
+void CAdjustmentMode::ex_mode(EModeAdj ex_mode){
+  switch (ex_mode){
+  case EModeAdj::ForcingPulses:
+  case EModeAdj::MainPulses:
+    break;
+  case EModeAdj::CurrentRegF:
+  case EModeAdj::CurrentRegM:    
+    break;
+  case EModeAdj::CurrentCycleF:
+  case EModeAdj::CurrentCycleM:    
+    break;
+  case EModeAdj::PhasingF:
+  case EModeAdj::PhasingM:  
+    break;  
+  case EModeAdj::None:
+    break;  
   }
 }
 
-// Функции включения/отключения
-void CAdjustmentMode::EnableCurrentReg()      { /* ... */ }
-void CAdjustmentMode::DisableCurrentReg()     { /* ... */ }
-void CAdjustmentMode::EnableCurrentCycles()   { /* ... */ }
-void CAdjustmentMode::DisableCurrentCycles()  { /* ... */ }
