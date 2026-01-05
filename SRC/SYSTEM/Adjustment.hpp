@@ -1,57 +1,55 @@
 #pragma once 
 
-#include <cstdint>
 #include <array>
+#include "bool_name.hpp"
+#include "SIFU.hpp"
 
 // Класс управления режимом Наладка
 class CAdjustmentMode {
 public:
-  CAdjustmentMode();
-  void read_request();
-  
-  unsigned short set_adj_mode = 0;
+  CAdjustmentMode(CSIFU&);
+  void parsing_request(Mode);           // Анализ иипринятие решения по запросу от внешнего источника
+  unsigned short req_adj_mode = 0;      // Битовая маска запросов режимов от внешнего источника
   
   // Текущий статус AdjustmentMode
-  struct CurAdjState {
+  struct {
     unsigned short prevBits = 0;
     unsigned short currBits = 0;
-  };
-  CurAdjState state;
+  } state;
   
 private:
   // Битовые флаги режимов AdjustmentMode
   enum EAdjStatus : unsigned short {
     AdjMode    = 1 << 0,
-    SIFU       = 1 << 1,
-    CurrReg    = 1 << 2,
-    CurrCycle  = 1 << 3,
-    Phase      = 1 << 4
+    PulsesF    = 1 << 1,
+    PulsesM    = 1 << 2,
+    CurrReg    = 1 << 3,
+    CurrCycle  = 1 << 4,
+    Phase      = 1 << 5
   };
   
-  // Правило зависимости: что проверяем, что должно быть включено, что выключено
+  // Правило зависимости: 1-что проверяем, 2-что должно быть включено, 3-что должно быть выключено
   struct DependencyRule {
     unsigned short req_reg;
     unsigned short requiredMask;
     unsigned short forbiddenMask;
   };
   
-  static constexpr std::array<DependencyRule, 4> rules {{
-    { SIFU,             AdjMode,                       0                        },
-    { CurrReg,          AdjMode | SIFU,                Phase                    },
-    { CurrCycle,        AdjMode | SIFU | CurrReg,      Phase                    },
-    { Phase,            AdjMode | SIFU,                CurrReg | CurrCycle      }
+  static constexpr std::array<DependencyRule, 5> rules {{
+    { PulsesF,          0,                              PulsesM                  },
+    { PulsesM,          0,                              PulsesF                  },
+    { CurrReg,          PulsesF | PulsesM,              Phase                    },
+    { CurrCycle,        PulsesF | PulsesM | CurrReg,    Phase                    },
+    { Phase,            PulsesF | PulsesM,              CurrReg | CurrCycle      }
   }};
   
-  unsigned short check_permission(unsigned short);
   void applyChanges(unsigned short, unsigned short);
   
-  // Заглушки — реальные функции включения/выключения
-  void EnableSIFU();
-  void DisableSIFU();
+  CSIFU& rSIFU;
+  
+  // Функции включения/отключения
   void EnableCurrentReg();
   void DisableCurrentReg();
   void EnableCurrentCycles();
   void DisableCurrentCycles();
-  void EnablePhasing();
-  void DisablePhasing();
 };

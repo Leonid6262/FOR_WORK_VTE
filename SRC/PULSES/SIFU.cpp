@@ -1,7 +1,5 @@
 #include "SIFU.hpp"
-
 #include <algorithm>
-
 #include "system_LPC177x.h"
 
 const unsigned char CSIFU::pulses[] = {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30};       // Индекс 0 не используется

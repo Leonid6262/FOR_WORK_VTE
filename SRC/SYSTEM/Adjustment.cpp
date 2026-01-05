@@ -1,33 +1,43 @@
 #include "Adjustment.hpp" 
-
-CAdjustmentMode::CAdjustmentMode(){};
-
-void CAdjustmentMode::read_request() {                          
-  state.currBits = check_permission(set_adj_mode);              // Приводим комбинацию к разрешенной 
-  unsigned short changed = state.currBits ^ state.prevBits;     // Определяем изменения      
   
-  if (!(set_adj_mode & AdjMode)) {                              // Выключаем все если снят режим AdjMode 
-    applyChanges(state.prevBits, 0); 
+CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU) : rSIFU(rSIFU) {}
+
+void CAdjustmentMode::parsing_request(Mode mode) {
+  
+  // 0. Если наладка запрещена - всё обнуляем
+  if(mode == Mode::FORBIDDEN) {
     state.prevBits = 0;
-    set_adj_mode = 0;                                           // Обратная связьт по индикации
-    return; 
+    state.currBits = 0;
+    req_adj_mode = 0;           // обратная связь по индикации
+    return;
   }
   
-  applyChanges(changed, state.currBits);                        // Применяем изменения
-  state.prevBits = state.currBits;                              // Фиксируем
-  set_adj_mode = state.prevBits;                                // Обратная связьт по индикации
-}
-
-unsigned short CAdjustmentMode::check_permission(unsigned short req_functions) {
+  // 1. Если снят AdjMode - всё выключаем 
+  if (!(req_adj_mode & AdjMode)) {
+    applyChanges(state.prevBits, 0);
+    state.prevBits = 0;
+    req_adj_mode   = 0;         // обратная связь по индикации
+    return;
+  }
   
-  if (!(req_functions & AdjMode)) return 0;  
+  // 2. Проверка штатного отключения любого режима (tmp var для нпглядности)
+  unsigned short prev_active   = state.prevBits & ~AdjMode;   // что было реально включено
+  unsigned short req_active    = req_adj_mode  & ~AdjMode;    // что пользователь хочет сейчас
+  unsigned short disabled_mask = prev_active & ~req_active;   // что пользователь штатно снял
   
-  if (!(req_functions & SIFU)) return AdjMode;
+  if (disabled_mask != 0) {  // Если снят любой из режимов - отключаем все остальные
+    unsigned short normalized = AdjMode;
+    applyChanges(state.prevBits, normalized);
+    state.prevBits = normalized;
+    req_adj_mode   = normalized; // обратная связь по индикации
+    return;
+  }
   
-  // проверка по таблице правил
+  // 3. Проверка соответствия с таблицей правил
+  unsigned short req_functions = req_adj_mode;
   for (auto const& rule : rules) {
     if (req_functions & rule.req_reg) {
-      bool okRequired = (req_functions & rule.requiredMask) == rule.requiredMask;
+      bool okRequired  = (req_functions & rule.requiredMask) == rule.requiredMask;
       bool okForbidden = (req_functions & rule.forbiddenMask) == 0;
       if (!okRequired || !okForbidden) {
         req_functions &= ~rule.req_reg;
@@ -35,18 +45,22 @@ unsigned short CAdjustmentMode::check_permission(unsigned short req_functions) {
     }
   }
   
-  // если включена фазировка → регулятор и циклы OFF
-  if (req_functions & Phase) {
-    req_functions &= ~(CurrReg | CurrCycle);
-  }
-  
-  return req_functions;
+  // 4. Применение изменений проверенных на соответствии таблицы правил
+  unsigned short changed = req_functions ^ state.prevBits;
+  applyChanges(changed, req_functions);
+  state.prevBits = req_functions;
+  req_adj_mode   = state.prevBits; // обратная связь по индикации
 }
 
+// Включение/Отключение наладочнвх режимов
 void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normalized) {
-  if (changed & SIFU) {
-    if (normalized & SIFU) EnableSIFU();
-    else DisableSIFU();
+  if (changed & PulsesF) {
+    if (normalized & PulsesF) rSIFU.set_forcing_bridge();
+    else rSIFU.pulses_stop();
+  }
+  if (changed & PulsesM) {
+    if (normalized & PulsesM) rSIFU.set_main_bridge();
+    else rSIFU.pulses_stop();
   }
   if (changed & CurrReg) {
     if (normalized & CurrReg) EnableCurrentReg();
@@ -57,17 +71,13 @@ void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normal
     else DisableCurrentCycles();
   }
   if (changed & Phase) {
-    if (normalized & Phase) EnablePhasing();
-    else DisablePhasing();
+    if (normalized & Phase) rSIFU.start_phasing_mode();
+    else rSIFU.stop_phasing_mode();
   }
 }
 
-// Заглушки — здесь будут реальные реализации
-void CAdjustmentMode::EnableSIFU()            { /* ... */ }
-void CAdjustmentMode::DisableSIFU()           { /* ... */ }
+// Функции включения/отключения
 void CAdjustmentMode::EnableCurrentReg()      { /* ... */ }
 void CAdjustmentMode::DisableCurrentReg()     { /* ... */ }
 void CAdjustmentMode::EnableCurrentCycles()   { /* ... */ }
 void CAdjustmentMode::DisableCurrentCycles()  { /* ... */ }
-void CAdjustmentMode::EnablePhasing()         { /* ... */ }
-void CAdjustmentMode::DisablePhasing()        { /* ... */ }

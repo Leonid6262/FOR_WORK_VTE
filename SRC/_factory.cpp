@@ -23,11 +23,11 @@ CSPI_ports CFactory::createSPIports() {
   return CSPI_ports(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_0));
 }
 
-CSystemManager CFactory::createSysManager() {   
-  
-  static CAdjustmentMode ajustment;                             
-  
-  return CSystemManager(ajustment);                                                       
+// Создание системного менеджера 
+CSystemManager CFactory::createSysManager(CSIFU& sifu) { 
+  static CAdjustmentMode adjustment(sifu); // режим наладки 
+  static CSystemManager sys_manager(adjustment, sifu); 
+  return sys_manager; 
 }
 
 // Инициализация драйвера и создание объектов Пультового терминала
@@ -44,7 +44,7 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
 extern "C" void UART0_IRQHandler(void) { CTerminalUartDriver::getInstance().irq_handler(); }  // Вызов обработчика UART-0
 
 // Инициализация и создание объектов связанных с ИУ. Запуск СИФУ
-void CFactory::start_puls_system(CDMAcontroller& rCont_dma) {
+CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma) {
   static CADC adc(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_1));  // Внешнее ADC. Подключено к SPI-1
   static CPULSCALC puls_calc(adc);                                      // Измерение и обработка всех аналоговых сигналов.
   static CSIFU sifu(puls_calc);                                         // СИФУ.  
@@ -63,5 +63,6 @@ void CFactory::start_puls_system(CDMAcontroller& rCont_dma) {
                   NProxyVar::Unit::Deg);
   
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu, &rem_osc);  // Proxy Singleton доступа к Handler TIMER.
-  sifu.init_and_start();                                            // Старт SIFU
+  sifu.init_and_start(); // Старт SIFU
+  return sifu;
 }

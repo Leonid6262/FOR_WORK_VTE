@@ -37,10 +37,9 @@ void main(void) {
                                                         // Выходы контроллера (порт Po0 по аналогии с СМ3 в dIOStorage.hpp)
   static auto rt_clock = CFactory::createRTC();         // Системные часы
   static auto cont_dma = CFactory::createDMAc();        // Управление каналами DMA.
-
-  CFactory::start_puls_system(cont_dma);                // Запуск СИФУ и всех её зависимостей.
-  
-  static auto sys_manager = CFactory::createSysManager();       // Сисремный менеджер
+               
+  static auto& sifu = CFactory::start_puls_system(cont_dma);    // Запуск СИФУ и всех её зависимостей.
+  static auto sys_manager = CFactory::createSysManager(sifu);   // Системный менеджер
   static auto& term_manager = CFactory::createTM(sys_manager);  // Создание и управление объектами пультового терминал
   
   CDIN_STORAGE::UserLedOff();                           // Визуальный контроль окончания инициализации
@@ -59,9 +58,8 @@ void main(void) {
     din_cpu.input_Pi0();        // Чтение состояния дискретных входов контроллера Pi0
     spi_ports.rw();             // Запись в дискретные выходы и чтение дискретных входов доступных по SPI
     rt_clock.update_now();      // Обновление экземпляра структуы SDateTime данными из RTC
-    term_manager.dispatch();    // Управление объектами (режимами) пультового терминал
-    
-    sys_manager.rAdj_mode.read_request();
+    term_manager.dispatch();    // Управление объектами (режимами) пультового терминал   
+    sys_manager.dispatch();     // Управление объектами (режимами) устройства 
     
     Pause_us(3);
   }

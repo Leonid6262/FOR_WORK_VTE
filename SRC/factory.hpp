@@ -52,10 +52,10 @@ public:
    
     static CRTC createRTC();
     
-    static CSystemManager createSysManager();
+    static CSystemManager createSysManager(CSIFU&);
     
     static CTerminalManager& createTM(CSystemManager&);
     
-    static void start_puls_system(CDMAcontroller&);
+    static CSIFU& start_puls_system(CDMAcontroller&);
 };
 
