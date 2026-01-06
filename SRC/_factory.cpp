@@ -25,8 +25,12 @@ CSPI_ports CFactory::createSPIports() {
 
 // Создание системного менеджера 
 CSystemManager CFactory::createSysManager(CSIFU& sifu) { 
-  static CAdjustmentMode adjustment(sifu); // режим наладки 
-  static CSystemManager sys_manager(adjustment, sifu); 
+  static CAdjustmentMode adjustment(sifu);
+  static CReadyCheck ready_check;
+  static CFaultControl fault_ctrl;
+  static CPuskMode pusk_mode;
+  static CWorkMode work_mode;
+  static CSystemManager sys_manager(sifu, adjustment, ready_check, fault_ctrl, pusk_mode, work_mode); 
   return sys_manager; 
 }
 

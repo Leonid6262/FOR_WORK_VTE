@@ -2937,10 +2937,16 @@
                 <name>$PROJ_DIR$\SRC\SYSTEM\FaultControl.cpp</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\PuskMode.cpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\SRC\SYSTEM\ReadyCheck.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\SYSTEM\SystemManager.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\WorkMode.cpp</name>
             </file>
         </group>
         <group>
