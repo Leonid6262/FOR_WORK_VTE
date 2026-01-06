@@ -44,10 +44,9 @@ static const struct {
 // Фабрика дерева меню.
 inline std::vector<menu_alias::x> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings& rSet, CSystemManager& rSysMgr) {
   auto& set = rSet.getSettings();
-  //rSysMgr.rAdj_mode.set_adj_mode=9;
   using namespace menu_alias;
-  
   unsigned short l = set.Language;                              // Установка языка отображения согласно уставке
+  auto& sfc = rSysMgr.rSIFU.s_const;
   enum Precision : unsigned char { p0, p1, p2, p3, p4 };        // количество знаков после запятой p4->0.0001
 
   std::vector<x> MENU = {
@@ -59,6 +58,18 @@ inline std::vector<menu_alias::x> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
       x(Mn.BIT_DATA[l],{
           x("dInCPU-D", {}, id::pi0_cpu, p0, nm::In1V),
           x("dInCPU-S", {}, id::pi0_spi, p0, nm::In1V),}),}),
+  x(Mn.ADJ_MODE[l],{
+      x("On-Off ADJ MODE",{
+           x("ADJ Mode",   {}, &rSysMgr.rAdj_mode.reqADJmode, un::b, cd::one,  p0,vt::eb_0,  nm::Ed1V)}),
+      x("PULSES",{
+           x("Fors Bridge",{}, &rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_1,  nm::Ed1V),
+           x("Main Bridge",{}, &rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_2,  nm::Ed1V),
+           x("Alpha",      {}, &rSysMgr.rAdj_mode.AlphaAdj,  un::Deg,cd::Alpha,p1,vt::sshort,nm::Ed1V, sfc.AMin, sfc.AMax)}),
+      x("PHASING",{
+           x("Phasing mode", {},&rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_5,  nm::Ed1V),
+           x("60deg shift",  {},&set.set_sifu.d_power_shift,  "",     cd::one,  p0,vt::ushort,nm::Ed1V, 0, (sfc.N_PULSES-1)),
+           x("Precise shift",{},&set.set_sifu.power_shift,    un::Deg,cd::Alpha,p1,vt::sshort,nm::Ed1V, sfc.MinPshift, sfc.MaxPshift)}),
+  }),
   x(Mn.SETTINGS[l],{
       x(Mn.REGULATORS[l],{
           x(Mn.CURRENT[l],{
@@ -120,7 +131,6 @@ inline std::vector<menu_alias::x> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           x("Year:",        {}, &set.SNboard_year,  "", cd::one, p0, vt::ushort, nm::Ed1V, 20, 99),}),
       x(Mn.LANGUAGE[l],{
           x("Language:",    {}, &set.Language,"", cd::one, p0, vt::ushort, nm::Ed1V, 0, (G_CONST::Nlang - 1)),}),}),
-  x(Mn.ADJ_MODE[l]),
   x(Mn.CLOCK_SETUP[l]),
   x(Mn.INFO[l],{
       x("Description:", {}, static_cast<void*>(const_cast<char*>(BuildInfo::Description)), "", cd::one, p0,vt::text, nm::In1V),

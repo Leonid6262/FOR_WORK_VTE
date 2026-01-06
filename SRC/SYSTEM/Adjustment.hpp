@@ -9,9 +9,11 @@ class CAdjustmentMode {
 public:
   CAdjustmentMode(CSIFU&);
   
-  void parsing_request(Mode);           // Анализ иипринятие решения по запросу от внешнего источника
-  unsigned short req_adj_mode = 0;      // Битовая маска запросов режимов от внешнего источника
+  void parsing_request(Mode);         // Анализ иипринятие решения по запросу от внешнего источника
+  unsigned short reqADJmode = 0;      // Битовая маска запросов режимов от внешнего источника
   
+  signed short AlphaAdj = rSIFU.s_const.AMax;
+
 private:
   // Битовые флаги сборки режимов AdjustmentMode
   enum EAdjBits : unsigned short {

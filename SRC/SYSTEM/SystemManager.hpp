@@ -7,11 +7,12 @@ class CSystemManager {
   
 public:
  CSystemManager(CAdjustmentMode&, CSIFU&);
+ CSIFU& rSIFU;
  void dispatch();
  
  CAdjustmentMode& rAdj_mode; 
 
 private:
-  CSIFU& rSIFU; 
+   
  
 };

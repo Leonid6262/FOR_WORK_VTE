@@ -26,6 +26,34 @@ class CSIFU {
   void init_and_start();  // Инициализация
   void rising_puls();     // Фронт импульса
   void faling_puls();     // Спад импульса
+  
+  struct SIFUConst  // Структура констант
+  {
+    static constexpr float DT_MIN = 19608; // 51.0 Hz
+    static constexpr float DT_MAX = 20408; // 49.0 Hz 
+    static constexpr signed short _0gr = 0;
+    static constexpr signed short _5gr = 278;
+    static constexpr signed short _30gr = 1667;
+    static constexpr signed short _60gr = 3333;
+    static constexpr signed short _90gr = 5000;
+    static constexpr signed short _120gr = 6667;
+    static constexpr signed short _150gr = 8333;
+    static constexpr signed short _180gr = 10000;
+    
+    static constexpr signed int PULSE_WIDTH = 3048;  // us
+    
+    static constexpr float TIC_SEC = 1000000.0;
+    
+    static constexpr signed short MaxPshift = _90gr;
+    static constexpr signed short MinPshift = -_90gr;
+    
+    static constexpr signed short AMax = _150gr;
+    static constexpr signed short AMin = _30gr;
+    static constexpr signed short dAlpha = _5gr;
+    
+    static constexpr unsigned int N_PULSES = 6;
+    
+  } s_const;
 
  private:
   static const unsigned char pulses[];
@@ -48,36 +76,6 @@ class CSIFU {
   enum class EOperating_mode { NO_SYNC, RESYNC, NORMAL, PHASING };
 
   EOperating_mode Operating_mode;  // Текущий режим работы СИФУ
-
-  struct SIFUConst  // Структура констант
-  {
-    static constexpr float SYNC_F_MIN = 49.0f;
-    static constexpr float SYNC_F_MAX = 51.0f;
-    static constexpr float DT_MIN = 19608;
-    static constexpr float DT_MAX = 20408;
-    static constexpr signed short _0gr = 0;
-    static constexpr signed short _5gr = 278;
-    static constexpr signed short _30gr = 1667;
-    static constexpr signed short _60gr = 3333;
-    static constexpr signed short _90gr = 5000;
-    static constexpr signed short _120gr = 6667;
-    static constexpr signed short _150gr = 8333;
-    static constexpr signed short _180gr = 10000;
-
-    static constexpr signed int PULSE_WIDTH = 3048;  // us
-
-    static constexpr float TIC_SEC = 1000000.0;
-
-    static constexpr signed short Max_power_shift = _90gr;
-    static constexpr signed short Min_power_shift = -_90gr;
-
-    static constexpr signed short Alpha_Max = _150gr;
-    static constexpr signed short Alpha_Min = _30gr;
-    static constexpr signed short dAlpha = _5gr;
-
-    static constexpr unsigned int N_PULSES = 6;
-
-  } s_const;
 
   struct SyncState  // Структура переменных касающихся синхронизации
   {

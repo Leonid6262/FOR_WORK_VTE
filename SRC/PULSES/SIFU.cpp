@@ -48,8 +48,8 @@ void CSIFU::rising_puls() {
     break;
     case EOperating_mode::RESYNC: {
       Operating_mode = EOperating_mode::NORMAL;  // Синхронизация с 1-го в Alpha_max
-      Alpha_setpoint = s_const.Alpha_Max;
-      Alpha_current = s_const.Alpha_Max;
+      Alpha_setpoint = s_const.AMax;
+      Alpha_current = s_const.AMax;
       // 1-2-3-4-sync-5->6-1-2-3-4-sync-5->6-1-2....
       // Здесь и далее, кастования слагаемых приведены для наглядности,
       // без магии циклической арифметики таймера по модулю 2^32
@@ -60,7 +60,7 @@ void CSIFU::rising_puls() {
     } break;
     case EOperating_mode::PHASING:
       // Ограничения величины сдвига
-      v_sync.task_power_shift = limits_val(&v_sync.task_power_shift, s_const.Min_power_shift, s_const.Max_power_shift);
+      v_sync.task_power_shift = limits_val(&v_sync.task_power_shift, s_const.MinPshift, s_const.MaxPshift);
       // Ограничения приращения сдвига
       limits_dval(&v_sync.task_power_shift, &v_sync.cur_power_shift, s_const.dAlpha);
       Alpha_setpoint = s_const._0gr;
@@ -68,7 +68,7 @@ void CSIFU::rising_puls() {
       break;
     case EOperating_mode::NORMAL:
       // Ограничения величины альфа
-      Alpha_setpoint = limits_val(&Alpha_setpoint, s_const.Alpha_Min, s_const.Alpha_Max);
+      Alpha_setpoint = limits_val(&Alpha_setpoint, s_const.AMin, s_const.AMax);
       LPC_TIM3->MR0 = timing_calc();  // Задание тайминга для следующего импульса
       break;
   }
@@ -197,9 +197,9 @@ void CSIFU::start_phasing_mode() {
   Operating_mode = EOperating_mode::PHASING;
 }
 void CSIFU::stop_phasing_mode() {
-  CEEPSettings::getInstance().getSettings().set_sifu.power_shift = v_sync.cur_power_shift;
-  CEEPSettings::getInstance().getSettings().set_sifu.d_power_shift = v_sync.d_power_shift;
-  Alpha_setpoint = s_const.Alpha_Max;
+//  CEEPSettings::getInstance().getSettings().set_sifu.power_shift = v_sync.cur_power_shift;
+//  CEEPSettings::getInstance().getSettings().set_sifu.d_power_shift = v_sync.d_power_shift;
+  Alpha_setpoint = s_const.AMax;
   Operating_mode = EOperating_mode::NORMAL;
 }
 void CSIFU::set_a_shift(signed short shift) {
@@ -226,8 +226,8 @@ void CSIFU::init_and_start() {
   v_sync.SYNC_EVENT = false;
   v_sync.no_sync_pulses = 0;
   v_sync.sync_pulses = 0;
-  Alpha_setpoint = s_const.Alpha_Max;
-  Alpha_current = s_const.Alpha_Max;
+  Alpha_setpoint = s_const.AMax;
+  Alpha_current = s_const.AMax;
   Operating_mode = EOperating_mode::NO_SYNC;
 
   LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0;  // PWM0 power/clock control bit.
