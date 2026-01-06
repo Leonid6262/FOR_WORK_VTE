@@ -2934,6 +2934,12 @@
                 <name>$PROJ_DIR$\SRC\SYSTEM\Adjustment.cpp</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\FaultControl.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\ReadyCheck.cpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\SRC\SYSTEM\SystemManager.cpp</name>
             </file>
         </group>
