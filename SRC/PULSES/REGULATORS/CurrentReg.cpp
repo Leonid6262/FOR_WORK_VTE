@@ -3,12 +3,15 @@
 CCurrentReg::CCurrentReg(CEEPSettings& rSet) : pAdc(CADC_STORAGE::getInstance()), rSet(rSet) {}
 
 void CCurrentReg::start(CSIFU* pSIFU) {
-  u_i = rSet.getSettings().set_reg.A0 - pSIFU->get_alpha();
+  auto set = rSet.getSettings();
+  u_i = set.set_reg.A0 - pSIFU->get_alpha();
+  u_min = set.set_reg.A0 - pSIFU->s_const.AMax;
+  u_max = set.set_reg.A0 - pSIFU->s_const.AMin;
 }
 
-void CCurrentReg::step(Mode mode, CSIFU* pSIFU) {
+void CCurrentReg::step(Bit_switch mode, CSIFU* pSIFU) {
   
-  if(mode == Mode::FORBIDDEN) { return;}
+  if(mode == Bit_switch::OFF) { return;}
   
   auto set = rSet.getSettings();
   
@@ -20,8 +23,6 @@ void CCurrentReg::step(Mode mode, CSIFU* pSIFU) {
   float u_p = set.set_reg.KpCr * e; 
   u_i += set.set_reg.KiCr * e;
 
-  signed short  u_min = set.set_reg.A0 - pSIFU->s_const.AMax;
-  signed short  u_max = set.set_reg.A0 - pSIFU->s_const.AMin;
   if (u_i < static_cast<float>(u_min)) u_i = static_cast<float>(u_min); 
   if (u_i > static_cast<float>(u_max)) u_i = static_cast<float>(u_max);
   

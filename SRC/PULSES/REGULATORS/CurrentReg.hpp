@@ -11,14 +11,14 @@ class CCurrentReg {
 public:
  CCurrentReg(CEEPSettings&);
  void start(CSIFU*);
- void step(Mode, CSIFU*);
+ void step(Bit_switch, CSIFU*);
   
 private:
  CADC_STORAGE& pAdc;
  CEEPSettings& rSet;
  
  float u_i;
- 
- signed short set_current;
+ signed short u_min;
+ signed short u_max;
  
 };

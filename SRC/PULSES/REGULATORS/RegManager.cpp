@@ -8,6 +8,6 @@ void CRegManager::getSIFU(CSIFU* pSIFU){
 
 void CRegManager::dispatch() { 
   
-  rCurrent_reg.step(Mode::ALLOWED, pSIFU); 
+  rCurrent_reg.step(Bit_switch::OFF, pSIFU); 
 
 }
