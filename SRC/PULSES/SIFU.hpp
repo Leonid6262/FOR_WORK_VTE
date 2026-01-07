@@ -23,6 +23,7 @@ class CSIFU {
   void set_a_shift(signed short);   // Установка точного сдвига синхронизации
   void set_d_shift(unsigned char);  // Установка дискретного сдвига синхронизации
   void set_alpha(signed short);     // Установка Alpha
+  signed short get_alpha();         // Чтение Alpha
 
   float get_Sync_Frequency();  // Возвращает частоту синхронизации
   signed short* getPointerAlpha();

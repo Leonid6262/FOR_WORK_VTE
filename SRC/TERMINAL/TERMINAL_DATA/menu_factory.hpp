@@ -62,25 +62,30 @@ inline std::vector<menu_alias::x> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
       x("On-Off ADJ MODE",{
            x("ADJ Mode",   {}, &rSysMgr.rAdj_mode.reqADJmode, un::b, cd::one,  p0,vt::eb_0,  nm::Ed1V)}),
       x("PULSES",{
-           x("Fors Bridge",{}, &rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_1,  nm::Ed1V),
-           x("Main Bridge",{}, &rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_2,  nm::Ed1V),
-           x("Alpha",      {}, &rSysMgr.rAdj_mode.AlphaAdj,  un::Deg,cd::Alpha,p1,vt::sshort,nm::Ed1V, sfc.AMin, sfc.AMax)}),
+           x("Fors Bridge",{},   &rSysMgr.rAdj_mode.reqADJmode,         un::b,   cd::one,    p0, vt::eb_1,   nm::Ed1V),
+           x("Main Bridge",{},   &rSysMgr.rAdj_mode.reqADJmode,         un::b,   cd::one,    p0, vt::eb_2,   nm::Ed1V),
+           x::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::IRotor, p0, vt::sshort,
+                        "Alpha", &rSysMgr.rAdj_mode.AlphaAdj,           un::Deg, cd::Alpha,  p1, vt::sshort, nm::IE2V, sfc.AMin, sfc.AMax),}),
       x("PHASING",{
            x("Phasing mode", {},&rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_5,  nm::Ed1V),
            x("60deg shift",  {},&set.set_sifu.d_power_shift,  "",     cd::one,  p0,vt::ushort,nm::Ed1V, 0, (sfc.N_PULSES-1)),
-           x("Precise shift",{},&set.set_sifu.power_shift,    un::Deg,cd::Alpha,p1,vt::sshort,nm::Ed1V, sfc.MinPshift, sfc.MaxPshift)}),
-  }),
+           x("Precise shift",{},&set.set_sifu.power_shift,    un::Deg,cd::Alpha,p1,vt::sshort,nm::Ed1V, sfc.MinPshift, sfc.MaxPshift)}),}),
   x(Mn.SETTINGS[l],{
       x(Mn.REGULATORS[l],{
           x(Mn.CURRENT[l],{
-              x("KpCr",  {}, &set.set_reg.KpCr,    "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
-              x("CiCr",  {}, &set.set_reg.CiCr, "1/s", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f)}),
+              x("KpCr",   {}, &set.set_reg.KpCr, "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
+              x("KiCr",   {}, &set.set_reg.KiCr, "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),
+              x("I-set",  {}, &set.set_reg.Iset, un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
+              x("I-fors", {}, &set.set_reg.Ifors,un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
+              x("I-dry",  {}, &set.set_reg.Idry, un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
+              x("Alpha-0",{}, &set.set_reg.A0,   un::Deg, cd::Alpha,  p0, vt::sshort, nm::Ed1V, 5000, 6667)
+          }),
           x(Mn.COS_PHI[l],{
-              x("KpCos", {}, &set.set_reg.KpCos,    "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
-              x("CiCos", {}, &set.set_reg.CiCos, "1/s", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
+              x("KpCos", {}, &set.set_reg.KpCos, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
+              x("KiCos", {}, &set.set_reg.KiCos, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
           x(Mn.Q_POWER[l],{
-              x("KpQ",   {}, &set.set_reg.KpQ,      "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
-              x("CiQ",   {}, &set.set_reg.CiQ,   "1/s", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),}),
+              x("KpQ",   {}, &set.set_reg.KpQ, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
+              x("KiQ",   {}, &set.set_reg.KiQ, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),}),
       x(Mn.LIMITS[l]),
       x(Mn.FAULTS[l]),
       x(Mn.ADC_SHIFT[l],{

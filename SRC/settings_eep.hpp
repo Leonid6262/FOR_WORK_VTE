@@ -48,11 +48,17 @@ class CEEPSettings {
     struct SetReg                                               // 12 Коэффициенты регуляторов
     {
       float KpCr;
-      float CiCr;
+      float KiCr;
+      signed short Iset;
+      signed short Ifors;
+      signed short Idry;
+      signed short A0;
       float KpCos;
-      float CiCos;
+      float KiCos;
+      float Cos_set;
       float KpQ;
-      float CiQ;
+      float KiQ;
+      float Qset;
     } set_reg;
     struct SetSIFU                                         // 13 Уставки СИФУ
     {
@@ -81,11 +87,17 @@ class CEEPSettings {
     .set_reg =
     {
       .KpCr = 1.0f,
-      .CiCr = 0.001f,
+      .KiCr = 0.001f,
+      .Iset = 0,
+      .Ifors = 0,
+      .Idry = 0,
+      .A0 = 6667,
       .KpCos = 1.0f,
-      .CiCos = 0.001f,
+      .KiCos = 0.001f,
+      .Cos_set = 1.0,
       .KpQ = 1.0f,
-      .CiQ = 0.001f,
+      .KiQ = 0.001f,
+      .Qset = 0
     },
     .set_sifu =
     {

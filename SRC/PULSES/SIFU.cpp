@@ -178,8 +178,12 @@ void CSIFU::control_sync() {
     }
   }
 }
+
 void CSIFU::set_alpha(signed short alpha) { Alpha_setpoint = alpha; }
+signed short CSIFU::get_alpha() { return Alpha_current; }
+
 signed short* CSIFU::getPointerAlpha() { return &Alpha_current; }
+
 void CSIFU::set_forcing_bridge() {
   main_bridge = false;
   forcing_bridge = true;

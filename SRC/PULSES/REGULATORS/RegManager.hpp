@@ -4,6 +4,7 @@
 #include "CurrentReg.hpp"
 
 class CSIFU;
+class CCurrentReg;
 
 class CRegManager {
   
