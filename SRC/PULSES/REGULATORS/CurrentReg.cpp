@@ -2,14 +2,19 @@
 
 CCurrentReg::CCurrentReg(CEEPSettings& rSet) : pAdc(CADC_STORAGE::getInstance()), rSet(rSet) {}
 
+void CCurrentReg::start(CSIFU* pSIFU) {
+  u_i = rSet.getSettings().set_reg.A0 - pSIFU->get_alpha();
+}
+
 void CCurrentReg::step(Mode mode, CSIFU* pSIFU) {
+  
+  if(mode == Mode::FORBIDDEN) { return;}
   
   auto set = rSet.getSettings();
   
   signed short Imeas = *pAdc.getEPointer(CADC_STORAGE::ROTOR_CURRENT);
   signed short Iset = set.set_reg.Iset;
-  signed short cur_Alpha = pSIFU->get_alpha();
-  
+ 
   float e = static_cast<float>(Iset - Imeas);
   
   float u_p = set.set_reg.KpCr * e; 

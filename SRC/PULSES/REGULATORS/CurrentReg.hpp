@@ -10,6 +10,7 @@ class CCurrentReg {
   
 public:
  CCurrentReg(CEEPSettings&);
+ void start(CSIFU*);
  void step(Mode, CSIFU*);
   
 private:
