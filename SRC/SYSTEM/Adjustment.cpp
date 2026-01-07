@@ -72,21 +72,25 @@ void CAdjustmentMode::parsing_request(Mode mode) {
 void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normalized) {  
   
   if (changed & PulsesF) {
-    if (normalized & PulsesF) { 
+    if (normalized & PulsesF) {
+      AlphaAdj = rSIFU.s_const.AMax;
       rSIFU.set_forcing_bridge();
       cur_mode = EModeAdj::ForcingPulses;
     }
     else {
+      AlphaAdj = rSIFU.s_const.AMax;
       rSIFU.pulses_stop();      
     }
   }
   
   if (changed & PulsesM) {
     if (normalized & PulsesM) {
+      AlphaAdj = rSIFU.s_const.AMax;
       rSIFU.set_main_bridge();
       cur_mode = EModeAdj::MainPulses;
     }
     else {
+      AlphaAdj = rSIFU.s_const.AMax;
       rSIFU.pulses_stop();
     }
   }
