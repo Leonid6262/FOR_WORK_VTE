@@ -24,13 +24,13 @@ CSPI_ports CFactory::createSPIports() {
 }
 
 // Создание системного менеджера 
-CSystemManager CFactory::createSysManager(CSIFU& sifu) { 
-  static CAdjustmentMode adjustment(sifu);
+CSystemManager CFactory::createSysManager(CSIFU& rSIFU, CRegManager& rReg_manager) { 
+  static CAdjustmentMode adjustment(rSIFU);
   static CReadyCheck ready_check;
   static CFaultControl fault_ctrl;
   static CPuskMode pusk_mode;
   static CWorkMode work_mode;
-  static CSystemManager sys_manager(sifu, adjustment, ready_check, fault_ctrl, pusk_mode, work_mode); 
+  static CSystemManager sys_manager(rSIFU, adjustment, ready_check, fault_ctrl, pusk_mode, work_mode, rReg_manager); 
   return sys_manager; 
 }
 
@@ -48,11 +48,11 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
 extern "C" void UART0_IRQHandler(void) { CTerminalUartDriver::getInstance().irq_handler(); }  // Вызов обработчика UART-0
 
 // Инициализация и создание объектов связанных с ИУ. Запуск СИФУ
-CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma) {
+CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma, CRegManager& rReg_manager) {
   static CADC adc(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_1));  // Внешнее ADC. Подключено к SPI-1
   static CPULSCALC puls_calc(adc);                                      // Измерение и обработка всех аналоговых сигналов.
-  static CSIFU sifu(puls_calc);                                         // СИФУ.  
-
+  static CSIFU sifu(puls_calc, rReg_manager);                           // СИФУ.  
+  rReg_manager.getSIFU(&sifu);
   CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_2);   // Конфигурация SPI-2 для WiFi на ESP32
   static CREM_OSC rem_osc(                               // Дистанционный осциллограф (WiFi модуль на ESP32).                              
                           rCont_dma,                     // Контроллер DMA
@@ -70,3 +70,11 @@ CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma) {
   sifu.init_and_start(); // Старт SIFU
   return sifu;
 }
+
+// Создание менеджера регуляторов
+CRegManager CFactory::createRegManager() { 
+  static CCurrentReg curr_reg;
+  static CRegManager reg_manager(curr_reg); 
+  return reg_manager; 
+}
+

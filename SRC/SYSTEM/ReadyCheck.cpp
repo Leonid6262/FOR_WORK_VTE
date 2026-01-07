@@ -2,6 +2,8 @@
 
 CReadyCheck::CReadyCheck(){}
 
+void CReadyCheck::check(Mode mode) { 
+}
 
 
 

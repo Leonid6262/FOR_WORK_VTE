@@ -2900,6 +2900,15 @@
         </group>
         <group>
             <name>PULSES</name>
+            <group>
+                <name>REGULATORS</name>
+                <file>
+                    <name>$PROJ_DIR$\SRC\PULSES\REGULATORS\CurrentReg.cpp</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\SRC\PULSES\REGULATORS\RegManager.cpp</name>
+                </file>
+            </group>
             <file>
                 <name>$PROJ_DIR$\SRC\PULSES\handlers_IRQ.cpp</name>
             </file>

@@ -347,6 +347,7 @@
                     <state>$PROJ_DIR$\SRC\ANALOG\</state>
                     <state>$PROJ_DIR$\SRC\TEST\</state>
                     <state>$PROJ_DIR$\SRC\PULSES\</state>
+                    <state>$PROJ_DIR$\SRC\PULSES\REGULATORS\</state>
                     <state>$PROJ_DIR$\SRC\SERIAL\</state>
                     <state>$PROJ_DIR$\SRC\SYSTEM\</state>
                     <state>$PROJ_DIR$\SRC\DEVICE_DATA\</state>
@@ -2182,6 +2183,15 @@
         </group>
         <group>
             <name>PULSES</name>
+            <group>
+                <name>REGULATORS</name>
+                <file>
+                    <name>$PROJ_DIR$\SRC\PULSES\REGULATORS\CurrentReg.cpp</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\SRC\PULSES\REGULATORS\RegManager.cpp</name>
+                </file>
+            </group>
             <file>
                 <name>$PROJ_DIR$\SRC\PULSES\handlers_IRQ.cpp</name>
             </file>

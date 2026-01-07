@@ -1,10 +1,12 @@
 #pragma once 
+#include "bool_name.hpp"
 
 class CReadyCheck {
   
 public:
- CReadyCheck();
-
+  CReadyCheck();
+  void check(Mode);
+  
 private:
    
  

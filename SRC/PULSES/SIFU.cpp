@@ -14,7 +14,7 @@ const signed short CSIFU::offsets[] = {
     SIFUConst::_0gr      // Диапазон 60...120      (sync "видит" 6-й: ->1-2-3-4-5-sync-6->1-2-3...)
 };  // Индекс 0 не используется
 
-CSIFU::CSIFU(CPULSCALC& rPulsCalc) : rPulsCalc(rPulsCalc) {}
+CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager) : rPulsCalc(rPulsCalc), rReg_manager(rReg_manager) {}
 
 void CSIFU::rising_puls() {
   N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;
@@ -81,7 +81,8 @@ void CSIFU::rising_puls() {
   //
   LPC_TIM3->MR1 = static_cast<unsigned int>(res);  // Окончание текущего
 
-  rPulsCalc.conv_and_calc();  // Измерения, вычисления и т.п.
+  rPulsCalc.conv_and_calc();    // Измерения, вычисления и т.п.
+  rReg_manager.dispatch();      // Регулирование
 }
 
 signed int CSIFU::timing_calc() {

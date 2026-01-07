@@ -2,6 +2,7 @@
 
 CPuskMode::CPuskMode(){}
 
-
+void CPuskMode::pusk(Mode mode) { 
+}
 
 

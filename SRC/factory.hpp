@@ -14,6 +14,7 @@
 #include "rtc.hpp"
 #include "controllerDMA.hpp"
 #include "SIFU.hpp"
+#include "RegManager.hpp" 
 #include "puls_calc.hpp"
 #include "handlers_IRQ.hpp"
 #include "terminalUartDriver.hpp"
@@ -52,10 +53,12 @@ public:
    
     static CRTC createRTC();
     
-    static CSystemManager createSysManager(CSIFU&);
+    static CSystemManager createSysManager(CSIFU&, CRegManager&);
     
     static CTerminalManager& createTM(CSystemManager&);
     
-    static CSIFU& start_puls_system(CDMAcontroller&);
+    static CSIFU& start_puls_system(CDMAcontroller&, CRegManager&);
+    
+    static CRegManager createRegManager();
 };
 

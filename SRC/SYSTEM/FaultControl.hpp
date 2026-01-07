@@ -1,10 +1,12 @@
 #pragma once 
+#include "bool_name.hpp"
 
 class CFaultControl {
   
 public:
- CFaultControl();
-
+  CFaultControl();
+  void control(Mode);
+  
 private:
    
  

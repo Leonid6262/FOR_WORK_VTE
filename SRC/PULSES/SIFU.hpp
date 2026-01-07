@@ -3,12 +3,16 @@
 #include "LPC407x_8x_177x_8x.h"
 #include "puls_calc.hpp"
 #include "rem_osc.hpp"
+#include "RegManager.hpp"
+
+class CRegManager;
 
 class CSIFU {
  public:
-  CSIFU(CPULSCALC&);
+  CSIFU(CPULSCALC&, CRegManager&);
 
   CPULSCALC& rPulsCalc;
+  CRegManager& rReg_manager;
 
   void set_forcing_bridge();  // Подать импульсы на форсировочный мост
   void set_main_bridge();     // Подать импульсы на основной мост

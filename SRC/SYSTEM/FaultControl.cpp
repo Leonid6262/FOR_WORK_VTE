@@ -2,6 +2,7 @@
 
 CFaultControl::CFaultControl(){}
 
-
+void CFaultControl::control(Mode mode) { 
+}
 
 

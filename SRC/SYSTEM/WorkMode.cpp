@@ -2,6 +2,7 @@
 
 CWorkMode::CWorkMode(){}
 
-
+void CWorkMode::work(Mode mode) {
+}
 
 
