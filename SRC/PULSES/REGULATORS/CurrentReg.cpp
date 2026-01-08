@@ -9,9 +9,13 @@ void CCurrentReg::start(CSIFU* pSIFU) {
   u_max = set.set_reg.A0 - pSIFU->s_const.AMin;
 }
 
-void CCurrentReg::step(Bit_switch mode, CSIFU* pSIFU) {
-  
-  if(mode == Bit_switch::OFF) { return;}
+void CCurrentReg::stop(CSIFU* pSIFU) {
+  pSIFU->set_alpha(pSIFU->s_const.AMax);
+}
+
+void CCurrentReg::step(bool mode, CSIFU* pSIFU) { 
+ 
+  if(!mode) { return;}
   
   auto set = rSet.getSettings();
   

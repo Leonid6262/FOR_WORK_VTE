@@ -6,12 +6,11 @@
 
 class CSIFU;
 
-class CCurrentReg {
+class CQReg {
   
 public:
- CCurrentReg(CEEPSettings&);
+ CQReg(CEEPSettings&);
  void start(CSIFU*);
- void stop(CSIFU*);
  void step(bool, CSIFU*);
   
 private:

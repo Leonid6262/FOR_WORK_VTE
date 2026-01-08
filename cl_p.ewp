@@ -2186,7 +2186,13 @@
             <group>
                 <name>REGULATORS</name>
                 <file>
+                    <name>$PROJ_DIR$\SRC\PULSES\REGULATORS\CosReg.cpp</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\SRC\PULSES\REGULATORS\CurrentReg.cpp</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\SRC\PULSES\REGULATORS\QReg.cpp</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\SRC\PULSES\REGULATORS\RegManager.cpp</name>

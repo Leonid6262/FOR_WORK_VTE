@@ -79,10 +79,12 @@ CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma, CRegManager& rReg_
   return sifu;
 }
 
-// Создание менеджера регуляторов
+// Создание регуляторов и менеджера регуляторов
 CRegManager CFactory::createRegManager() { 
   static CCurrentReg curr_reg(CEEPSettings::getInstance());
-  static CRegManager reg_manager(curr_reg); 
+  static CQReg q_reg(CEEPSettings::getInstance());
+  static CCosReg cos_reg(CEEPSettings::getInstance());
+  static CRegManager reg_manager(curr_reg, q_reg, cos_reg); 
   return reg_manager; 
 }
 
