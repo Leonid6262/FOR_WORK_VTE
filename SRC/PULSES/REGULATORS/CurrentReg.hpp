@@ -10,13 +10,17 @@ class CCurrentReg {
   
 public:
  CCurrentReg(CEEPSettings&);
- void start(CSIFU*);
- void stop(CSIFU*);
+
  void step(bool, CSIFU*);
+ 
+ bool start_r = false;
   
 private:
  CADC_STORAGE& pAdc;
  CEEPSettings& rSet;
+ 
+ void start(CSIFU*);
+ void stop(CSIFU*);
  
  float u_i;
  signed short u_min;

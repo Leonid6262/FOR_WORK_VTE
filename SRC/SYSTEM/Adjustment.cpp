@@ -97,10 +97,10 @@ void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normal
   
   if (changed & CurrReg) {
     if (normalized & CurrReg) {
-      //EnableCurrentReg();
+      rSIFU.rReg_manager.setCurrent(Bit_switch::ON);
       cur_mode = (normalized & PulsesF) ? EModeAdj::CurrentRegF : EModeAdj::CurrentRegM;
     } else {
-      //DisableCurrentReg();
+      rSIFU.rReg_manager.setCurrent(Bit_switch::OFF);
     }
   }
   

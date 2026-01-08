@@ -7,15 +7,18 @@ void CCurrentReg::start(CSIFU* pSIFU) {
   u_i = set.set_reg.A0 - pSIFU->get_alpha();
   u_min = set.set_reg.A0 - pSIFU->s_const.AMax;
   u_max = set.set_reg.A0 - pSIFU->s_const.AMin;
+  start_r = true;
 }
 
 void CCurrentReg::stop(CSIFU* pSIFU) {
   pSIFU->set_alpha(pSIFU->s_const.AMax);
+  start_r = false;
 }
 
 void CCurrentReg::step(bool mode, CSIFU* pSIFU) { 
  
-  if(!mode) { return;}
+  if(!mode) { if(start_r) { stop(pSIFU); } return;}
+  if(!start_r) start(pSIFU);
   
   auto set = rSet.getSettings();
   
