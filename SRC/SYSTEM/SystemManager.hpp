@@ -90,7 +90,7 @@ private:
   
   // --- Правило зависимости --- 
   struct DependencyRule { 
-    MBit req_bit;                     // какой режим проверяем 
+    MBit req_bit;                     // какой режим проверяется
     unsigned char requiredStatus;     // какие статусы должны быть включены 
     unsigned char forbiddenStatus;    // какие статусы должны быть выключены   
     unsigned char forbiddenModes;     // какие режимы должны быть выключены

@@ -49,6 +49,6 @@ void CSystemManager::dispatch() {
   rPusk_mode.pusk(USystemMode.PuskMode);  
   rWork_mode.work(USystemMode.WorkMode);
   rFault_ctrl.control(USystemMode.FaultCtrl);
-  rWarning_ctrl.control();
+  rWarning_ctrl.control(); // Проверка предупреждений выполняется всегда
   
 }
