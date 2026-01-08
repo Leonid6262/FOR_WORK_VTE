@@ -70,7 +70,7 @@ struct SWarning : CategoryActive<EWarningId> {
 
   static constexpr const char* NAME[G_CONST::Nlang] = { "ПРЕДУПРЕЖДЕНИЕ:", "WARNING:", "ПОПЕРЕДЖЕННЯ:" };  
   static constexpr const char* MSG[][G_CONST::Nlang] = {
-    {"Дефолтные уст-ки", "Default settings", "Дефолтні уставки"}
+    {"Дефолтные уст-ки", "Default settings", "Дефолтнi уставки"}
   };
   
 

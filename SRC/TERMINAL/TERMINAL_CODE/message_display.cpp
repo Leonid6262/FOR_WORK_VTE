@@ -2,7 +2,7 @@
 #include "string_utils.hpp"
 
 CMessageDisplay::CMessageDisplay(CTerminalUartDriver& uartDrv) : 
-  uartDrv(uartDrv), l(CEEPSettings::getInstance().getSettings().Language),
+  uartDrv(uartDrv), l(CEEPSettings::getInstance().getSettings().Language - 1),
   COUNT_CATEGORIES(static_cast<unsigned char>(ECategory::COUNT)) {
   // Регистрация категорий в CategoryContext
   contexts[static_cast<unsigned char>(ECategory::NOT_READY)] = {
@@ -126,7 +126,7 @@ void CMessageDisplay::Key_Handler(EKey_code key) {
   default: {
     static unsigned int prev_TC0 = LPC_TIM0->TC;
     unsigned int dTrs = LPC_TIM0->TC - prev_TC0;
-    if (dTrs >= 10000000) {  // 1sec
+    if (dTrs >= 20000000) {  // 2sec
       prev_TC0 = LPC_TIM0->TC;
       rotate_messages();
     }

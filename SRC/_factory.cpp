@@ -30,7 +30,15 @@ CSystemManager CFactory::createSysManager(CSIFU& rSIFU, CRegManager& rReg_manage
   static CFaultControl fault_ctrl;
   static CPuskMode pusk_mode;
   static CWorkMode work_mode;
-  static CSystemManager sys_manager(rSIFU, adjustment, ready_check, fault_ctrl, pusk_mode, work_mode, rReg_manager); 
+  static CWarningMode warning_ctrl;
+  static CSystemManager sys_manager(rSIFU, 
+                                    adjustment, 
+                                    ready_check, 
+                                    fault_ctrl, 
+                                    pusk_mode, 
+                                    work_mode,
+                                    warning_ctrl,
+                                    rReg_manager); 
   return sys_manager; 
 }
 

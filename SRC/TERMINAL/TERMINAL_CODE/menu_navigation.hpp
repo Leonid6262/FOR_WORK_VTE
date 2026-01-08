@@ -14,7 +14,7 @@ public:
   CMenuNavigation(CTerminalUartDriver&, CSystemManager&);
   void get_key();
   void set_pTerminal(CTerminalManager*);
-
+  void first_render();
   
   // Типы узлов
   enum class ENodeMode {

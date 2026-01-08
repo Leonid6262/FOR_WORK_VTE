@@ -161,6 +161,10 @@ void CMenuNavigation::render_node(ETitleType title_type) {
   }
 }
 
+void CMenuNavigation::first_render(){
+  render_menu();
+}
+
 // Отображение двух строк меню. Рендер Меню.
 void CMenuNavigation::render_menu() {
   // выводим два элемента списка начиная с screenPosition
@@ -552,6 +556,8 @@ void CMenuNavigation::handleEscape() {
     cursorLine = f.cursorLine;
 
     render_menu();
+  } else {
+    pTerminal_manager->switchToMessages(); // переключаемся в меню
   }
 }
 

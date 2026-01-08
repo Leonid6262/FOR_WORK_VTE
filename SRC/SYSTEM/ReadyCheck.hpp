@@ -5,7 +5,7 @@ class CReadyCheck {
   
 public:
   CReadyCheck();
-  void check(Mode);
+  void check(bool);
   
 private:
    

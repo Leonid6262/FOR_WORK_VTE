@@ -5,7 +5,7 @@ class CPuskMode {
   
 public:
   CPuskMode();
-  void pusk(Mode);
+  void pusk(bool);
   
 private:
    

@@ -2,7 +2,7 @@
 
 CReadyCheck::CReadyCheck(){}
 
-void CReadyCheck::check(Mode mode) { 
+void CReadyCheck::check(bool mode) { 
 }
 
 

@@ -2,10 +2,10 @@
   
 CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU) : rSIFU(rSIFU) {}
 
-void CAdjustmentMode::parsing_request(Mode mode) {
+void CAdjustmentMode::parsing_request(bool mode) {
   
   // 0. Если наладка запрещена - всё обнуляем
-  if(mode == Mode::FORBIDDEN) {
+  if(!mode) {
     prevBits = 0;
     reqADJmode = 0;           // обратная связь по индикации
     return;

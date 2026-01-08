@@ -9,7 +9,7 @@ class CAdjustmentMode {
 public:
   CAdjustmentMode(CSIFU&);
   
-  void parsing_request(Mode);         // Анализ иипринятие решения по запросу от внешнего источника
+  void parsing_request(bool);         // Анализ иипринятие решения по запросу от внешнего источника
   unsigned short reqADJmode = 0;      // Битовая маска запросов режимов от внешнего источника
   
   signed short AlphaAdj = rSIFU.s_const.AMax;

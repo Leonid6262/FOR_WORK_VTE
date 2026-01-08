@@ -22,20 +22,20 @@ namespace menu_alias {
 
 // таблица переводов (масштабируемая)
 static const struct {
-    const char* INDICATION[G_CONST::Nlang]     = {"ИНДИКАЦИЯ",       "INDICATION",       "ІНДИКАЦІЯ"};
-    const char* CURRENT_DATA[G_CONST::Nlang]   = {"ТЕКУЩИЕ ДАННЫЕ",  "CURRENT DATA",     "ПОТОЧНІ ДАНІ"};
-    const char* BIT_DATA[G_CONST::Nlang]       = {"БИТОВЫЕ ДАННЫЕ",  "BIT DATA",         "БІТОВІ ДАНІ"};
+    const char* INDICATION[G_CONST::Nlang]     = {"ИНДИКАЦИЯ",       "INDICATION",       "IНДИКАЦIЯ"};
+    const char* CURRENT_DATA[G_CONST::Nlang]   = {"ТЕКУЩИЕ ДАННЫЕ",  "CURRENT DATA",     "ПОТОЧНI ДАНI"};
+    const char* BIT_DATA[G_CONST::Nlang]       = {"БИТОВЫЕ ДАННЫЕ",  "BIT DATA",         "БIТОВІ ДАНI"};
     const char* SETTINGS[G_CONST::Nlang]       = {"УСТАВКИ",         "SETTINGS",         "УСТАНОВКИ"};
     const char* REGULATORS[G_CONST::Nlang]     = {"РЕГУЛЯТОРОВ",     "REGULATORS",       "РЕГУЛЯТОРИ"};
     const char* CURRENT[G_CONST::Nlang]        = {"ТОКА",            "CURRENT",          "СТРУМУ"};
     const char* COS_PHI[G_CONST::Nlang]        = {"COS PHI",         "COS PHI",          "COS PHI"};
-    const char* Q_POWER[G_CONST::Nlang]        = {"Q МОЩНОСТИ",      "Q POWER",          "Q ПОТУЖНОСТІ"};
+    const char* Q_POWER[G_CONST::Nlang]        = {"Q МОЩНОСТИ",      "Q POWER",          "Q ПОТУЖНОСТI"};
     const char* LIMITS[G_CONST::Nlang]         = {"ОГРАНИЧЕНИЯ",     "LIMITS",           "ОБМЕЖЕННЯ"};
-    const char* FAULTS[G_CONST::Nlang]         = {"АВАРИЙНЫЕ",       "FAULTS",            "АВАРІЙНІ"};
+    const char* FAULTS[G_CONST::Nlang]         = {"АВАРИЙНЫЕ",       "FAULTS",           "АВАРIЙНI"};
     const char* ADC_SHIFT[G_CONST::Nlang]      = {"СМЕЩЕНИЯ АЦП",    "ADC SHIFT",        "ЗСУВ АЦП"};
     const char* ADJ_MODE[G_CONST::Nlang]       = {"РЕЖИМ НАЛАДКИ",   "ADJUSTMENT MODE",  "РЕЖИМ НАЛАДКИ"};
     const char* CLOCK_SETUP[G_CONST::Nlang]    = {"УСТАНОВКА ЧАСОВ", "CLOCK SETUP",      "ГОДИННИК"};
-    const char* INFO[G_CONST::Nlang]           = {"ИНФОРМАЦИЯ",      "INFO",             "ІНФОРМАЦІЯ"};
+    const char* INFO[G_CONST::Nlang]           = {"ИНФОРМАЦИЯ",      "INFO",             "IНФОРМАЦIЯ"};
     const char* CONTROLLER_SN[G_CONST::Nlang]  = {"SN КОНТРОЛЛЕРА",  "CONTROLLER SN",    "SN КОНТРОЛЕРА"};
     const char* LANGUAGE[G_CONST::Nlang]       = {"ЯЗЫК",            "LANGUAGE",         "МОВА"};
 } Mn;
@@ -45,7 +45,7 @@ static const struct {
 inline std::vector<menu_alias::x> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings& rSet, CSystemManager& rSysMgr) {
   auto& set = rSet.getSettings();
   using namespace menu_alias;
-  unsigned short l = set.Language;                              // Установка языка отображения согласно уставке
+  unsigned short l = set.Language - 1;                          // Установка языка отображения согласно уставке
   auto& sfc = rSysMgr.rSIFU.s_const;
   enum Precision : unsigned char { p0, p1, p2, p3, p4 };        // количество знаков после запятой p4->0.0001
 
@@ -135,7 +135,7 @@ inline std::vector<menu_alias::x> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           x("Month:",       {}, &set.SNboard_month, "", cd::one, p0, vt::ushort, nm::Ed1V, 1, 12),
           x("Year:",        {}, &set.SNboard_year,  "", cd::one, p0, vt::ushort, nm::Ed1V, 20, 99),}),
       x(Mn.LANGUAGE[l],{
-          x("Language:",    {}, &set.Language,"", cd::one, p0, vt::ushort, nm::Ed1V, 0, (G_CONST::Nlang - 1)),}),}),
+          x("Language:",    {}, &set.Language,"", cd::one, p0, vt::ushort, nm::Ed1V, 1, G_CONST::Nlang),}),}),
   x(Mn.CLOCK_SETUP[l]),
   x(Mn.INFO[l],{
       x("Description:", {}, static_cast<void*>(const_cast<char*>(BuildInfo::Description)), "", cd::one, p0,vt::text, nm::In1V),

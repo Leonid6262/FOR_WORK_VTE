@@ -16,5 +16,10 @@ void CTerminalManager::dispatch() {
   }
 }
 
-void CTerminalManager::switchToMenu() { mode = ETerminalMode::Menu_mode; }
-void CTerminalManager::switchToMessages() { mode = ETerminalMode::Mess_mode; }
+void CTerminalManager::switchToMenu() { 
+  mode = ETerminalMode::Menu_mode; 
+  menuNavigation.first_render();
+}
+void CTerminalManager::switchToMessages() { 
+  mode = ETerminalMode::Mess_mode; 
+}

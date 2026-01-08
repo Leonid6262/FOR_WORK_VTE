@@ -1,20 +1,4 @@
 #include "main.hpp"
-#include <intrinsics.h> 
-
-// === Отладочная информация о HEAP === 
-struct mallinfo { 
-  int arena; 
-  int ordblks; 
-  int smblks; 
-  int hblks; 
-  int hblkhd; 
-  int usmblks; 
-  int fsmblks; 
-  int uordblks; 
-  int fordblks; 
-  int keepcost; 
-} info; 
-// ====================================
 
 void UserStartInit() {
   CSET_PORTS::initDOutputs(); // Инициализация дискретных выходов микроконтроллера (pins)
@@ -38,23 +22,14 @@ void main(void) {
   static auto rt_clock = CFactory::createRTC();         // Системные часы
   static auto cont_dma = CFactory::createDMAc();        // Управление каналами DMA.
                
-
   static auto reg_manager = CFactory::createRegManager();                       // Менеджер регуляторов
   static auto& rSIFU = CFactory::start_puls_system(cont_dma, reg_manager);      // Запуск СИФУ и всех её зависимостей.
   static auto sys_manager = CFactory::createSysManager(rSIFU, reg_manager);     // Системный менеджер
-  static auto& term_manager = CFactory::createTM(sys_manager);                  // Создание и управление объектами пультового терминал
+  static auto& term_manager = CFactory::createTM(sys_manager);                  // Создание и управление объектами ПТ
   
   CDIN_STORAGE::UserLedOff();                           // Визуальный контроль окончания инициализации
   
-  // === Отладочный указатель ===
-  static auto& set = CEEPSettings::getInstance().getSettings();
-  
   while (true) {  
-    
-    // === Отладочная информация ===
-    info = __iar_dlmallinfo();     
-    set = CEEPSettings::getInstance().getSettings();
-    // =============================
     
     int_adc.measure_5V();       // Измерение напряжения питания +/- 5V (внутреннее ADC)
     din_cpu.input_Pi0();        // Чтение состояния дискретных входов контроллера Pi0

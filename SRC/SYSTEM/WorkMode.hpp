@@ -5,7 +5,7 @@ class CWorkMode {
   
 public:
  CWorkMode();
- void work(Mode);
+ void work(bool);
   
 private:
    

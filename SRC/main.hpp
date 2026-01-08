@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdlib.h> 
-extern "C" struct mallinfo __iar_dlmallinfo(void); 
-extern "C" void __iar_dlmalloc_stats(void);
+//#include <stdlib.h> 
+//extern "C" struct mallinfo __iar_dlmallinfo(void); 
+//extern "C" void __iar_dlmalloc_stats(void);
 
 #include "Ports_init.hpp"
 #include "emc.hpp"

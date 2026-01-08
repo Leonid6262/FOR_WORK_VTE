@@ -2,7 +2,7 @@
 
 CFaultControl::CFaultControl(){}
 
-void CFaultControl::control(Mode mode) { 
+void CFaultControl::control(bool mode) { 
 }
 
 

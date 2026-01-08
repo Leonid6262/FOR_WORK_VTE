@@ -2,7 +2,7 @@
 
 CPuskMode::CPuskMode(){}
 
-void CPuskMode::pusk(Mode mode) { 
+void CPuskMode::pusk(bool mode) { 
 }
 
 
