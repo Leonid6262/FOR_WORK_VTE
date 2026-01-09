@@ -11,7 +11,7 @@ void CRegManager::getSIFU(CSIFU* pSIFU) {
   this->pSIFU=pSIFU;
 }
 
-void CRegManager::dispatch() {  
+void CRegManager::applyModeRules() {  
   
   URegMode.all = URegMode_request.all;  // копируем запрос в рабочую область
   for (auto& rule : rules) { 
@@ -23,7 +23,10 @@ void CRegManager::dispatch() {
   }
   URegMode_request.all = URegMode.all;  // синхронизация
   
-  rCurrent_reg.step(URegMode.Current, pSIFU);
-  rQ_reg.step(URegMode.QPower, pSIFU);
-  rCos_reg.step(URegMode.CosPhi, pSIFU);
+}
+
+void CRegManager::stepAll() { 
+  rCurrent_reg.step(URegMode.Current, pSIFU); 
+  rQ_reg.step(URegMode.QPower, pSIFU); 
+  rCos_reg.step(URegMode.CosPhi, pSIFU); 
 }

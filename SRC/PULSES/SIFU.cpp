@@ -81,8 +81,12 @@ void CSIFU::rising_puls() {
   //
   LPC_TIM3->MR1 = static_cast<unsigned int>(res);  // Окончание текущего
 
-  rPulsCalc.conv_and_calc();    // Измерения, вычисления и т.п.
-  rReg_manager.dispatch();      // Регулирование
+  rPulsCalc.conv_and_calc();     // Измерения, вычисления и т.п.
+  rReg_manager.applyModeRules();
+  if(forcing_bridge || main_bridge) {
+    rReg_manager.stepAll();     // Регулирование
+  }
+  
 }
 
 signed int CSIFU::timing_calc() {

@@ -19,36 +19,35 @@ rReg_manager(rReg_manager)
 {
   USystemMode.all = 0;
   USystemStatus.all = 0;
-//  setReadyCheck(Mode::ALLOWED);
-//  setAdjustment(Mode::FORBIDDEN);
-//  setFaultCtrl(Mode::FORBIDDEN);
-//  setPuskMode(Mode::FORBIDDEN);
-//  setWorkMode(Mode::FORBIDDEN);
+  setReadyCheck(Mode::ALLOWED);
+  setAdjustment(Mode::ALLOWED);
   
 }
 
 void CSystemManager::dispatch() { 
   
+  USystemMode.all = USMode_r.all; // копируем запрос
+  
   for (auto& rule : rules) {
-    bool allowed = 
+    bool allowed =
       ((USystemStatus.all & rule.requiredStatus)  == rule.requiredStatus) &&
-      ((USystemStatus.all & rule.forbiddenStatus) == 0) && 
-      ((USystemMode.all   & rule.forbiddenModes)  == 0);   
+        ((USystemStatus.all & rule.forbiddenStatus) == 0) &&
+          ((USystemMode.all   & rule.requiredModes)   == rule.requiredModes) &&
+            ((USystemMode.all   & rule.forbiddenModes)  == 0);
     
-    switch (rule.req_bit) {
-    case MBit::ReadyCheck: setReadyCheck(allowed ? Mode::ALLOWED : Mode::FORBIDDEN); break;
-    case MBit::Adjustment: setAdjustment(allowed ? Mode::ALLOWED : Mode::FORBIDDEN); break;
-    case MBit::FaultCtrl:  setFaultCtrl(allowed  ? Mode::ALLOWED : Mode::FORBIDDEN); break;
-    case MBit::PuskMode:   setPuskMode(allowed   ? Mode::ALLOWED : Mode::FORBIDDEN); break;
-    case MBit::WorkMode:   setWorkMode(allowed   ? Mode::ALLOWED : Mode::FORBIDDEN); break;
+    if (!allowed) { 
+      USystemMode.all &= ~rule.req_bit; // снимаем бит 
     }
+    
   }
   
-  rAdj_mode.parsing_request(USystemMode.Adjustment);  
-  rReady_check.check(USystemMode.ReadyCheck);   
-  rPusk_mode.pusk(USystemMode.PuskMode);  
-  rWork_mode.work(USystemMode.WorkMode);
-  rFault_ctrl.control(USystemMode.FaultCtrl);
-  rWarning_ctrl.control(); // Проверка предупреждений выполняется всегда
+  USMode_r.all = USystemMode.all; // синхронизация
+  
+  rAdj_mode.parsing_request(USystemMode.Adjustment);    // Обработка запросов вкл. наладочных режимов
+  rReady_check.check(USystemMode.ReadyCheck);           // Сборка готовности
+  rPusk_mode.pusk(USystemMode.PuskMode);                // Режим работы при пуске двигателя
+  rWork_mode.work(USystemMode.WorkMode);                // Режим работы после успешного пуска двигателя
+  rFault_ctrl.control(USystemMode.FaultCtrl);           // Проверка аварийных состояний
+  rWarning_ctrl.control();                              // Проверка предупреждающих состояний (выполняется всегда)
   
 }

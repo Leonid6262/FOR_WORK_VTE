@@ -31,15 +31,14 @@ CSystemManager CFactory::createSysManager(CSIFU& rSIFU, CRegManager& rReg_manage
   static CPuskMode pusk_mode;
   static CWorkMode work_mode;
   static CWarningMode warning_ctrl;
-  static CSystemManager sys_manager(rSIFU, 
-                                    adjustment, 
-                                    ready_check, 
-                                    fault_ctrl, 
-                                    pusk_mode, 
-                                    work_mode,
-                                    warning_ctrl,
-                                    rReg_manager); 
-  return sys_manager; 
+  return CSystemManager(rSIFU, 
+                        adjustment, 
+                        ready_check, 
+                        fault_ctrl, 
+                        pusk_mode, 
+                        work_mode,
+                        warning_ctrl,
+                        rReg_manager);  
 }
 
 // Инициализация драйвера и создание объектов Пультового терминала
@@ -84,7 +83,6 @@ CRegManager CFactory::createRegManager() {
   static CCurrentReg curr_reg(CEEPSettings::getInstance());
   static CQReg q_reg(CEEPSettings::getInstance());
   static CCosReg cos_reg(CEEPSettings::getInstance());
-  static CRegManager reg_manager(curr_reg, q_reg, cos_reg); 
-  return reg_manager; 
+  return CRegManager(curr_reg, q_reg, cos_reg); 
 }
 

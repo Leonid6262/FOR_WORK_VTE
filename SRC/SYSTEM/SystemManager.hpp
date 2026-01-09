@@ -37,7 +37,7 @@ public:
      unsigned char Ready        : 1; // Готовность собрана
      unsigned char Pusk         : 1; // Двигатель запущен
      unsigned char Work         : 1; // Штатный режим работы
-     unsigned char Warning      : 1; // Предупреждение
+     unsigned char Warning      : 1; // Есть предупреждения
      unsigned char Fault        : 1; // Авария
    };
  } USystemStatus;
@@ -49,7 +49,7 @@ public:
  void setFault(Bit_switch state)        { USystemStatus.Fault   = static_cast<unsigned char>(state); }
 
  // --- Разрешения режимов ---
- union {
+ union USystemMode_t{
    unsigned char all;
    struct {
      unsigned char Adjustment   : 1;  // Разрешение Наладки
@@ -59,6 +59,8 @@ public:
      unsigned char WorkMode     : 1;  // Разрешение режима Работа
    };
  } USystemMode;
+ 
+ USystemMode_t USMode_r;
  
  void setAdjustment(Mode mode)  { USystemMode.Adjustment = static_cast<unsigned char>(mode); } 
  void setReadyCheck(Mode mode)  { USystemMode.ReadyCheck = static_cast<unsigned char>(mode); } 
@@ -89,20 +91,28 @@ private:
   };
   
   // --- Правило зависимости --- 
-  struct DependencyRule { 
-    MBit req_bit;                     // какой режим проверяется
-    unsigned char requiredStatus;     // какие статусы должны быть включены 
-    unsigned char forbiddenStatus;    // какие статусы должны быть выключены   
-    unsigned char forbiddenModes;     // какие режимы должны быть выключены
+  struct DependencyRule {
+    MBit req_bit;
+    unsigned char requiredStatus;   // Какие биты статуса должны быть установлены
+    unsigned char forbiddenStatus;  // Какие биты статуса должны быть сброшены
+    unsigned char requiredModes;    // Какие режимы должны быть включены
+    unsigned char forbiddenModes;   // Какие режимы должны быть выключены
   };
-  
-  // --- Таблица правил --- 
-  static constexpr std::array<DependencyRule, 5> rules {{ 
-    { MBit::ReadyCheck, 0,                                                   SBit::Fault, MBit::PuskMode | MBit::WorkMode },
-    { MBit::Adjustment, MBit::ReadyCheck,                                    SBit::Fault, MBit::PuskMode | MBit::WorkMode },  
-    { MBit::PuskMode,   SBit::Ready,                                         SBit::Fault, MBit::WorkMode }, 
-    { MBit::WorkMode,   SBit::PuskOK,                                        SBit::Fault, MBit::PuskMode }, 
-    { MBit::FaultCtrl,  MBit::PuskMode | MBit::WorkMode | MBit::Adjustment,  SBit::Fault,  } 
-  }};
+
+static constexpr std::array<DependencyRule, 5> rules {{
+  //       check           on                 off            on                     off
+  { MBit::ReadyCheck, 0,                SBit::Fault, 0,                       MBit::PuskMode | 
+                                                                              MBit::WorkMode    },
+  { MBit::Adjustment, 0,                SBit::Fault, MBit::ReadyCheck,        MBit::PuskMode | 
+                                                                              MBit::WorkMode    },
+  { MBit::PuskMode,   SBit::Ready,      SBit::Fault, 0,                       MBit::WorkMode    },
+  { MBit::WorkMode,   SBit::PuskOK,     SBit::Fault, 0,                       MBit::PuskMode    },
+  { MBit::FaultCtrl,  0,                SBit::Fault, MBit::PuskMode | 
+                                                     MBit::WorkMode | 
+                                                     MBit::Adjustment,        0                 }
+}};
+
+
+
   
 };

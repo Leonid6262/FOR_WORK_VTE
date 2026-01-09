@@ -20,7 +20,8 @@ public:
  CQReg& rQ_reg; 
  CCosReg& rCos_reg;
 
- void dispatch();
+ void applyModeRules();
+ void stepAll();
  void getSIFU(CSIFU*);
  
  // --- Запрос режимов регулирования---
