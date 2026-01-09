@@ -4,19 +4,14 @@ CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU) : rSIFU(rSIFU) {}
 
 void CAdjustmentMode::parsing_request(bool mode) {
   
-  // 0. Если наладка запрещена - всё обнуляем
+  // 1. Если наладка запрещена - всё обнуляем
   if(!mode) {
+    applyChanges(prevBits, 0);
     prevBits = 0;
     reqADJmode = 0;           // обратная связь по индикации
     return;
-  }
-  
-  // 1. Если снят AdjMode - всё выключаем 
-  if (!(reqADJmode & AdjMode)) {
-    applyChanges(prevBits, 0);
-    prevBits = 0;
-    reqADJmode   = 0;         // обратная связь по индикации
-    return;
+  } else {
+    reqADJmode |= AdjMode;
   }
   
   // 2. Проверка штатного отключения любого режима (tmp var для нпглядности)

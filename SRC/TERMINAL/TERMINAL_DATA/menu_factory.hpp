@@ -66,6 +66,10 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
            o("Main Bridge",{},   &rSysMgr.rAdj_mode.reqADJmode,         un::b,   cd::one,    p0, vt::eb_2,   nm::Ed1V),
            o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::IRotor, p0, vt::sshort,
                         "Alpha", &rSysMgr.rAdj_mode.AlphaAdj,           un::Deg, cd::Alpha,  p1, vt::sshort, nm::IE2V, sfc.AMin*0.018, sfc.AMax*0.018),}),
+      o("I-REG",{
+           o("I-Regulator",{},   &rSysMgr.rAdj_mode.reqADJmode,         un::b,   cd::one,    p0, vt::eb_3,   nm::Ed1V),
+           o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::IRotor, p0, vt::sshort,
+                        "I-set", &set.set_reg.Iset,                     un::Amp, cd::IRotor, p0, vt::sshort, nm::IE2V, 0, 200),}),
       o("PHASING",{
            o("Phasing mode", {},&rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_5,  nm::Ed1V),
            o("60deg shift",  {},&set.set_sifu.d_power_shift,  "",     cd::one,  p0,vt::ushort,nm::Ed1V, 0, (sfc.N_PULSES-1)),

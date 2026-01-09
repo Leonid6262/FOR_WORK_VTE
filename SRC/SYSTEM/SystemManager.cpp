@@ -20,8 +20,6 @@ rReg_manager(rReg_manager)
   USystemMode.all = 0;
   USystemStatus.all = 0;
   setReadyCheck(Mode::ALLOWED);
-  setAdjustment(Mode::ALLOWED);
-  
 }
 
 void CSystemManager::dispatch() { 
@@ -31,9 +29,9 @@ void CSystemManager::dispatch() {
   for (auto& rule : rules) {
     bool allowed =
       ((USystemStatus.all & rule.requiredStatus)  == rule.requiredStatus) &&
-        ((USystemStatus.all & rule.forbiddenStatus) == 0) &&
-          ((USystemMode.all   & rule.requiredModes)   == rule.requiredModes) &&
-            ((USystemMode.all   & rule.forbiddenModes)  == 0);
+      ((USystemStatus.all & rule.forbiddenStatus) == 0) &&
+      ((USystemMode.all   & rule.requiredModes)   == rule.requiredModes) &&
+      ((USystemMode.all   & rule.forbiddenModes)  == 0);
     
     if (!allowed) { 
       USystemMode.all &= ~rule.req_bit; // снимаем бит 

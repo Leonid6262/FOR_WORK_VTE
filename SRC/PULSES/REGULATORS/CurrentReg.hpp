@@ -12,7 +12,6 @@ public:
  CCurrentReg(CEEPSettings&);
 
  void step(bool, CSIFU*);
- 
  bool start_r = false;
   
 private:

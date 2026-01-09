@@ -62,11 +62,11 @@ public:
  
  USystemMode_t USMode_r;
  
- void setAdjustment(Mode mode)  { USystemMode.Adjustment = static_cast<unsigned char>(mode); } 
- void setReadyCheck(Mode mode)  { USystemMode.ReadyCheck = static_cast<unsigned char>(mode); } 
- void setFaultCtrl(Mode mode)   { USystemMode.FaultCtrl  = static_cast<unsigned char>(mode); } 
- void setPuskMode(Mode mode)    { USystemMode.PuskMode   = static_cast<unsigned char>(mode); } 
- void setWorkMode(Mode mode)    { USystemMode.WorkMode   = static_cast<unsigned char>(mode); }
+ void setAdjustment(Mode mode)  { USMode_r.Adjustment = static_cast<unsigned char>(mode); } 
+ void setReadyCheck(Mode mode)  { USMode_r.ReadyCheck = static_cast<unsigned char>(mode); } 
+ void setFaultCtrl(Mode mode)   { USMode_r.FaultCtrl  = static_cast<unsigned char>(mode); } 
+ void setPuskMode(Mode mode)    { USMode_r.PuskMode   = static_cast<unsigned char>(mode); } 
+ void setWorkMode(Mode mode)    { USMode_r.WorkMode   = static_cast<unsigned char>(mode); }
  
  void dispatch();
  
