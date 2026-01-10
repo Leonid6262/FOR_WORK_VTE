@@ -9,11 +9,15 @@ class CAdjustmentMode {
 public:
   CAdjustmentMode(CSIFU&);
   
-  void parsing_request(bool);         // Анализ иипринятие решения по запросу от внешнего источника
+  void parsing_request(bool);         // Анализ и принятие решения по запросу от внешнего источника
   unsigned short reqADJmode = 0;      // Битовая маска запросов режимов от внешнего источника
   
   signed short AlphaAdj = rSIFU.s_const.AMax;
+  
   unsigned short IsetAdj = 0;
+  unsigned short IsetCyc_1 = 0;
+  unsigned short IsetCyc_2 = 0;
+  unsigned short NpulsCyc = 6; 
 
 private:
   // Битовые флаги сборки режимов AdjustmentMode
@@ -70,32 +74,16 @@ private:
   
   void applyChanges(unsigned short, unsigned short);
   void ex_mode(EModeAdj);
- 
+  
   CSIFU& rSIFU;
   
-  unsigned short prevBits = 0;
+  unsigned short prevBits = 0; 
   
-  class CycleService {  
-  public: 
-    CycleService() {}
-    
-    bool active_c = false;
-    
-  void start() { 
-    active_c = true; 
-  }
+  unsigned short IsetCycle = 0;
+  bool phase = false; 
+  unsigned short pulse_counter = 0; 
+  unsigned char last_pulse = 0;
   
-  void stop() { 
-    active_c = false; 
-  } 
-  void step() {
-  }
-    
-  private: 
-    
-    
-  }; 
-
-  CycleService cycleService;
+  void stepCycle();
   
 };

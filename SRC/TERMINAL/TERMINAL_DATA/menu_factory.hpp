@@ -49,7 +49,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
   
   unsigned short l = set.Language - 1;                          // Установка языка отображения согласно уставке
   enum Precision : unsigned char { p0, p1, p2, p3, p4 };        // количество знаков после запятой p4->0.0001
-  
+   
   std::vector<o> MENU = {
     
   o(Mn.INDICATION[l],{
@@ -71,10 +71,17 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
            o("I-Regulator",{},   &rSysMgr.rAdj_mode.reqADJmode,         un::b,   cd::one,    p0, vt::eb_3,   nm::Ed1V),
            o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::IRotor, p0, vt::sshort,
                         "I-set", &rSysMgr.rAdj_mode.IsetAdj,            un::Amp, cd::IRotor, p0, vt::sshort, nm::IE2V, 0, 200),}),
+      o("I-CYCLES",{
+           o("Iset cyc1",{},    &rSysMgr.rAdj_mode.IsetCyc_1,  un::Amp, cd::IRotor, p0, vt::ushort, nm::Ed1V, 0, 200),
+           o("Iset cyc2",{},    &rSysMgr.rAdj_mode.IsetCyc_2,  un::Amp, cd::IRotor, p0, vt::ushort, nm::Ed1V, 0, 200),
+           o("Npulses",{},      &rSysMgr.rAdj_mode.NpulsCyc,   "",      cd::one,    p0, vt::ushort, nm::Ed1V, 1, 100),
+           o("I-Cycles",{},     &rSysMgr.rAdj_mode.reqADJmode, un::b,   cd::one,    p0, vt::eb_4,   nm::Ed1V),
+           o("KpCr",   {},      &set.set_reg.KpCr,             "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
+           o("KiCr",   {},      &set.set_reg.KiCr,             "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
       o("PHASING",{
-           o("Phasing mode", {},&rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_5,  nm::Ed1V),
-           o("60deg shift",  {},&set.set_sifu.d_power_shift,  "",     cd::one,  p0,vt::ushort,nm::Ed1V, 0, (sfc.N_PULSES-1)),
-           o("Precise shift",{},&set.set_sifu.power_shift,    un::Deg,cd::Alpha,p1,vt::sshort,nm::Ed1V, sfc.MinPshift*0.018, sfc.MaxPshift*0.018)}),}),
+           o("Phasing mode", {}, &rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_5,  nm::Ed1V),
+           o("60deg shift",  {}, &set.set_sifu.d_power_shift,  "",     cd::one,  p0,vt::ushort,nm::Ed1V, 0, (sfc.N_PULSES-1)),
+           o("Precise shift",{}, &set.set_sifu.power_shift,    un::Deg,cd::Alpha,p1,vt::sshort,nm::Ed1V, sfc.MinPshift*0.018, sfc.MaxPshift*0.018)}),}),
   o(Mn.SETTINGS[l],{
       o(Mn.REGULATORS[l],{
           o(Mn.CURRENT[l],{

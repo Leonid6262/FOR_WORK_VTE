@@ -2199,6 +2199,9 @@
                 </file>
             </group>
             <file>
+                <name>$PROJ_DIR$\SRC\PULSES\FaultCtrlP.cpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\SRC\PULSES\handlers_IRQ.cpp</name>
             </file>
             <file>

@@ -13,6 +13,7 @@
 #include "emac.hpp"
 #include "rtc.hpp"
 #include "controllerDMA.hpp"
+#include "FaultCtrlP.hpp" 
 #include "SIFU.hpp"
 #include "RegManager.hpp" 
 #include "puls_calc.hpp"
@@ -53,7 +54,7 @@ public:
    
     static CRTC createRTC();
     
-    static CSystemManager createSysManager(CSIFU&, CRegManager&);
+    static CSystemManager& createSysManager(CSIFU&, CRegManager&);
     
     static CTerminalManager& createTM(CSystemManager&);
     

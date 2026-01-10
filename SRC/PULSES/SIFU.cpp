@@ -14,7 +14,10 @@ const signed short CSIFU::offsets[] = {
     SIFUConst::_0gr      // Диапазон 60...120      (sync "видит" 6-й: ->1-2-3-4-5-sync-6->1-2-3...)
 };  // Индекс 0 не используется
 
-CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager) : rPulsCalc(rPulsCalc), rReg_manager(rReg_manager) {}
+CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p) : 
+  rPulsCalc(rPulsCalc), 
+  rReg_manager(rReg_manager), 
+  rFault_p(rFault_p){}
 
 void CSIFU::rising_puls() {
   N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;
@@ -135,6 +138,8 @@ void CSIFU::faling_puls() {
 
   LPC_PWM0->TCR = COUNTER_STOP;  // Стоп счётчик b1<-1
   LPC_PWM0->TCR = COUNTER_RESET;
+  
+  rFault_p.control();
 }
 
 void CSIFU::control_sync() {

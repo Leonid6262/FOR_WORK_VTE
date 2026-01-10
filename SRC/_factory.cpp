@@ -36,20 +36,22 @@ CDMAcontroller CFactory::createDMAc()   { return CDMAcontroller(); }
 CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma, CRegManager& rReg_manager) {
   static CADC adc(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_1));  // Внешнее ADC. Подключено к SPI-1
   static CPULSCALC puls_calc(adc);                                      // Измерение и обработка всех аналоговых сигналов.
-  static CSIFU sifu(puls_calc, rReg_manager);                           // СИФУ.  
+  static CFaultCtrlP fault_p;
+  static CSIFU sifu(puls_calc, rReg_manager, fault_p);                 // СИФУ.  
   rReg_manager.getSIFU(&sifu);
-  CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_2);    // Конфигурация SPI-2 для WiFi на ESP32
-  static CREM_OSC rem_osc(                               // Дистанционный осциллограф (WiFi модуль на ESP32).                              
-                          rCont_dma,                     // Контроллер DMA
-                          puls_calc,                     // Измерение и обработка
-                          CADC_STORAGE::getInstance());  // Данные АЦП
+  CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_2);   // Конфигурация SPI-2 для WiFi на ESP32
+  static CREM_OSC rem_osc                               // Дистанционный осциллограф (WiFi модуль на ESP32). 
+    (                                                            
+     rCont_dma,                                 // Контроллер DMA
+     puls_calc,                                 // Измерение и обработка
+     CADC_STORAGE::getInstance());              // Данные АЦП
   
-  CProxyPointerVar& Ppv = CProxyPointerVar::getInstance();
-  Ppv.registerVar(                                       // Регистрация Alpha в реестре указателей
-                  NProxyVar::ProxyVarID::AlphaCur, 
-                  sifu.getPointerAlpha(), 
-                  cd::Alpha, 
-                  NProxyVar::Unit::Deg);
+  CProxyPointerVar::getInstance().registerVar   // Регистрация Alpha в реестре указателей
+    (           
+     NProxyVar::ProxyVarID::AlphaCur, 
+     sifu.getPointerAlpha(), 
+     cd::Alpha, 
+     NProxyVar::Unit::Deg);
   
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu, &rem_osc);  // Proxy Singleton доступа к Handler TIMER.
   sifu.init_and_start(); // Старт SIFU
@@ -57,21 +59,37 @@ CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma, CRegManager& rReg_
 }
 
 // Создание системного менеджера 
-CSystemManager CFactory::createSysManager(CSIFU& rSIFU, CRegManager& rReg_manager) { 
+CSystemManager& CFactory::createSysManager(CSIFU& rSIFU, CRegManager& rReg_manager) { 
   static CAdjustmentMode adjustment(rSIFU);
   static CReadyCheck ready_check;
   static CFaultControl fault_ctrl;
   static CPuskMode pusk_mode;
   static CWorkMode work_mode;
   static CWarningMode warning_ctrl;
-  return CSystemManager(rSIFU, 
-                        adjustment, 
-                        ready_check, 
-                        fault_ctrl, 
-                        pusk_mode, 
-                        work_mode,
-                        warning_ctrl,
-                        rReg_manager);  
+  /*return CSystemManager
+    (
+     rSIFU, 
+     adjustment, 
+     ready_check, 
+     fault_ctrl, 
+     pusk_mode, 
+     work_mode,
+     warning_ctrl,
+     rReg_manager);*/
+  static CSystemManager sys_manager
+    (
+     rSIFU, 
+     adjustment, 
+     ready_check, 
+     fault_ctrl, 
+     pusk_mode, 
+     work_mode,
+     warning_ctrl,
+     rReg_manager);
+  
+    ready_check.getManager(&sys_manager);
+    
+    return sys_manager;
 }
 
 // Инициализация драйвера ПТ и создание объектов Пультового терминала

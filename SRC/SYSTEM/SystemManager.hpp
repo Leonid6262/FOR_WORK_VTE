@@ -8,6 +8,8 @@
 #include "WarningControl.hpp" 
 #include "SIFU.hpp"
 
+class CReadyCheck;
+
 class CSystemManager {
   
 public:

@@ -103,11 +103,12 @@ void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normal
   
   if (changed & CurrCycle) {
     if (normalized & CurrCycle) {
-      cycleService.start();
+      pulse_counter = 0; 
+      phase = false; 
+      IsetCycle = IsetCyc_1; 
+      last_pulse = rSIFU.N_Pulse;
       cur_mode = (normalized & PulsesF) ? EModeAdj::CurrentCycleF : EModeAdj::CurrentCycleM;
-    } else {
-      cycleService.stop(); 
-    }
+    } 
   }
   
   if (changed & Phase) {
@@ -133,7 +134,8 @@ void CAdjustmentMode::ex_mode(EModeAdj ex_mode){
     break;
   case EModeAdj::CurrentCycleF:
   case EModeAdj::CurrentCycleM:
-    cycleService.step();
+    stepCycle();
+    rSIFU.rReg_manager.rCurrent_reg.set_Iset(IsetCycle);
     break;
   case EModeAdj::PhasingF:
   case EModeAdj::PhasingM:
@@ -145,4 +147,18 @@ void CAdjustmentMode::ex_mode(EModeAdj ex_mode){
   }
 
 }
+
+// Циклы задания тока
+void CAdjustmentMode::stepCycle() { 
+  if (rSIFU.N_Pulse != last_pulse) { 
+    last_pulse = rSIFU.N_Pulse; 
+    pulse_counter++;  
+    if (pulse_counter >= NpulsCyc) { 
+      pulse_counter = 0; 
+      phase = !phase; 
+      IsetCycle = phase ? IsetCyc_2 : IsetCyc_1; 
+    } 
+  }
+}
+
 

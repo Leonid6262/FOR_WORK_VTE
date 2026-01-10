@@ -25,6 +25,6 @@ private:
  float u_i;
  signed short u_min;
  signed short u_max;
- signed short Iset;
+ unsigned short Iset;
  
 };

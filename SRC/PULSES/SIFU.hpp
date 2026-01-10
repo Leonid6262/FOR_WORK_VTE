@@ -4,15 +4,17 @@
 #include "puls_calc.hpp"
 #include "rem_osc.hpp"
 #include "RegManager.hpp"
+#include "FaultCtrlP.hpp" 
 
 class CRegManager;
 
 class CSIFU {
  public:
-  CSIFU(CPULSCALC&, CRegManager&);
+  CSIFU(CPULSCALC&, CRegManager&, CFaultCtrlP&);
 
   CPULSCALC& rPulsCalc;
   CRegManager& rReg_manager;
+  CFaultCtrlP& rFault_p;
 
   void set_forcing_bridge();  // Подать импульсы на форсировочный мост
   void set_main_bridge();     // Подать импульсы на основной мост
@@ -59,6 +61,8 @@ class CSIFU {
     static constexpr unsigned int N_PULSES = 6;
     
   } s_const;
+  
+   unsigned char N_Pulse;
 
  private:
   static const unsigned char pulses[];
@@ -67,8 +71,6 @@ class CSIFU {
 
   bool forcing_bridge;
   bool main_bridge;
-
-  unsigned char N_Pulse;
 
   signed short Alpha_setpoint;
   signed short Alpha_current;
