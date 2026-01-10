@@ -13,6 +13,7 @@ public:
   unsigned short reqADJmode = 0;      // Битовая маска запросов режимов от внешнего источника
   
   signed short AlphaAdj = rSIFU.s_const.AMax;
+  unsigned short IsetAdj = 0;
 
 private:
   // Битовые флаги сборки режимов AdjustmentMode
@@ -73,5 +74,28 @@ private:
   CSIFU& rSIFU;
   
   unsigned short prevBits = 0;
+  
+  class CycleService {  
+  public: 
+    CycleService() {}
+    
+    bool active_c = false;
+    
+  void start() { 
+    active_c = true; 
+  }
+  
+  void stop() { 
+    active_c = false; 
+  } 
+  void step() {
+  }
+    
+  private: 
+    
+    
+  }; 
+
+  CycleService cycleService;
   
 };

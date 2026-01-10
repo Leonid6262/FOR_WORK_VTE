@@ -1,22 +1,13 @@
 #include "SystemManager.hpp"
 
-CSystemManager::CSystemManager(CSIFU& rSIFU, 
-                               CAdjustmentMode& rAdj_mode, 
-                               CReadyCheck& rReady_check, 
-                               CFaultControl& rFault_ctrl,
-                               CPuskMode& rPusk_mode,
-                               CWorkMode& rWork_mode,
-                               CWarningMode& rWarning_ctrl,
-                               CRegManager& rReg_manager)
-: rSIFU(rSIFU), 
-rAdj_mode(rAdj_mode), 
-rReady_check(rReady_check), 
-rFault_ctrl(rFault_ctrl),
-rPusk_mode(rPusk_mode),
-rWork_mode(rWork_mode),
-rWarning_ctrl(rWarning_ctrl),
-rReg_manager(rReg_manager)
-{
+CSystemManager::CSystemManager(CSIFU& rSIFU, CAdjustmentMode& rAdj_mode, CReadyCheck& rReady_check, 
+                               CFaultControl& rFault_ctrl, CPuskMode& rPusk_mode, CWorkMode& rWork_mode,
+                               CWarningMode& rWarning_ctrl, CRegManager& rReg_manager)
+
+: rSIFU(rSIFU), rAdj_mode(rAdj_mode), rReady_check(rReady_check), 
+rFault_ctrl(rFault_ctrl), rPusk_mode(rPusk_mode), rWork_mode(rWork_mode),
+rWarning_ctrl(rWarning_ctrl),rReg_manager(rReg_manager){
+  
   USystemMode.all = 0;
   USystemStatus.all = 0;
   setReadyCheck(Mode::ALLOWED);
@@ -24,22 +15,20 @@ rReg_manager(rReg_manager)
 
 void CSystemManager::dispatch() { 
   
-  USystemMode.all = USMode_r.all; // копируем запрос
+  USystemMode.all = USMode_r.all; // копируем запросы
   
   for (auto& rule : rules) {
     bool allowed =
       ((USystemStatus.all & rule.requiredStatus)  == rule.requiredStatus) &&
       ((USystemStatus.all & rule.forbiddenStatus) == 0) &&
       ((USystemMode.all   & rule.requiredModes)   == rule.requiredModes) &&
-      ((USystemMode.all   & rule.forbiddenModes)  == 0);
-    
+      ((USystemMode.all   & rule.forbiddenModes)  == 0);    
     if (!allowed) { 
       USystemMode.all &= ~rule.req_bit; // снимаем бит 
-    }
-    
+    }    
   }
   
-  USMode_r.all = USystemMode.all; // синхронизация
+  USMode_r.all = USystemMode.all; // синхронизация с источником
   
   rAdj_mode.parsing_request(USystemMode.Adjustment);    // Обработка запросов вкл. наладочных режимов
   rReady_check.check(USystemMode.ReadyCheck);           // Сборка готовности

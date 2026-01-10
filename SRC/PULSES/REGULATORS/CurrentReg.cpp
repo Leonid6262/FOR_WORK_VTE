@@ -15,6 +15,10 @@ void CCurrentReg::stop(CSIFU* pSIFU) {
   start_r = false;
 }
 
+void CCurrentReg::set_Iset(unsigned short Iset) {
+  this->Iset = Iset;
+}
+
 void CCurrentReg::step(bool mode, CSIFU* pSIFU) { 
  
   if(!mode) { if(start_r) { stop(pSIFU); } return;}
@@ -23,7 +27,7 @@ void CCurrentReg::step(bool mode, CSIFU* pSIFU) {
   auto set = rSet.getSettings();
   
   signed short Imeas = *pAdc.getEPointer(CADC_STORAGE::ROTOR_CURRENT);
-  signed short Iset = set.set_reg.Iset;
+  //signed short Iset = set.set_reg.Iset0;
  
   float e = static_cast<float>(Iset - Imeas);
   

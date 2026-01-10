@@ -24,7 +24,7 @@ public:
  void stepAll();
  void getSIFU(CSIFU*);
  
- // --- Запрос режимов регулирования---
+ // --- Режимы регулирования---
  union URegMode_t {
    unsigned char all;
    struct {
@@ -32,9 +32,9 @@ public:
      unsigned char QPower   : 1;  // Разрешение РQ
      unsigned char CosPhi   : 1;  // Разрешение РCos
    };
- } URegMode_request;
+ } URegMode_request;    // Текущие режимы
  
-  URegMode_t URegMode;
+  URegMode_t URegMode;  // Запрос режимов
  
   void setCurrent(Bit_switch mode) { URegMode_request.Current = static_cast<unsigned char>(mode); } 
   void setQPower(Bit_switch mode)  { URegMode_request.QPower  = static_cast<unsigned char>(mode); } 
@@ -42,14 +42,14 @@ public:
  
 private:
   
-  // --- Биты разрешений режимов регулирования --- 
+  // --- Биты режимов регулирования --- 
   enum MBit : unsigned char { 
     Current = 1 << 0, // Разрешение РТ 
     QPower  = 1 << 1, // Разрешение РQ 
     CosPhi  = 1 << 2, // Разрешение РCos 
   };
   
-  // --- Правило зависимости --- 
+  // --- Правила --- 
   struct DependencyRule { 
     MBit req_bit;                    // какой режим проверяется
     unsigned char requiredModes;     // какие режимы должны быть включены 

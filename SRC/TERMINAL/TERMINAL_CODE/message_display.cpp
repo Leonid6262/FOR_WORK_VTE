@@ -47,28 +47,6 @@ void CMessageDisplay::sendLine(const std::string& s, bool newline) {
     uartDrv.sendBuffer(reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
 }
 
-/*
-void CMessageManager::render_messages(signed char cat, bool print_title) {
-  std::string text;
-  if(cat == not_mes) {
-    text = StringUtils::padTo16("Not") + "\r\n";   
-    uartDrv.sendBuffer(reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
-    text = StringUtils::padTo16("Messages") + "\r";
-    uartDrv.sendBuffer(reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
-    return;
-  }
-  if (print_title) {
-    text = StringUtils::utf8_to_cp1251(contexts[cat].NAME[l]);
-    text = StringUtils::padTo16(text) + "\r\n";
-    uartDrv.sendBuffer(reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
-  }
-  text = StringUtils::utf8_to_cp1251(contexts[cat].MSG[contexts[cat].cursor][l]);
-  text = StringUtils::padTo16(text) + "\r";  
-  uartDrv.sendBuffer(reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
-}
-*/
-
-
 void CMessageDisplay::rotate_messages() {
   static unsigned char cur_cat = 0;
   static unsigned char emp_num = 0;

@@ -83,9 +83,7 @@ void CSIFU::rising_puls() {
 
   rPulsCalc.conv_and_calc();     // Измерения, вычисления и т.п.
   rReg_manager.applyModeRules();
-  if(forcing_bridge || main_bridge) {
-    rReg_manager.stepAll();     // Регулирование
-  }
+  rReg_manager.stepAll();       // Регулирование
   
 }
 

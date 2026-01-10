@@ -8,13 +8,13 @@ void CAdjustmentMode::parsing_request(bool mode) {
   if(!mode) {
     applyChanges(prevBits, 0);
     prevBits = 0;
-    reqADJmode = 0;           // обратная связь по индикации
+    reqADJmode = 0;
     return;
   } else {
     reqADJmode |= AdjMode;
   }
   
-  // 2. Проверка штатного отключения любого режима (tmp var для нпглядности)
+  // 2. Проверка штатного отключения любого режима 
   unsigned short prev_active   = prevBits & ~AdjMode;       // что было реально включено
   unsigned short req_active    = reqADJmode  & ~AdjMode;    // что пользователь хочет сейчас
   unsigned short disabled_mask = prev_active & ~req_active; // что пользователь штатно снял
@@ -23,7 +23,7 @@ void CAdjustmentMode::parsing_request(bool mode) {
     unsigned short normalized = AdjMode;
     applyChanges(prevBits, normalized);
     prevBits = normalized;
-    reqADJmode   = normalized; // обратная связь по индикации
+    reqADJmode   = normalized;
     cur_mode = EModeAdj::None;
     return;
   }
@@ -58,7 +58,7 @@ void CAdjustmentMode::parsing_request(bool mode) {
   unsigned short changed = req_functions ^ prevBits;
   applyChanges(changed, req_functions);
   prevBits = req_functions;
-  reqADJmode = prevBits; // обратная связь по индикации
+  reqADJmode = prevBits;
   
   ex_mode(cur_mode);
 }
@@ -92,19 +92,21 @@ void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normal
   
   if (changed & CurrReg) {
     if (normalized & CurrReg) {
+      rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
       rSIFU.rReg_manager.setCurrent(Bit_switch::ON);
       cur_mode = (normalized & PulsesF) ? EModeAdj::CurrentRegF : EModeAdj::CurrentRegM;
     } else {
+      rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
       rSIFU.rReg_manager.setCurrent(Bit_switch::OFF);
     }
   }
   
   if (changed & CurrCycle) {
     if (normalized & CurrCycle) {
-      //EnableCurrentCycles();
+      cycleService.start();
       cur_mode = (normalized & PulsesF) ? EModeAdj::CurrentCycleF : EModeAdj::CurrentCycleM;
     } else {
-      //DisableCurrentCycles();
+      cycleService.stop(); 
     }
   }
   
@@ -126,10 +128,12 @@ void CAdjustmentMode::ex_mode(EModeAdj ex_mode){
     rSIFU.set_alpha(AlphaAdj);
     break;
   case EModeAdj::CurrentRegF:
-  case EModeAdj::CurrentRegM:    
+  case EModeAdj::CurrentRegM:
+    rSIFU.rReg_manager.rCurrent_reg.set_Iset(IsetAdj);
     break;
   case EModeAdj::CurrentCycleF:
-  case EModeAdj::CurrentCycleM:    
+  case EModeAdj::CurrentCycleM:
+    cycleService.step();
     break;
   case EModeAdj::PhasingF:
   case EModeAdj::PhasingM:
@@ -139,5 +143,6 @@ void CAdjustmentMode::ex_mode(EModeAdj ex_mode){
   case EModeAdj::None:
     break;  
   }
+
 }
 

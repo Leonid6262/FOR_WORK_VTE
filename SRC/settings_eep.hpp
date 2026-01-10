@@ -49,7 +49,7 @@ class CEEPSettings {
     {
       float KpCr;
       float KiCr;
-      signed short Iset;
+      signed short Iset0;
       signed short Ifors;
       signed short Idry;
       signed short A0;
@@ -88,7 +88,7 @@ class CEEPSettings {
     {
       .KpCr = 1.0f,
       .KiCr = 0.001f,
-      .Iset = 0,
+      .Iset0 = 0,
       .Ifors = 0,
       .Idry = 0,
       .A0 = 6667,

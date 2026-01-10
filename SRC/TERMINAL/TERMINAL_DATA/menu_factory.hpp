@@ -45,8 +45,9 @@ static const struct {
 inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings& rSet, CSystemManager& rSysMgr) {
   auto& set = rSet.getSettings();
   using namespace menu_alias;
-  unsigned short l = set.Language - 1;                          // Установка языка отображения согласно уставке
   auto& sfc = rSysMgr.rSIFU.s_const;
+  
+  unsigned short l = set.Language - 1;                          // Установка языка отображения согласно уставке
   enum Precision : unsigned char { p0, p1, p2, p3, p4 };        // количество знаков после запятой p4->0.0001
   
   std::vector<o> MENU = {
@@ -69,7 +70,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
       o("I-REG",{
            o("I-Regulator",{},   &rSysMgr.rAdj_mode.reqADJmode,         un::b,   cd::one,    p0, vt::eb_3,   nm::Ed1V),
            o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::IRotor, p0, vt::sshort,
-                        "I-set", &set.set_reg.Iset,                     un::Amp, cd::IRotor, p0, vt::sshort, nm::IE2V, 0, 200),}),
+                        "I-set", &rSysMgr.rAdj_mode.IsetAdj,            un::Amp, cd::IRotor, p0, vt::sshort, nm::IE2V, 0, 200),}),
       o("PHASING",{
            o("Phasing mode", {},&rSysMgr.rAdj_mode.reqADJmode,un::b,  cd::one,  p0,vt::eb_5,  nm::Ed1V),
            o("60deg shift",  {},&set.set_sifu.d_power_shift,  "",     cd::one,  p0,vt::ushort,nm::Ed1V, 0, (sfc.N_PULSES-1)),
@@ -79,7 +80,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o(Mn.CURRENT[l],{
               o("KpCr",   {}, &set.set_reg.KpCr, "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiCr",   {}, &set.set_reg.KiCr, "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),
-              o("I-set",  {}, &set.set_reg.Iset, un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
+              o("I-set",  {}, &set.set_reg.Iset0,un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
               o("I-fors", {}, &set.set_reg.Ifors,un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
               o("I-dry",  {}, &set.set_reg.Idry, un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
               o("Alpha-0",{}, &set.set_reg.A0,   un::Deg, cd::Alpha,  p0, vt::sshort, nm::Ed1V, 90, 120)
