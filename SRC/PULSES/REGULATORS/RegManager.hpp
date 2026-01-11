@@ -36,9 +36,9 @@ public:
  
   URegMode_t URegMode;  // Запрос режимов
  
-  void setCurrent(Bit_switch mode) { URegMode_request.Current = static_cast<unsigned char>(mode); } 
-  void setQPower(Bit_switch mode)  { URegMode_request.QPower  = static_cast<unsigned char>(mode); } 
-  void setCosPhi(Bit_switch mode)  { URegMode_request.CosPhi  = static_cast<unsigned char>(mode); } 
+  void setCurrent(State mode) { URegMode_request.Current = static_cast<unsigned char>(mode); } 
+  void setQPower(State mode)  { URegMode_request.QPower  = static_cast<unsigned char>(mode); } 
+  void setCosPhi(State mode)  { URegMode_request.CosPhi  = static_cast<unsigned char>(mode); } 
  
 private:
   

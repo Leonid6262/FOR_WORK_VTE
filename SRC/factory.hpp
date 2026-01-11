@@ -23,7 +23,6 @@
 #include "message_display.hpp"
 #include "terminal_manager.hpp"
 #include "AdcStorage.hpp"
-#include "proxy_pointer_var.hpp"
 #include "bool_name.hpp"
 #include "Adjustment.hpp" 
 #include "SystemManager.hpp" 

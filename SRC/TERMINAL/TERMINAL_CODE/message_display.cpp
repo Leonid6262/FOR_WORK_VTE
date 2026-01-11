@@ -9,6 +9,10 @@ CMessageDisplay::CMessageDisplay(CTerminalUartDriver& uartDrv) :
       SNotReady::active, 0,
       SNotReady::NAME, SNotReady::MSG,
       static_cast<unsigned char>(ENotReadyId::COUNT)};
+  contexts[static_cast<unsigned char>(ECategory::READY)] = {
+      SReady::active, 0,
+      SReady::NAME, SReady::MSG,
+      static_cast<unsigned char>(EReadyId::COUNT)};
   contexts[static_cast<unsigned char>(ECategory::WORK)] = {
       SWork::active, 0,
       SWork::NAME, SWork::MSG,

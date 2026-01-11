@@ -1,6 +1,6 @@
 #include "Adjustment.hpp" 
   
-CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU) : rSIFU(rSIFU) {}
+CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU, CEEPSettings& rSettings) : rSIFU(rSIFU), rSettings(rSettings) {} 
 
 void CAdjustmentMode::parsing_request(bool mode) {
   
@@ -93,11 +93,11 @@ void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normal
   if (changed & CurrReg) {
     if (normalized & CurrReg) {
       rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
-      rSIFU.rReg_manager.setCurrent(Bit_switch::ON);
+      rSIFU.rReg_manager.setCurrent(State::ON);
       cur_mode = (normalized & PulsesF) ? EModeAdj::CurrentRegF : EModeAdj::CurrentRegM;
     } else {
       rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
-      rSIFU.rReg_manager.setCurrent(Bit_switch::OFF);
+      rSIFU.rReg_manager.setCurrent(State::OFF);
     }
   }
   
@@ -139,8 +139,8 @@ void CAdjustmentMode::ex_mode(EModeAdj ex_mode){
     break;
   case EModeAdj::PhasingF:
   case EModeAdj::PhasingM:
-    rSIFU.set_d_shift(CEEPSettings::getInstance().getSettings().set_sifu.d_power_shift);
-    rSIFU.set_a_shift(CEEPSettings::getInstance().getSettings().set_sifu.power_shift);
+    rSIFU.set_d_shift(rSettings.getSettings().set_sifu.d_power_shift);
+    rSIFU.set_a_shift(rSettings.getSettings().set_sifu.power_shift);
     break;  
   case EModeAdj::None:
     break;  

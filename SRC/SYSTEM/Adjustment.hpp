@@ -7,7 +7,7 @@
 // Класс управления режимом Наладка
 class CAdjustmentMode {
 public:
-  CAdjustmentMode(CSIFU&);
+  CAdjustmentMode(CSIFU&, CEEPSettings&);
   
   void parsing_request(bool);         // Анализ и принятие решения по запросу от внешнего источника
   unsigned short reqADJmode = 0;      // Битовая маска запросов режимов от внешнего источника
@@ -76,6 +76,7 @@ private:
   void ex_mode(EModeAdj);
   
   CSIFU& rSIFU;
+  CEEPSettings& rSettings;
   
   unsigned short prevBits = 0; 
   

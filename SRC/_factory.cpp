@@ -46,13 +46,6 @@ CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma, CRegManager& rReg_
      puls_calc,                                 // Измерение и обработка
      CADC_STORAGE::getInstance());              // Данные АЦП
   
-  CProxyPointerVar::getInstance().registerVar   // Регистрация Alpha в реестре указателей
-    (           
-     NProxyVar::ProxyVarID::AlphaCur, 
-     sifu.getPointerAlpha(), 
-     cd::Alpha, 
-     NProxyVar::Unit::Deg);
-  
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu, &rem_osc);  // Proxy Singleton доступа к Handler TIMER.
   sifu.init_and_start(); // Старт SIFU
   return sifu;
@@ -60,22 +53,13 @@ CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma, CRegManager& rReg_
 
 // Создание системного менеджера 
 CSystemManager& CFactory::createSysManager(CSIFU& rSIFU, CRegManager& rReg_manager) { 
-  static CAdjustmentMode adjustment(rSIFU);
-  static CReadyCheck ready_check;
+  static CAdjustmentMode adjustment(rSIFU, CEEPSettings::getInstance());
+  static CReadyCheck ready_check(CADC_STORAGE::getInstance(), CDIN_STORAGE::getInstance());
   static CFaultControl fault_ctrl;
   static CPuskMode pusk_mode;
   static CWorkMode work_mode;
   static CWarningMode warning_ctrl;
-  /*return CSystemManager
-    (
-     rSIFU, 
-     adjustment, 
-     ready_check, 
-     fault_ctrl, 
-     pusk_mode, 
-     work_mode,
-     warning_ctrl,
-     rReg_manager);*/
+
   static CSystemManager sys_manager
     (
      rSIFU, 

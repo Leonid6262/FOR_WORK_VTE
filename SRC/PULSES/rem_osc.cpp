@@ -70,7 +70,7 @@ void CREM_OSC::init_dma() {
     CDMAcontroller::EConnNumber::SSP2_Tx,         // Номер периферийного подключения
     CDMAcontroller::DmaBurst::SIZE_4,             // Количество единичных элементов транзакции
     CDMAcontroller::EWidth::SHORT,                // Размер единичного элемента
-    static_cast<bool>(Bit_switch::OFF)            // Разрешение/запрет события окончания передачи (ON/OFF)
+    static_cast<bool>(State::OFF)            // Разрешение/запрет события окончания передачи (ON/OFF)
   };
 
   rContDMA.init_M2P2M_Channel(&cfg_ch_tx);
@@ -82,7 +82,7 @@ void CREM_OSC::init_dma() {
       CDMAcontroller::EConnNumber::SSP2_Rx,         // Номер периферийного подключения
       CDMAcontroller::DmaBurst::SIZE_4,             // Количество единичных элементов транзакции
       CDMAcontroller::EWidth::SHORT,                // Размер единичного элемента
-      static_cast<bool>(Bit_switch::OFF)            // Разрешение/запрет события окончания приёма (ON/OFF)
+      static_cast<bool>(State::OFF)            // Разрешение/запрет события окончания приёма (ON/OFF)
   };
 
   rContDMA.init_M2P2M_Channel(&cfg_ch_rx);

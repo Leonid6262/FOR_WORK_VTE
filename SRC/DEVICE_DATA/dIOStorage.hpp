@@ -32,24 +32,24 @@ class CDIN_STORAGE {
   //
   
   //--- Выходы контроллера Po0 ---
-  static inline void bNamePo0B0(Bit_switch state)    {edit_bit(0, state);}
-  static inline void REL_LEAKAGE_P(Bit_switch state) {edit_bit(1, state);} // Реле контроля изоляции К1
-  static inline void REL_LEAKAGE_N(Bit_switch state) {edit_bit(2, state);} // Реле контроля изоляции К2
-  static inline void bNamePo0B3(Bit_switch state)    {edit_bit(3, state);}
-  static inline void bNamePo0B4(Bit_switch state)    {edit_bit(4, state);}
-  static inline void bNamePo0B5(Bit_switch state)    {edit_bit(5, state);}
-  static inline void bNamePo0B6(Bit_switch state)    {edit_bit(6, state);}
-  static inline void bNamePo0B7(Bit_switch state)    {edit_bit(7, state);} 
+  static inline void bNamePo0B0(State state)    {edit_bit(0, state);}
+  static inline void REL_LEAKAGE_P(State state) {edit_bit(1, state);} // Реле контроля изоляции К1
+  static inline void REL_LEAKAGE_N(State state) {edit_bit(2, state);} // Реле контроля изоляции К2
+  static inline void bNamePo0B3(State state)    {edit_bit(3, state);}
+  static inline void bNamePo0B4(State state)    {edit_bit(4, state);}
+  static inline void bNamePo0B5(State state)    {edit_bit(5, state);}
+  static inline void bNamePo0B6(State state)    {edit_bit(6, state);}
+  static inline void bNamePo0B7(State state)    {edit_bit(7, state);} 
 
   //--- Выходы контроллера SPI ---
-  inline void Lamp_REDY         (Bit_switch state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b0 = static_cast<bool>(state);}
-  inline void DoutControllerB1  (Bit_switch state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b1 = static_cast<bool>(state);}
-  inline void DoutControllerB2  (Bit_switch state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b2 = static_cast<bool>(state);}
-  inline void DoutControllerB3  (Bit_switch state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b3 = static_cast<bool>(state);}
-  inline void System_FAILURE    (Bit_switch state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b4 = static_cast<bool>(state);}
-  inline void Excitation_Applied(Bit_switch state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b5 = static_cast<bool>(state);}
-  inline void START_Premission  (Bit_switch state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b6 = static_cast<bool>(state);}
-  inline void ON_Shunt_HVS      (Bit_switch state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b7 = static_cast<bool>(state);}
+  inline void Lamp_REDY         (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b0 = static_cast<bool>(state);}
+  inline void DoutControllerB1  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b1 = static_cast<bool>(state);}
+  inline void DoutControllerB2  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b2 = static_cast<bool>(state);}
+  inline void DoutControllerB3  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b3 = static_cast<bool>(state);}
+  inline void System_FAILURE    (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b4 = static_cast<bool>(state);}
+  inline void Excitation_Applied(State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b5 = static_cast<bool>(state);}
+  inline void START_Premission  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b6 = static_cast<bool>(state);}
+  inline void ON_Shunt_HVS      (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b7 = static_cast<bool>(state);}
   
   //--- Выходы S600 ---
   //
@@ -119,13 +119,13 @@ class CDIN_STORAGE {
   static inline void Q1VF_On() { LPC_GPIO1->CLR = (1UL << B_Q1VF); }     // Вкл. Q1VF
   static inline void Q1VF_Off() { LPC_GPIO1->SET = (1UL << B_Q1VF); }    // Выкл.Q1VF
 
-  static inline void edit_bit(char bit_number, Bit_switch state) {
+  static inline void edit_bit(char bit_number, State state) {
     switch (state) {
-      case Bit_switch::ON: {
+      case State::ON: {
         LPC_GPIO2->SET = static_cast<unsigned int>(1UL << (B0_PORT_OUT + (bit_number & 0x07)));
       }  // dout-on
       break;
-      case Bit_switch::OFF: {
+      case State::OFF: {
         LPC_GPIO2->CLR = static_cast<unsigned int>(1UL << (B0_PORT_OUT + (bit_number & 0x07)));
       }  // dout-off
       break;

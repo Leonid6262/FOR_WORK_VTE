@@ -13,19 +13,20 @@ struct CategoryActive
 {
   inline static bool active[static_cast<unsigned char>(EnumId::COUNT)]{};
   static void setMessage(EnumId id) { active[static_cast<unsigned char>(id)] = true; }
-  static void clearMessage(EnumId id) { active[static_cast<unsigned char>(id)] = false; }
+  static void clrMessage(EnumId id) { active[static_cast<unsigned char>(id)] = false; }
 };
 
-enum class ECategory { NOT_READY, WORK, FAULT, WARNING, COUNT }; // Спмсок категорий
+enum class ECategory { NOT_READY, READY, WORK, FAULT, WARNING, COUNT }; // Спмсок категорий
 
 // ======================= NOT_READY =======================
-enum class ENotReadyId { ADJ_MODE, Q1_is_OFF, COUNT };
+enum class ENotReadyId { ADJ_MODE, Q1_is_OFF, SENS_CURR_FAULT, COUNT };
 struct SNotReady : CategoryActive<ENotReadyId>{
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "НЕТ ГОТОВНОСТ:", "NOT READY:", "НЕМА ГОТОВНОСТI:" };
   static constexpr const char* MSG[][G_CONST::Nlang] = {
     {"Режим Наладки", "Adjustment mode", "Режим Наладки"},
-    {"Отключен Q1",   "Q1 is OFF",       "Вимкнено Q1"}
+    {"Отключен Q1",   "Q1 is OFF",       "Вимкнено Q1"},
+    {"Неисправен ДТ", "Sens Curr FAULT", "Несправний ДТ"}
   };
   
   
@@ -33,6 +34,17 @@ struct SNotReady : CategoryActive<ENotReadyId>{
   static constexpr auto _checkMsg = (checkMsgSize<ENotReadyId>(MSG), 0);
 };
 
+// ======================= READY =======================
+enum class EReadyId { PUSK, DRY, COUNT };
+struct SReady : CategoryActive<EReadyId>{
+  
+  static constexpr const char* NAME[G_CONST::Nlang] = { "ГОТОВ", "READY", "ГОТОВИЙ" };
+  static constexpr const char* MSG[][G_CONST::Nlang] = {
+    {"К Пуску",         "To Start",             "До Пуску"},
+    {"К режиму СУШКА",  "To Drying mode",       "До режимум СУШКА"},
+  };      
+  static constexpr auto _checkMsg = (checkMsgSize<EReadyId>(MSG), 0);
+};
 // ======================= WORK =======================
 enum class EWorkId { ADJ_MODE, CURRENT_REG, COS_REG, Q_POWER_REG, COUNT };
 struct SWork : CategoryActive<EWorkId> {

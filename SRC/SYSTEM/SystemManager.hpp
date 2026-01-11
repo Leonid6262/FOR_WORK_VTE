@@ -37,11 +37,11 @@ public:
    };
  } USystemStatus;
  
- void setReady(Bit_switch state)        { USystemStatus.Ready   = static_cast<unsigned char>(state); }
- void setPusk(Bit_switch state)         { USystemStatus.Pusk    = static_cast<unsigned char>(state); }
- void setWork(Bit_switch state)         { USystemStatus.Work    = static_cast<unsigned char>(state); }
- void setWarning(Bit_switch state)      { USystemStatus.Warning = static_cast<unsigned char>(state); }
- void setFault(Bit_switch state)        { USystemStatus.Fault   = static_cast<unsigned char>(state); }
+ void setReady(State state)        { USystemStatus.Ready   = static_cast<unsigned char>(state); }
+ void setPusk(State state)         { USystemStatus.Pusk    = static_cast<unsigned char>(state); }
+ void setWork(State state)         { USystemStatus.Work    = static_cast<unsigned char>(state); }
+ void setWarning(State state)      { USystemStatus.Warning = static_cast<unsigned char>(state); }
+ void setFault(State state)        { USystemStatus.Fault   = static_cast<unsigned char>(state); }
 
  // --- Текущие режимы ---
  union USystemMode_t{

@@ -1,17 +1,26 @@
 #pragma once 
 #include "bool_name.hpp"
 #include "SystemManager.hpp"
+#include "dIOStorage.hpp"
+#include "AdcStorage.hpp"
 
 class CSystemManager;
 
 class CReadyCheck {
   
 public:
-  CReadyCheck();
+  CReadyCheck(CADC_STORAGE&, CDIN_STORAGE&);
+  
+  R Ready = R::NOT_READY;
+  
   void getManager(CSystemManager*);
   void check(bool);
   
 private:
-  CSystemManager* pSys_manager; 
+  CSystemManager* pSys_manager;
+  CDIN_STORAGE& rDinStr;
+  CADC_STORAGE& rAdcStr; 
+  
+  static constexpr unsigned short dMax = 10;
  
 };

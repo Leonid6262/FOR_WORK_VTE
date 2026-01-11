@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LPC407x_8x_177x_8x.h"
+#include "proxy_pointer_var.hpp"
 #include "puls_calc.hpp"
 #include "rem_osc.hpp"
 #include "RegManager.hpp"
