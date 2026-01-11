@@ -32,8 +32,8 @@ class CADC_STORAGE {
 
   // --- Обработка и запись данных внешнего АЦП ---
   inline void setExternal(unsigned char channel, signed short raw_adc_data) {
-    external_data[channel] = (raw_adc_data - settings.getSettings().shift_adc[channel]) *
-                             (1.0f + settings.getSettings().incline_adc[channel]);
+    external_data[channel] = (raw_adc_data - rSettings.getSettings().shift_adc[channel]) *
+                             (1.0f + rSettings.getSettings().incline_adc[channel]);
   }
   // --- Запись таймингов внешнего АЦП ---
   inline void setTimings(unsigned char channel, unsigned int timings) { this->timings[channel] = timings; }
@@ -61,7 +61,7 @@ class CADC_STORAGE {
   unsigned int timings[G_CONST::NUMBER_CHANNELS + 2] = {};    // Тайминги внешнего АЦП
   float internal_data[G_CONST::NUMBER_I_CHANNELS] = {};       // Обработанные данные полученные от внутреннего АЦП
 
-  CEEPSettings& settings;
+  CEEPSettings& rSettings;
 
   // --- Механизмы Singleton ---
   CADC_STORAGE();

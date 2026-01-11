@@ -19,7 +19,7 @@ void CSPI_ports::rw() {
               settings.dout_spi_invert[byte + (G_CONST::BYTES_RW_MAX - G_CONST::BYTES_RW_REAL)];
 
     // Фильтр (интегратор входного сигнала) и фиксация в CDIN_STORAGE
-    CDIN_STORAGE::getInstance().filter(data_din[byte], dT, n_for_storage + byte);
+    s_instans.filter(data_din[byte], dT, n_for_storage + byte);
 
     // После окончание операции r/w считываем байт din порта.
     // учитывая, что процесс фильтрации происходит на фоне транзакции spi,ожидания

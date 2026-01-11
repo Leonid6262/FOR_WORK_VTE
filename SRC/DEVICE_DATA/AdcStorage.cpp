@@ -2,7 +2,7 @@
 
 #include "proxy_pointer_var.hpp"
 
-CADC_STORAGE::CADC_STORAGE() : settings(CEEPSettings::getInstance()) {
+CADC_STORAGE::CADC_STORAGE() : rSettings(CEEPSettings::getInstance()) {
   // Регистрация в реестре указателей
   CProxyPointerVar& Ppv = CProxyPointerVar::getInstance();
   Ppv.registerVar(NProxyVar::ProxyVarID::Irotor,

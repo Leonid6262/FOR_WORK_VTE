@@ -14,10 +14,11 @@ const signed short CSIFU::offsets[] = {
     SIFUConst::_0gr      // Диапазон 60...120      (sync "видит" 6-й: ->1-2-3-4-5-sync-6->1-2-3...)
 };  // Индекс 0 не используется
 
-CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p) : 
+CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p, CEEPSettings& rSettings) : 
   rPulsCalc(rPulsCalc), 
   rReg_manager(rReg_manager), 
-  rFault_p(rFault_p){}
+  rFault_p(rFault_p),
+  rSettings(rSettings){}
 
 void CSIFU::rising_puls() {
   N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;
@@ -204,13 +205,11 @@ void CSIFU::pulses_stop() {
   main_bridge = false;
 }
 void CSIFU::start_phasing_mode() {
-  v_sync.task_power_shift = CEEPSettings::getInstance().getSettings().set_sifu.power_shift;
+  v_sync.task_power_shift = rSettings.getSettings().set_sifu.power_shift;
   v_sync.cur_power_shift = v_sync.task_power_shift;
   Operating_mode = EOperating_mode::PHASING;
 }
 void CSIFU::stop_phasing_mode() {
-//  CEEPSettings::getInstance().getSettings().set_sifu.power_shift = v_sync.cur_power_shift;
-//  CEEPSettings::getInstance().getSettings().set_sifu.d_power_shift = v_sync.d_power_shift;
   Alpha_setpoint = s_const.AMax;
   Operating_mode = EOperating_mode::NORMAL;
 }
@@ -232,8 +231,8 @@ void CSIFU::init_and_start() {
   main_bridge = false;
 
   N_Pulse = 1;
-  v_sync.d_power_shift = CEEPSettings::getInstance().getSettings().set_sifu.d_power_shift;
-  v_sync.task_power_shift = CEEPSettings::getInstance().getSettings().set_sifu.power_shift;
+  v_sync.d_power_shift = rSettings.getSettings().set_sifu.d_power_shift;
+  v_sync.task_power_shift = rSettings.getSettings().set_sifu.power_shift;
   v_sync.cur_power_shift = v_sync.task_power_shift;
   v_sync.SYNC_EVENT = false;
   v_sync.no_sync_pulses = 0;

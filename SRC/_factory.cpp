@@ -37,7 +37,7 @@ CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma, CRegManager& rReg_
   static CADC adc(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_1));  // Внешнее ADC. Подключено к SPI-1
   static CPULSCALC puls_calc(adc);                                      // Измерение и обработка всех аналоговых сигналов.
   static CFaultCtrlP fault_p;
-  static CSIFU sifu(puls_calc, rReg_manager, fault_p);                 // СИФУ.  
+  static CSIFU sifu(puls_calc, rReg_manager, fault_p, CEEPSettings::getInstance());  // СИФУ.  
   rReg_manager.getSIFU(&sifu);
   CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_2);   // Конфигурация SPI-2 для WiFi на ESP32
   static CREM_OSC rem_osc                               // Дистанционный осциллограф (WiFi модуль на ESP32). 

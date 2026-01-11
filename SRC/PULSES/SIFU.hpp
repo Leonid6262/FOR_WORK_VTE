@@ -11,7 +11,7 @@ class CRegManager;
 
 class CSIFU {
  public:
-  CSIFU(CPULSCALC&, CRegManager&, CFaultCtrlP&);
+  CSIFU(CPULSCALC&, CRegManager&, CFaultCtrlP&, CEEPSettings&);
 
   CPULSCALC& rPulsCalc;
   CRegManager& rReg_manager;
@@ -103,6 +103,8 @@ class CSIFU {
     float SYNC_FREQUENCY;  // Измеренная частота
 
   } v_sync;
+  
+  CEEPSettings& rSettings;
 
   // -- Аппаратные константы ----------------------------------------------------------------------
 
