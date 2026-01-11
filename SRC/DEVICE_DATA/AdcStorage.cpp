@@ -7,11 +7,9 @@ CADC_STORAGE::CADC_STORAGE() : rSettings(CEEPSettings::getInstance()) {
   CProxyPointerVar& Ppv = CProxyPointerVar::getInstance();
   Ppv.registerVar(NProxyVar::ProxyVarID::Irotor,
                   getEPointer(CADC_STORAGE::ROTOR_CURRENT), 
-                  cd::IRotor,
-                  NProxyVar::Unit::Amp);
+                  cd::cdr.Id, NProxyVar::Unit::Amp);
   
   Ppv.registerVar(NProxyVar::ProxyVarID::Urotor,
                   getEPointer(CADC_STORAGE::ROTOR_VOLTAGE), 
-                  cd::URotor,
-                  NProxyVar::Unit::Volt);
+                  cd::cdr.Ud, NProxyVar::Unit::Volt);
 };

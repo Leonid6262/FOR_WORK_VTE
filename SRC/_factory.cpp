@@ -13,7 +13,10 @@ CDAC_PWM CFactory::createPWMDac2()      { return CDAC_PWM(CDAC_PWM::EPWM_DACInst
  
 CIADC CFactory::createIADC()            { return CIADC(); }                                     // Внутренее ADC.
 CRTC CFactory::createRTC()              { return CRTC(); }                                      // Системные часы  
+
 StatusRet CFactory::load_settings()     { return CEEPSettings::getInstance().loadSettings(); }  // Загрузка уставок
+
+
 CDin_cpu CFactory::createDINcpu()       { return CDin_cpu(); }                                  // Дискретные входы контроллера                                      
 
 // Создание объекта доступа к dIO доступных по SPI
@@ -85,6 +88,10 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
   static CTerminalManager terminal_manager(menu_navigation, mes_display);               // Управление режимами пультового терминал
   menu_navigation.set_pTerminal(&terminal_manager);                                     // Создание циклической зависимости menu  
   mes_display.set_pTerminal(&terminal_manager);                                         // Создание циклической зависимости mes
+  
+  cd::cdr.Id = CEEPSettings::getInstance().getSettings().set_params.IdNom / 1000.0f; // 1000 дискрет
+  cd::cdr.Ud = CEEPSettings::getInstance().getSettings().set_params.UdNom / 1000.0f; // 1000 дискрет
+  
   return terminal_manager;                                                              // Возврат ссылки на менеджер терминпла
 }
 extern "C" void UART0_IRQHandler(void) { CTerminalUartDriver::getInstance().irq_handler(); }  // Вызов обработчика UART-0

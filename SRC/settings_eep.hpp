@@ -15,13 +15,21 @@ namespace G_CONST {
 }
 // Пространство имён коэффициентов отображения в единицах СИ
 namespace cd {
+  // Константные (compile-time)
   constexpr float one     = 1.0f;
   constexpr float Alpha   = 180.0f / 10000;     // 180deg/10000tick
-  constexpr float IRotor  = 200.0f / 1000;      // 200A/1000d 
-  constexpr float URotor  = 100.0f / 1500;      // 100V/1500d 
+  
   constexpr float UStator = 400.0f / 1500;      // 400V/1500d 
   constexpr float IStator = 150.0f / 1500;      // 150A/1500d 
+  // Параметрические (runtime) 
+  struct DisplayCoeffs { 
+    float Id; 
+    float Ud;
+  };
+  inline DisplayCoeffs cdr;
 }
+
+
 // Пространство имён коэффициентов отображения в %
 namespace pd {
   constexpr float IRotor  = 100.0f / 1000;      // 100%/1000d 
@@ -42,16 +50,16 @@ class CEEPSettings {
     float incline_adc[G_CONST::NUMBER_CHANNELS];        // 6 Наклон
     signed short shift_dac0;                            // 7 Смещение DAC0
     signed short shift_dac1_pwm;                        // 8 Смещение DAC1_pwm
-    signed short shift_dac2_pwm;                                // 9 Смещение DAC2_pwm
+    signed short shift_dac2_pwm;                        // 9 Смещение DAC2_pwm
     unsigned char din_Pi_invert[G_CONST::BYTES_RW_MAX + 1];     // 10 Признак инвертирования дискретных входов (+1 - порт Pi0)        
     unsigned char dout_spi_invert[G_CONST::BYTES_RW_MAX];       // 11 Признак инвертирования SPI выходов    
-    struct SetReg                                               // 12 Коэффициенты регуляторов
+    struct                                                      // 12 Параметры регуляторов
     {
       float KpCr;
       float KiCr;
-      signed short Iset0;
-      signed short Ifors;
-      signed short Idry;
+      unsigned short Iset0;
+      unsigned short Ifors;
+      unsigned short Idry;
       signed short A0;
       float KpCos;
       float KiCos;
@@ -60,13 +68,22 @@ class CEEPSettings {
       float KiQ;
       float Qset;
     } set_reg;
-    struct SetSIFU                                         // 13 Уставки СИФУ
+    struct                                                 // 13 Уставки СИФУ
     {
       signed short power_shift;                            /* Точный сдвиг силового напряжения */
       unsigned char d_power_shift;                         /* Дискретный сдвиг силового напряжения 60гр */
     } set_sifu;
-    unsigned char ssid[G_CONST::SSID_PS_L];                // 14 Имя сети
-    unsigned char password[G_CONST::SSID_PS_L];            // 15 Пароль
+    struct                                                 // 14 Уставки Аварийные
+    {
+      unsigned short IdMax;                                  /* IdMax */
+    } set_faults;
+    struct                                                 // 15 Параметры. Ном. значения
+    {
+      unsigned short IdNom;                                  /* IdNom */
+      unsigned short UdNom;                                  /* UdNom */
+    } set_params;       
+    unsigned char ssid[G_CONST::SSID_PS_L];                // 16 Имя сети
+    unsigned char password[G_CONST::SSID_PS_L];            // 17 Пароль
     // Добавляя новые уставки сюда, не забывайте обновлять defaultSettings ниже!!!
   };
 //  Статические константные уставки по умолчанию (во Flash) ---
@@ -91,7 +108,7 @@ class CEEPSettings {
       .Iset0 = 0,
       .Ifors = 0,
       .Idry = 0,
-      .A0 = 6667,
+      .A0 = static_cast<signed short>(120.0f/cd::Alpha),
       .KpCos = 1.0f,
       .KiCos = 0.001f,
       .Cos_set = 1.0,
@@ -103,7 +120,16 @@ class CEEPSettings {
     {
       .power_shift = 0,
       .d_power_shift = 0,
-    },   
+    },
+    .set_faults =
+    {
+      .IdMax = 0,
+    },
+    .set_params =
+    {
+      .IdNom = 320,
+      .UdNom = 75,
+    },      
     .ssid = "NetName",
     .password = "Password"
   };

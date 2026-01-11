@@ -31,6 +31,7 @@ static const struct {
     const char* COS_PHI[G_CONST::Nlang]        = {"COS PHI",         "COS PHI",          "COS PHI"};
     const char* Q_POWER[G_CONST::Nlang]        = {"Q МОЩНОСТИ",      "Q POWER",          "Q ПОТУЖНОСТI"};
     const char* LIMITS[G_CONST::Nlang]         = {"ОГРАНИЧЕНИЯ",     "LIMITS",           "ОБМЕЖЕННЯ"};
+    const char* PARAMS[G_CONST::Nlang]         = {"ПАРАМЕТРЫ",       "PARAMETERS",       "ПАРАМЕТРИ"};    
     const char* FAULTS[G_CONST::Nlang]         = {"АВАРИЙНЫЕ",       "FAULTS",           "АВАРIЙНI"};
     const char* ADC_SHIFT[G_CONST::Nlang]      = {"СМЕЩЕНИЯ АЦП",    "ADC SHIFT",        "ЗСУВ АЦП"};
     const char* ADJ_MODE[G_CONST::Nlang]       = {"РЕЖИМ НАЛАДКИ",   "ADJUSTMENT MODE",  "РЕЖИМ НАЛАДКИ"};
@@ -65,15 +66,15 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
       o("PULSES",{
            o("Fors Bridge",{},   &rSysMgr.rAdj_mode.reqADJmode,         un::b,   cd::one,    p0, vt::eb_1,   nm::Ed1V),
            o("Main Bridge",{},   &rSysMgr.rAdj_mode.reqADJmode,         un::b,   cd::one,    p0, vt::eb_2,   nm::Ed1V),
-           o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::IRotor, p0, vt::sshort,
+           o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::cdr.Id, p0, vt::sshort,
                         "Alpha", &rSysMgr.rAdj_mode.AlphaAdj,           un::Deg, cd::Alpha,  p1, vt::sshort, nm::IE2V, sfc.AMin*0.018, sfc.AMax*0.018),}),
       o("I-REG",{
            o("I-Regulator",{},   &rSysMgr.rAdj_mode.reqADJmode,         un::b,   cd::one,    p0, vt::eb_3,   nm::Ed1V),
-           o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::IRotor, p0, vt::sshort,
-                        "I-set", &rSysMgr.rAdj_mode.IsetAdj,            un::Amp, cd::IRotor, p0, vt::sshort, nm::IE2V, 0, 200),}),
+           o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::cdr.Id, p0, vt::sshort,
+                        "I-set", &rSysMgr.rAdj_mode.IsetAdj,            un::Amp, cd::cdr.Id, p0, vt::sshort, nm::IE2V, 0, 200),}),
       o("I-CYCLES",{
-           o("Iset cyc1",{},    &rSysMgr.rAdj_mode.IsetCyc_1,  un::Amp, cd::IRotor, p0, vt::ushort, nm::Ed1V, 0, 200),
-           o("Iset cyc2",{},    &rSysMgr.rAdj_mode.IsetCyc_2,  un::Amp, cd::IRotor, p0, vt::ushort, nm::Ed1V, 0, 200),
+           o("Iset cyc1",{},    &rSysMgr.rAdj_mode.IsetCyc_1,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.set_params.IdNom),
+           o("Iset cyc2",{},    &rSysMgr.rAdj_mode.IsetCyc_2,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.set_params.IdNom),
            o("Npulses",{},      &rSysMgr.rAdj_mode.NpulsCyc,   "",      cd::one,    p0, vt::ushort, nm::Ed1V, 1, 100),
            o("I-Cycles",{},     &rSysMgr.rAdj_mode.reqADJmode, un::b,   cd::one,    p0, vt::eb_4,   nm::Ed1V),
            o("KpCr",   {},      &set.set_reg.KpCr,             "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
@@ -87,9 +88,9 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o(Mn.CURRENT[l],{
               o("KpCr",   {}, &set.set_reg.KpCr, "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiCr",   {}, &set.set_reg.KiCr, "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),
-              o("I-set",  {}, &set.set_reg.Iset0,un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
-              o("I-fors", {}, &set.set_reg.Ifors,un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
-              o("I-dry",  {}, &set.set_reg.Idry, un::Amp, cd::IRotor, p0, vt::sshort, nm::Ed1V, 0, 4095),
+              o("I-set",  {}, &set.set_reg.Iset0,un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.set_params.IdNom),
+              o("I-fors", {}, &set.set_reg.Ifors,un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.set_params.IdNom),
+              o("I-dry",  {}, &set.set_reg.Idry, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 0.1f*set.set_params.IdNom),
               o("Alpha-0",{}, &set.set_reg.A0,   un::Deg, cd::Alpha,  p0, vt::sshort, nm::Ed1V, 90, 120)
           }),
           o(Mn.COS_PHI[l],{
@@ -99,7 +100,10 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
               o("KpQ",   {}, &set.set_reg.KpQ, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiQ",   {}, &set.set_reg.KiQ, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),}),
       o(Mn.LIMITS[l]),
-      o(Mn.FAULTS[l]),
+      o(Mn.PARAMS[l], {
+          o("Id Nom", {}, &set.set_params.IdNom, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 400),}),
+      o(Mn.FAULTS[l], {
+          o("Id Max", {}, &set.set_faults.IdMax, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.set_params.IdNom),}),
       o(Mn.ADC_SHIFT[l],{
           o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT),   un::d, cd::one, p0, vt::sshort,
                        "shift", &set.shift_adc[  sadc::ROTOR_CURRENT],   un::d, cd::one, p0, vt::sshort, nm::IE2V, 0, 3000),
