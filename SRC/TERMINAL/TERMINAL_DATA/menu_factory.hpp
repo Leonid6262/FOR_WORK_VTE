@@ -101,7 +101,10 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
               o("KiQ",   {}, &set.set_reg.KiQ, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),}),
       o(Mn.LIMITS[l]),
       o(Mn.PARAMS[l], {
-          o("Id Nom", {}, &set.set_params.IdNom, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 400),}),
+          o("Id Nom", {}, &set.set_params.IdNom, un::Amp,  cd::one, p0, vt::ushort, nm::Ed1V, 200,  400),
+          o("Ud Nom", {}, &set.set_params.UdNom, un::Volt, cd::one, p0, vt::ushort, nm::Ed1V,  48,  230),
+          o("IS Nom", {}, &set.set_params.IdNom, un::Amp,  cd::one, p0, vt::ushort, nm::Ed1V,   0, 1000),
+          o("US Nom", {}, &set.set_params.UdNom, un::Volt, cd::one, p0, vt::ushort, nm::Ed1V, 400, 6300),}),
       o(Mn.FAULTS[l], {
           o("Id Max", {}, &set.set_faults.IdMax, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.set_params.IdNom),}),
       o(Mn.ADC_SHIFT[l],{

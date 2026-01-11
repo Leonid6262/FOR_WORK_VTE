@@ -19,14 +19,15 @@ struct CategoryActive
 enum class ECategory { NOT_READY, READY, WORK, FAULT, WARNING, COUNT }; // Спмсок категорий
 
 // ======================= NOT_READY =======================
-enum class ENotReadyId { ADJ_MODE, Q1_is_OFF, SENS_CURR_FAULT, COUNT };
+enum class ENotReadyId { ADJ_MODE, Q1_is_OFF, SENS_CR_FAULT, SENS_CS_FAULT, COUNT };
 struct SNotReady : CategoryActive<ENotReadyId>{
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "НЕТ ГОТОВНОСТ:", "NOT READY:", "НЕМА ГОТОВНОСТI:" };
   static constexpr const char* MSG[][G_CONST::Nlang] = {
-    {"Режим Наладки", "Adjustment mode", "Режим Наладки"},
-    {"Отключен Q1",   "Q1 is OFF",       "Вимкнено Q1"},
-    {"Неисправен ДТ", "Sens Curr FAULT", "Несправний ДТ"}
+    {"Режим Наладки",  "Adjustment mode", "Режим Наладки"},
+    {"Отключен Q1",    "Q1 is OFF",       "Вимкнено Q1"},
+    {"Неисправен ДТР", "Sens Curr FAULT", "Несправний ДСР"},
+    {"Неисправен ДТС", "Stat Curr FAULT", "Несправний ДСС"}
   };
   
   

@@ -89,8 +89,12 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
   menu_navigation.set_pTerminal(&terminal_manager);                                     // Создание циклической зависимости menu  
   mes_display.set_pTerminal(&terminal_manager);                                         // Создание циклической зависимости mes
   
-  cd::cdr.Id = CEEPSettings::getInstance().getSettings().set_params.IdNom / 1000.0f; // 1000 дискрет
-  cd::cdr.Ud = CEEPSettings::getInstance().getSettings().set_params.UdNom / 1000.0f; // 1000 дискрет
+  // Вычисление коэффициентов отображения в системе СИ
+  auto& set = CEEPSettings::getInstance().getSettings();
+  cd::cdr.Id = cd::cd_r(set.set_params.IdNom, cd::ADC_DISCR_ID);
+  cd::cdr.Ud = cd::cd_r(set.set_params.UdNom, cd::ADC_DISCR_UD);
+  cd::cdr.IS = cd::cd_r(set.set_params.ISNom, cd::ADC_DISCR_IS);
+  cd::cdr.US = cd::cd_r(set.set_params.USNom, cd::ADC_DISCR_US);
   
   return terminal_manager;                                                              // Возврат ссылки на менеджер терминпла
 }

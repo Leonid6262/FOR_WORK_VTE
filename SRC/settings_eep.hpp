@@ -13,38 +13,48 @@ namespace G_CONST {
   constexpr unsigned short BYTES_RW_REAL = 1;      // Фактическое количество байт чтения/записи по SPI (определяется схемой)
   constexpr unsigned short Nlang = 3;              // Количество языков
 }
+
 // Пространство имён коэффициентов отображения в единицах СИ
 namespace cd {
-  // Константные (compile-time)
+  /* Константные (compile-time) */
   constexpr float one     = 1.0f;
-  constexpr float Alpha   = 180.0f / 10000;     // 180deg/10000tick
-  
-  constexpr float UStator = 400.0f / 1500;      // 400V/1500d 
-  constexpr float IStator = 150.0f / 1500;      // 150A/1500d 
-  // Параметрические (runtime) 
+  constexpr float Alpha   = 180.0f / 10000;     // 180deg / 10000 tick timers
+
+  /* Параметрические (runtime) */  
+  // Коэффициенты передачи (дискрет на номинальное значение)
+  constexpr unsigned short ADC_DISCR_ID = 1000;
+  constexpr unsigned short ADC_DISCR_UD = 1500;
+  constexpr unsigned short ADC_DISCR_IS = 1000;
+  constexpr unsigned short ADC_DISCR_US = 2000;
+  // Коэффициенты отображения
   struct DisplayCoeffs { 
     float Id; 
     float Ud;
+    float IS; 
+    float US;
   };
   inline DisplayCoeffs cdr;
+  
+  // Вычисляются в фабрике при создании менеджера терминала
+  inline float cd_r(float NomVal, unsigned short discr) { return NomVal / discr; } 
 }
 
-
-// Пространство имён коэффициентов отображения в %
+// Пространство имён коэффициентов отображения в % (для rem_osc)
 namespace pd {
-  constexpr float IRotor  = 100.0f / 1000;      // 100%/1000d 
-  constexpr float URotor  = 100.0f / 1500;      // 100%/1500d 
-  constexpr float UStator = 100.0f / 1500;      // 100%/1500d 
-  constexpr float IStator = 100.0f / 1500;      // 100%/1500d 
+  constexpr float IRotor  = 100.0f / cd::ADC_DISCR_ID;  
+  constexpr float URotor  = 100.0f / cd::ADC_DISCR_UD; 
+  constexpr float IStator = 100.0f / cd::ADC_DISCR_IS;
+  constexpr float UStator = 100.0f / cd::ADC_DISCR_US; 
 }
+
 class CEEPSettings {
  private:
   // --- Структура уставок ---
   struct WorkSettings {
     unsigned short checkSum;                            // 0 Контрольная сумма
-    unsigned short SNboard_month;                       // 1 Серийный номер платы - дата (ст.б - месяц, мл.б - год)
-    unsigned short SNboard_year;                        // 2 Серийный номер платы - дата (ст.б - месяц, мл.б - год)
-    unsigned short SNboard_number;                      // 3 Серийный номер платы - порядковый номер (99.99.0999)
+    unsigned short SNboard_month;                       // 1 Серийный номер платы - месяц
+    unsigned short SNboard_year;                        // 2 Серийный номер платы - год
+    unsigned short SNboard_number;                      // 3 Серийный номер платы - порядковый номер
     unsigned short Language;                            // 4 Номер языка
     signed short shift_adc[G_CONST::NUMBER_CHANNELS];   // 5 Смещения АЦП
     float incline_adc[G_CONST::NUMBER_CHANNELS];        // 6 Наклон
@@ -53,8 +63,7 @@ class CEEPSettings {
     signed short shift_dac2_pwm;                        // 9 Смещение DAC2_pwm
     unsigned char din_Pi_invert[G_CONST::BYTES_RW_MAX + 1];     // 10 Признак инвертирования дискретных входов (+1 - порт Pi0)        
     unsigned char dout_spi_invert[G_CONST::BYTES_RW_MAX];       // 11 Признак инвертирования SPI выходов    
-    struct                                                      // 12 Параметры регуляторов
-    {
+    struct {                                                    // 12 Параметры регуляторов
       float KpCr;
       float KiCr;
       unsigned short Iset0;
@@ -68,27 +77,25 @@ class CEEPSettings {
       float KiQ;
       float Qset;
     } set_reg;
-    struct                                                 // 13 Уставки СИФУ
-    {
+    struct {                                               // 13 Уставки СИФУ
       signed short power_shift;                            /* Точный сдвиг силового напряжения */
       unsigned char d_power_shift;                         /* Дискретный сдвиг силового напряжения 60гр */
     } set_sifu;
-    struct                                                 // 14 Уставки Аварийные
-    {
+    struct {                                               // 14 Уставки Аварийные
       unsigned short IdMax;                                  /* IdMax */
     } set_faults;
-    struct                                                 // 15 Параметры. Ном. значения
-    {
+    struct {                                               // 15 Параметры. Ном. значения
       unsigned short IdNom;                                  /* IdNom */
       unsigned short UdNom;                                  /* UdNom */
+      unsigned short ISNom;                                  /* ISNom */
+      unsigned short USNom;                                  /* USNom */
     } set_params;       
     unsigned char ssid[G_CONST::SSID_PS_L];                // 16 Имя сети
     unsigned char password[G_CONST::SSID_PS_L];            // 17 Пароль
     // Добавляя новые уставки сюда, не забывайте обновлять defaultSettings ниже!!!
   };
-//  Статические константные уставки по умолчанию (во Flash) ---
-// 'static const inline' позволяет определить ее прямо здесь, в .h файле.
-  static const inline WorkSettings defaultSettings{
+  //  Статические константные уставки по умолчанию (во Flash) ---
+  static const inline WorkSettings defaultSettings {
     .checkSum = 0x0000,
     .SNboard_month = 1,
     .SNboard_year = 0,
@@ -101,8 +108,7 @@ class CEEPSettings {
     .shift_dac2_pwm = 0,
     .din_Pi_invert = {0, 0, 0, 0},
     .dout_spi_invert = {0, 0, 0},
-    .set_reg =
-    {
+    .set_reg = {
       .KpCr = 1.0f,
       .KiCr = 0.001f,
       .Iset0 = 0,
@@ -116,19 +122,18 @@ class CEEPSettings {
       .KiQ = 0.001f,
       .Qset = 0
     },
-    .set_sifu =
-    {
+    .set_sifu = {
       .power_shift = 0,
       .d_power_shift = 0,
     },
-    .set_faults =
-    {
+    .set_faults = {
       .IdMax = 0,
     },
-    .set_params =
-    {
+    .set_params = {
       .IdNom = 320,
       .UdNom = 75,
+      .ISNom = 100,
+      .USNom = 400,      
     },      
     .ssid = "NetName",
     .password = "Password"

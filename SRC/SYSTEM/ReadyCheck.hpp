@@ -3,6 +3,7 @@
 #include "SystemManager.hpp"
 #include "dIOStorage.hpp"
 #include "AdcStorage.hpp"
+#include "message_factory.hpp"
 
 class CSystemManager;
 
@@ -22,5 +23,16 @@ private:
   CADC_STORAGE& rAdcStr; 
   
   static constexpr unsigned short dMax = 10;
- 
+  
+  using sadc = CADC_STORAGE;
+  // Хелпер проверки 
+  inline void check(R& ready, bool condition, ENotReadyId id ) { 
+    if (!condition) { 
+      SNotReady::setMessage(id); 
+      ready = R::NOT_READY;
+    } else { 
+      SNotReady::clrMessage(id); 
+    } 
+  }
+  
 };

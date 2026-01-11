@@ -14,14 +14,12 @@ CPULSCALC::CPULSCALC(CADC& rAdc) : rAdc(rAdc) {
     (
      NProxyVar::ProxyVarID::UstatRms, 
      &U_STATORA, 
-     cd::UStator,
-     NProxyVar::Unit::Volt);
+     cd::cdr.US, NProxyVar::Unit::Volt);
   Ppv.registerVar
     (
      NProxyVar::ProxyVarID::IstatRms, 
      &I_STATORA, 
-     cd::IStator,
-     NProxyVar::Unit::Amp);
+     cd::cdr.IS, NProxyVar::Unit::Amp);
 }
 
 void CPULSCALC::conv_and_calc() {
