@@ -32,7 +32,9 @@ private:
   // *При добавлении новой категории требуется регистрация в contexts
   
   SCategoryContext contexts[static_cast<unsigned char>(ECategory::COUNT)];
-  
+    
+  int find_next_active(SCategoryContext& ctx, int start);
+
   enum class EKey_code { 
     NONE = 0x00, 
     ESCAPE = 0x1B, 

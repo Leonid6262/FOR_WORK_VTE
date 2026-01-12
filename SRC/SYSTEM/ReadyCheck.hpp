@@ -27,7 +27,7 @@ private:
   using sadc = CADC_STORAGE;
   // Хелпер проверки 
   inline void check(R& ready, bool condition, ENotReadyId id ) { 
-    if (!condition) { 
+    if (condition) { 
       SNotReady::setMessage(id); 
       ready = R::NOT_READY;
     } else { 

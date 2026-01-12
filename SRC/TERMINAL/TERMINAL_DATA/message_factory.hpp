@@ -16,7 +16,7 @@ struct CategoryActive
   static void clrMessage(EnumId id) { active[static_cast<unsigned char>(id)] = false; }
 };
 
-enum class ECategory { NOT_READY, READY, WORK, FAULT, WARNING, COUNT }; // Спмсок категорий
+enum class ECategory { NOT_READY, READY, WORK, FAULT, WARNING, COUNT }; // Список категорий
 
 // ======================= NOT_READY =======================
 enum class ENotReadyId { ADJ_MODE, Q1_is_OFF, SENS_CR_FAULT, SENS_CS_FAULT, COUNT };
@@ -95,7 +95,9 @@ struct SWarning : CategoryActive<EWarningId> {
 struct CategoryUtils {
   static void clearAllMessages() {
     for (unsigned char i = 0; i < static_cast<unsigned char>(ENotReadyId::COUNT); ++i)
-      SNotReady::active[i] = false;    
+      SNotReady::active[i] = false;  
+    for (unsigned char i = 0; i < static_cast<unsigned char>(EReadyId::COUNT); ++i)
+      SReady::active[i] = false;  
     for (unsigned char i = 0; i < static_cast<unsigned char>(EWorkId::COUNT); ++i)
       SWork::active[i] = false;    
     for (unsigned char i = 0; i < static_cast<unsigned char>(EFaultId::COUNT); ++i)

@@ -32,7 +32,7 @@ void CMessageDisplay::set_pTerminal(CTerminalManager* pTerminal_manager){
 }
 
 // Вывод сообщения на терминал
-void CMessageDisplay::render_messages(signed char cat, bool print_title) {
+/*void CMessageDisplay::render_messages(signed char cat, bool print_title) {
   if (cat == not_mes) {
     sendLine("Not", newline);
     sendLine("Messages");
@@ -43,7 +43,7 @@ void CMessageDisplay::render_messages(signed char cat, bool print_title) {
   }
   sendLine(StringUtils::utf8_to_cp1251(contexts[cat].MSG[contexts[cat].cursor][l]));
 }
-
+*/
 // Отправки строки
 void CMessageDisplay::sendLine(const std::string& s, bool newline) {
     std::string text = StringUtils::padTo16(s);
@@ -51,40 +51,99 @@ void CMessageDisplay::sendLine(const std::string& s, bool newline) {
     uartDrv.sendBuffer(reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
 }
 
-void CMessageDisplay::rotate_messages() {
-  static unsigned char cur_cat = 0;
-  static unsigned char emp_num = 0;
-  static bool print_title = true;
-  
-  while (true) {
-    if (contexts[cur_cat].active[contexts[cur_cat].cursor]) {
-      render_messages(cur_cat, print_title);
-      print_title = false;
-      contexts[cur_cat].cursor++;
-      emp_num = 0;
-      if (contexts[cur_cat].cursor >= contexts[cur_cat].count) {
-        contexts[cur_cat].cursor = 0;
-        cur_cat = (cur_cat + 1) % COUNT_CATEGORIES;
-        print_title = true;
-      }
-      return;
+// Ищет следующий активный индекс начиная с позиции start.
+// Возвращает индекс, либо -1 если активных нет.
+int CMessageDisplay::find_next_active(SCategoryContext& ctx, int start) {
+    const int n = ctx.count;
+    for (int k = 0; k < n; ++k) {
+        int i = (start + k) % n;
+        if (ctx.active[i]) {
+            return i; // нашли активное сообщение
+        }
     }
-    else {
-      contexts[cur_cat].cursor++;
-      if (contexts[cur_cat].cursor >= contexts[cur_cat].count) {
-        contexts[cur_cat].cursor = 0;
-        cur_cat = (cur_cat + 1) % COUNT_CATEGORIES;
-        print_title = true;
+    return -1; // нет активных
+}
+
+// Выводит заголовок категории (если print_title == true) и сообщение по текущему cursor
+void CMessageDisplay::render_messages(signed char cat, bool print_title) {
+    if (cat == not_mes) {
+        sendLine("Not", newline);
+        sendLine("Messages");
+        return;
+    }
+
+    // ВАЖНО: приводим индекс к unsigned, чтобы избежать отрицательных значений
+    const unsigned char ucat = static_cast<unsigned char>(cat);
+    const auto& ctx = contexts[ucat];
+
+    // Заголовок печатается строго по флагу
+    if (print_title) {
+        sendLine(StringUtils::utf8_to_cp1251(ctx.NAME[l]), newline);
+    }
+
+    // Сообщение печатается всегда
+    sendLine(StringUtils::utf8_to_cp1251(ctx.MSG[ctx.cursor][l]), newline);
+}
+
+void CMessageDisplay::rotate_messages() {
+    static unsigned char cur_cat = 0;   // текущая категория
+    static unsigned char emp_num = 0;   // счётчик пустых категорий
+    static bool print_title = true;     // печатать заголовок при входе в категорию
+
+    if (COUNT_CATEGORIES == 0) {
+        render_messages(not_mes, false);
+        return;
+    }
+
+    SCategoryContext& ctx = contexts[cur_cat];
+    int next_idx = find_next_active(ctx, ctx.cursor);
+
+    if (next_idx >= 0) {
+        // нашли активное сообщение
+        ctx.cursor = static_cast<unsigned char>(next_idx);
+
+        // выводим заголовок при первом сообщении категории
+        render_messages(cur_cat, print_title);
+        if (print_title) {
+            print_title = false; // сбрасываем только после вывода заголовка
+        }
+
+        // готовим cursor к следующему поиску
+        ctx.cursor = static_cast<unsigned char>((ctx.cursor + 1) % ctx.count);
+        emp_num = 0;
+
+        // если вернулись в начало — переключаем категорию
+        if (ctx.cursor == 0) {
+            cur_cat = (cur_cat + 1) % COUNT_CATEGORIES;
+            print_title = true; // при входе в новую категорию снова печатаем заголовок
+        }
+        return;
+    }
+
+    // если в категории нет активных сообщений
+    ctx.cursor = 0;
+
+    // проверяем, есть ли вообще активные сообщения в этой категории
+    bool has_active = false;
+    for (int i = 0; i < ctx.count; ++i) {
+        if (ctx.active[i]) { has_active = true; break; }
+    }
+
+    cur_cat = (cur_cat + 1) % COUNT_CATEGORIES;
+    print_title = true;
+
+    if (!has_active) {
         emp_num++;
         if (emp_num >= COUNT_CATEGORIES) {
-          emp_num = 0;
-          render_messages(not_mes, false);
-          return;
+            emp_num = 0;
+            render_messages(not_mes, false);
+            return;
         }
-      }
+    } else {
+        emp_num = 0; // категория не пустая, сбрасываем счётчик
     }
-  }
 }
+
 
 // "Опрос" клавиатуры
 void CMessageDisplay::get_key() {

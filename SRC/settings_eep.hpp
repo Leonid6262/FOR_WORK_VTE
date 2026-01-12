@@ -100,7 +100,7 @@ class CEEPSettings {
     .SNboard_month = 1,
     .SNboard_year = 0,
     .SNboard_number = 999,
-    .Language = 0,
+    .Language = 1,
     .shift_adc =   {2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047},
     .incline_adc = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f},
     .shift_dac0 = 0,
