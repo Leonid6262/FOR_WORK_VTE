@@ -83,11 +83,6 @@ CSystemManager& CFactory::createSysManager(CSIFU& rSIFU, CRegManager& rReg_manag
 CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {   
   LPC_UART_TypeDef* U0 = CSET_UART::configure(CSET_UART::EUartInstance::UART_0);        // Конфигурация UART-0 - пультовый терминал
   CTerminalUartDriver::getInstance().init(U0, UART0_IRQn);                              // Инициализация драйвера UART-0             
-  static CMenuNavigation menu_navigation(CTerminalUartDriver::getInstance(), rSysMgr);  // Пультовый терминал (менеджер меню).
-  static CMessageDisplay mes_display(CTerminalUartDriver::getInstance());               // Пультовый терминал (менеджер сообщений).
-  static CTerminalManager terminal_manager(menu_navigation, mes_display);               // Управление режимами пультового терминал
-  menu_navigation.set_pTerminal(&terminal_manager);                                     // Создание циклической зависимости menu  
-  mes_display.set_pTerminal(&terminal_manager);                                         // Создание циклической зависимости mes
   
   // Вычисление коэффициентов отображения в системе СИ
   auto& set = CEEPSettings::getInstance().getSettings();
@@ -95,6 +90,12 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
   cd::cdr.Ud = cd::cd_r(set.set_params.UdNom, cd::ADC_DISCR_UD);
   cd::cdr.IS = cd::cd_r(set.set_params.ISNom, cd::ADC_DISCR_IS);
   cd::cdr.US = cd::cd_r(set.set_params.USNom, cd::ADC_DISCR_US);
+  static CRTC rt_clock;                                                                 // Системные часы
+  static CMenuNavigation menu_navigation(CTerminalUartDriver::getInstance(), rSysMgr);  // Пультовый терминал (менеджер меню).
+  static CMessageDisplay mes_display(CTerminalUartDriver::getInstance(), rt_clock);     // Пультовый терминал (менеджер сообщений).
+  static CTerminalManager terminal_manager(menu_navigation, mes_display);               // Управление режимами пультового терминал
+  menu_navigation.set_pTerminal(&terminal_manager);                                     // Создание циклической зависимости menu  
+  mes_display.set_pTerminal(&terminal_manager);                                         // Создание циклической зависимости mes
   
   return terminal_manager;                                                              // Возврат ссылки на менеджер терминпла
 }

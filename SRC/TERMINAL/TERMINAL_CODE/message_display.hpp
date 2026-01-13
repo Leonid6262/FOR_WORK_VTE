@@ -2,6 +2,7 @@
 #include "message_factory.hpp"
 #include "terminalUartDriver.hpp"
 #include "terminal_manager.hpp"
+#include "rtc.hpp"
 #include <string>
 
 class CTerminalManager;
@@ -9,16 +10,18 @@ class CTerminalManager;
 class CMessageDisplay { 
  
 public: 
-  CMessageDisplay(CTerminalUartDriver&);
+  CMessageDisplay(CTerminalUartDriver&, CRTC&);
   void get_key();
   void set_pTerminal(CTerminalManager*);
   
 private:
   CTerminalUartDriver& uartDrv;  
   CTerminalManager* pTerminal_manager;
+  CRTC& rRTC;
   
   unsigned short l;
   const unsigned char COUNT_CATEGORIES;
+  bool first_call = true;               // Первый вызов режима
     
   // Структура Context описывает интерфейс доступа к сообщениям одной категории*.
   struct SCategoryContext
@@ -33,16 +36,15 @@ private:
   
   SCategoryContext contexts[static_cast<unsigned char>(ECategory::COUNT)];
     
-  int find_next_active(SCategoryContext& ctx, int start);
-
   enum class EKey_code { 
     NONE = 0x00, 
     ESCAPE = 0x1B, 
     FnEsc = 0x79
   };
   
-  static constexpr signed char not_mes = -1;
+  static constexpr signed char data_time = -1;
   static constexpr bool newline = true;
+  static constexpr unsigned char disp_l = 16;
   
   void render_messages(signed char, bool); 
   void sendLine(const std::string&, bool newline = false);

@@ -30,7 +30,7 @@ CMenuNavigation::CMenuNavigation(CTerminalUartDriver& uartDrv, CSystemManager& r
   MENU = MENU_Factory(CADC_STORAGE::getInstance(), CEEPSettings::getInstance(), rSysMgr);
   //MENU.shrink_to_fit();
   currentList = &MENU;
-  render_menu();        // первая отрисовка
+  //render_menu(); // первая отрисовка, если в менеджере задано старт терминала с режима меню
 }
 
 // Конструктор узла универсальный (все поля из меню)
