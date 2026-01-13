@@ -62,7 +62,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("dInCPU-S", {}, id::pi0_spi, p0, nm::In1V),}),}),
   o(Mn.ADJ_MODE[l],{
       o("On-Off ADJ MODE",{
-           o("ADJ Mode",   {}, &rSysMgr.USMode_r.all, un::b, cd::one,  p0,vt::eb_0,  nm::Ed1V)}),
+           o("ADJ Mode",   {}, &rSysMgr.USMode_r.all, "", cd::one,  p0,vt::eb_0,  nm::Ed1V)}),
       o("PULSES",{
            o("Fors Bridge",{},   &rSysMgr.rAdj_mode.reqADJmode,         "",      cd::one,    p0, vt::eb_1,   nm::Ed1V),
            o("Main Bridge",{},   &rSysMgr.rAdj_mode.reqADJmode,         "",      cd::one,    p0, vt::eb_2,   nm::Ed1V),
