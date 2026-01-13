@@ -140,7 +140,7 @@ void CSIFU::faling_puls() {
   LPC_PWM0->TCR = COUNTER_STOP;  // Стоп счётчик b1<-1
   LPC_PWM0->TCR = COUNTER_RESET;
   
-  rFault_p.control();
+  rFault_p.check(); // Контроль аварийных ситуаций
 }
 
 void CSIFU::control_sync() {

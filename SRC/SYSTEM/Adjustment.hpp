@@ -4,6 +4,8 @@
 #include "bool_name.hpp"
 #include "SIFU.hpp"
 
+class CSIFU;
+
 // Класс управления режимом Наладка
 class CAdjustmentMode {
 public:

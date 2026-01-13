@@ -23,3 +23,9 @@ enum class R
   NOT_READY = 0, 
   READY = 1 
 };
+
+enum class F 
+{ 
+  NOT_FAULT = 0, 
+  FAULT = 1 
+};

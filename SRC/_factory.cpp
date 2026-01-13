@@ -35,54 +35,53 @@ CRegManager CFactory::createRegManager() {
 // Управление каналами DMA
 CDMAcontroller CFactory::createDMAc()   { return CDMAcontroller(); }
 
-// Инициализация и создание объектов связанных с ИУ. Запуск СИФУ
-CSIFU& CFactory::start_puls_system(CDMAcontroller& rCont_dma, CRegManager& rReg_manager) {
-  static CADC adc(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_1));  // Внешнее ADC. Подключено к SPI-1
-  static CPULSCALC puls_calc(adc);                                      // Измерение и обработка всех аналоговых сигналов.
-  static CFaultCtrlP fault_p;
-  static CSIFU sifu(puls_calc, rReg_manager, fault_p, CEEPSettings::getInstance());  // СИФУ.  
-  rReg_manager.getSIFU(&sifu);
-  CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_2);   // Конфигурация SPI-2 для WiFi на ESP32
-  static CREM_OSC rem_osc                               // Дистанционный осциллограф (WiFi модуль на ESP32). 
-    (                                                            
-     rCont_dma,                                 // Контроллер DMA
-     puls_calc,                                 // Измерение и обработка
-     CADC_STORAGE::getInstance());              // Данные АЦП
+// Запуск всей системы: System Manager + СИФУ 
+CSystemManager& CFactory::start_system(CDMAcontroller& rCont_dma) {
+  // --- Регуляторы ---
+  static auto reg_manager = CFactory::createRegManager();
   
-  CProxyHandlerTIMER::getInstance().set_pointers(&sifu, &rem_osc);  // Proxy Singleton доступа к Handler TIMER.
-  sifu.init_and_start(); // Старт SIFU
-  return sifu;
-}
-
-// Создание системного менеджера 
-CSystemManager& CFactory::createSysManager(CSIFU& rSIFU, CRegManager& rReg_manager) { 
-  static CAdjustmentMode adjustment(rSIFU, CEEPSettings::getInstance());
+  // --- СИФУ и его окружение ---
+  static CADC adc(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_1));
+  static CPULSCALC puls_calc(adc);
+  static CFaultCtrlP fault_p(CADC_STORAGE::getInstance());
+  static CSIFU sifu(puls_calc, reg_manager, fault_p, CEEPSettings::getInstance());
+  reg_manager.getSIFU(&sifu);
+  
+  CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_2);
+  static CREM_OSC rem_osc(rCont_dma, puls_calc, CADC_STORAGE::getInstance());
+  CProxyHandlerTIMER::getInstance().set_pointers(&sifu, &rem_osc);
+  sifu.init_and_start();
+  
+  // --- System Manager ---
+  static CAdjustmentMode adjustment(sifu, CEEPSettings::getInstance());
   static CReadyCheck ready_check(CADC_STORAGE::getInstance(), CDIN_STORAGE::getInstance());
   static CFaultControl fault_ctrl;
   static CPuskMode pusk_mode;
   static CWorkMode work_mode;
   static CWarningMode warning_ctrl;
-
-  static CSystemManager sys_manager
-    (
-     rSIFU, 
-     adjustment, 
-     ready_check, 
-     fault_ctrl, 
-     pusk_mode, 
-     work_mode,
-     warning_ctrl,
-     rReg_manager);
   
-    ready_check.getManager(&sys_manager);
-    
-    return sys_manager;
+  static CSystemManager sys_manager(
+                                    sifu,
+                                    adjustment,
+                                    ready_check,
+                                    fault_ctrl,
+                                    pusk_mode,
+                                    work_mode,
+                                    warning_ctrl,
+                                    reg_manager);
+  
+  ready_check.getManager(&sys_manager);
+  //fault_p.setSysManager(&sys_manager); // связываем после создания
+  
+  return sys_manager;
 }
 
 // Инициализация драйвера ПТ и создание объектов Пультового терминала
 CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {   
-  LPC_UART_TypeDef* U0 = CSET_UART::configure(CSET_UART::EUartInstance::UART_0);        // Конфигурация UART-0 - пультовый терминал
-  CTerminalUartDriver::getInstance().init(U0, UART0_IRQn);                              // Инициализация драйвера UART-0             
+  // Конфигурация и инициализация UART-0 - пультовый терминал
+  LPC_UART_TypeDef* U0 = CSET_UART::configure(CSET_UART::EUartInstance::UART_0);  
+  auto& udrv = CTerminalUartDriver::getInstance();
+  udrv.init(U0, UART0_IRQn);                       
   
   // Вычисление коэффициентов отображения в системе СИ
   auto& set = CEEPSettings::getInstance().getSettings();
@@ -90,14 +89,15 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
   cd::cdr.Ud = cd::cd_r(set.set_params.UdNom, cd::ADC_DISCR_UD);
   cd::cdr.IS = cd::cd_r(set.set_params.ISNom, cd::ADC_DISCR_IS);
   cd::cdr.US = cd::cd_r(set.set_params.USNom, cd::ADC_DISCR_US);
-  static CRTC rt_clock;                                                                 // Системные часы
-  static CMenuNavigation menu_navigation(CTerminalUartDriver::getInstance(), rSysMgr);  // Пультовый терминал (менеджер меню).
-  static CMessageDisplay mes_display(CTerminalUartDriver::getInstance(), rt_clock);     // Пультовый терминал (менеджер сообщений).
-  static CTerminalManager terminal_manager(menu_navigation, mes_display);               // Управление режимами пультового терминал
-  menu_navigation.set_pTerminal(&terminal_manager);                                     // Создание циклической зависимости menu  
-  mes_display.set_pTerminal(&terminal_manager);                                         // Создание циклической зависимости mes
   
-  return terminal_manager;                                                              // Возврат ссылки на менеджер терминпла
+  static CRTC rt_clock;                                                         // Системные часы
+  static CMenuNavigation menu_navigation(udrv, rSysMgr, rt_clock);              // Пультовый терминал (менеджер меню).
+  static CMessageDisplay mes_display(udrv, rt_clock);                           // Пультовый терминал (менеджер сообщений).
+  static CTerminalManager terminal_manager(menu_navigation, mes_display);       // Управление режимами пультового терминал
+  menu_navigation.set_pTerminal(&terminal_manager);                             // Создание циклической зависимости menu  
+  mes_display.set_pTerminal(&terminal_manager);                                 // Создание циклической зависимости mes
+  
+  return terminal_manager;                                                      // Возврат ссылки на менеджер терминпла
 }
 extern "C" void UART0_IRQHandler(void) { CTerminalUartDriver::getInstance().irq_handler(); }  // Вызов обработчика UART-0
 

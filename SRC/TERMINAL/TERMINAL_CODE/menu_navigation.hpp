@@ -8,10 +8,11 @@
 #include "terminal_manager.hpp"
 #include "proxy_pointer_var.hpp"
 #include "SystemManager.hpp" 
+#include "rtc.hpp"
 
 class CMenuNavigation {
 public:
-  CMenuNavigation(CTerminalUartDriver&, CSystemManager&);
+  CMenuNavigation(CTerminalUartDriver&, CSystemManager&, CRTC&);
   void get_key();
   void set_pTerminal(CTerminalManager*);
   void first_render();
@@ -95,6 +96,7 @@ public:
 private:
   CTerminalUartDriver& uartDrv;
   CTerminalManager* pTerminal_manager;
+  CRTC& rRTC;
   
   struct SFrame {
     std::vector<MenuNode>* currentList;  // указатель на список
@@ -106,24 +108,6 @@ private:
   std::vector<MenuNode> MENU;          // всё меню
   std::vector<MenuNode>* currentList;  // указатель на текущий список
   std::stack<SFrame> history;          // стек истории
-  
-  enum class ELED { 
-    LED_GREEN = 0x02, 
-    LED_YELLOW = 0x04, 
-    LED_OFF = 0x0B 
-  };
-  
-  enum class EKey_code { 
-    NONE = 0x00, 
-    UP = 0x2B, 
-    DOWN = 0x2D, 
-    ENTER = 0x0D, 
-    ESCAPE = 0x1B, 
-    FnENTER = 0x78,
-    FnUP = 0x3D,     
-    FnDOWN = 0x5F,
-    FnEsc = 0x79
-  };
   
   enum class ETitleType { 
     TitleName,  // Вывод имён переменных и значений

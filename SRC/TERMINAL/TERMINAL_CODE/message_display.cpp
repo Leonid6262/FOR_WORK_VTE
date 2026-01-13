@@ -1,5 +1,6 @@
 #include "message_display.hpp"
 #include "string_utils.hpp"
+#include "pause_us.hpp"
 
 CMessageDisplay::CMessageDisplay(CTerminalUartDriver& uartDrv, CRTC& rRTC) : 
   uartDrv(uartDrv), rRTC(rRTC), l(CEEPSettings::getInstance().getSettings().Language - 1),
@@ -39,8 +40,8 @@ void CMessageDisplay::sendLine(const std::string& s, bool newline) {
 }
 
 
-// Выводит заголовок категории (если print_title == true) и сообщение по текущему cursor
-void CMessageDisplay::render_messages(signed char cat, bool print_title) {
+// Вывод заголовка категории (если print_title == true), сообщения и даты
+void CMessageDisplay::render_messages(signed char cat, bool print_title = false) {
   
   if (cat == data_time) {
     rRTC.update_now();                  // Обновление экземпляра структуы SDateTime данными из RTC
@@ -54,8 +55,7 @@ void CMessageDisplay::render_messages(signed char cat, bool print_title) {
     return;
   }
 
-  const unsigned char ucat = static_cast<unsigned char>(cat);
-  const auto& ctx = contexts[ucat];
+  const auto& ctx = contexts[static_cast<unsigned char>(cat)];
   
   if (print_title) {
     sendLine(StringUtils::utf8_to_cp1251(ctx.NAME[l]), newline);
@@ -64,10 +64,10 @@ void CMessageDisplay::render_messages(signed char cat, bool print_title) {
 }
 
 void CMessageDisplay::rotate_messages() {
-  static unsigned char cur_cat = 0;
-  static unsigned char emp_num = 0;
-  static bool print_title = true;
-  static bool had_active = false;
+  static unsigned char cur_cat = 0;     // Текущая категория
+  static unsigned char emp_num = 0;     // Счётчик "пустых" категорий
+  static bool print_title = true;       // Признак вывода заголовка
+  static bool had_active = false;       // В текущей категории был актив
   
   while (true) {
     
@@ -95,21 +95,20 @@ void CMessageDisplay::rotate_messages() {
       if (ctx.cursor >= ctx.count) {
         ctx.cursor = 0;
         cur_cat = (cur_cat + 1) % COUNT_CATEGORIES;
-        print_title = true;
-        
+        print_title = true;      
         if (had_active) {
           emp_num = 0;
         } else {
           emp_num++;
           if (emp_num >= COUNT_CATEGORIES) {
             emp_num = 0;
-            render_messages(data_time, false);
+            render_messages(data_time);
             return;
           }
         }
         had_active = false;        
         if (cur_cat == 0) {
-          render_messages(data_time, false);
+          render_messages(data_time);
           return;
         }
       }
@@ -272,7 +271,12 @@ void CMessageDisplay::Key_Handler(EKey_code key) {
     pTerminal_manager->switchToMenu(); // переключаемся в меню
     break;
   case EKey_code::FnEsc:
+    {unsigned char led_blue[] = {static_cast<unsigned char>(ELED::LED_BLUE), '\r'}; 
+    uartDrv.sendBuffer(led_blue, sizeof(led_blue));
     CategoryUtils::clearAllMessages();
+    Pause_us(200000);
+    unsigned char led_off[] = {static_cast<unsigned char>(ELED::LED_OFF), '\r'};
+    uartDrv.sendBuffer(led_off, sizeof(led_off));}
     break;
   case EKey_code::NONE:
   default: {
@@ -280,6 +284,10 @@ void CMessageDisplay::Key_Handler(EKey_code key) {
     unsigned int dTrs = LPC_TIM0->TC - prev_TC0;
     if (dTrs >= 20000000) {  // 2sec
       prev_TC0 = LPC_TIM0->TC;
+      if (first_call) {
+        unsigned char led_off[] = {static_cast<unsigned char>(ELED::LED_OFF), '\r'};
+        uartDrv.sendBuffer(led_off, sizeof(led_off));
+      }     
       rotate_messages();
     }
   }
