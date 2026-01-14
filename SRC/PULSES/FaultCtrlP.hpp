@@ -1,24 +1,24 @@
 #pragma once 
 #include "bool_name.hpp"
-//#include "SystemManager.hpp"
 #include "AdcStorage.hpp"
 #include "message_factory.hpp"
 
-//class CSystemManager;
+class CSystemManager;
 
 class CFaultCtrlP {
   
 public:
-  CFaultCtrlP(CADC_STORAGE&);
+  CFaultCtrlP(CADC_STORAGE&, CEEPSettings&);
   
   F Fault = F::NOT_FAULT;
   
-  //void getManager(CSystemManager*);
+  void setSysManager(CSystemManager*);
   void check();
   
 private:
-  //CSystemManager* pSys_manager;
+  CSystemManager* pSys_manager;
   CADC_STORAGE& rAdcStr;
+  CEEPSettings& rSet;
  
   using sadc = CADC_STORAGE;
   // Хелпер проверки 

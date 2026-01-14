@@ -2,6 +2,7 @@
 #include "message_factory.hpp"
 #include "terminalUartDriver.hpp"
 #include "terminal_manager.hpp"
+#include "SystemManager.hpp" 
 #include "rtc.hpp"
 #include <string>
 
@@ -10,12 +11,13 @@ class CTerminalManager;
 class CMessageDisplay { 
  
 public: 
-  CMessageDisplay(CTerminalUartDriver&, CRTC&);
+  CMessageDisplay(CTerminalUartDriver&, CSystemManager&, CRTC&);
   void get_key();
   void set_pTerminal(CTerminalManager*);
   
 private:
   CTerminalUartDriver& uartDrv;  
+  CSystemManager& rSysMgr;
   CTerminalManager* pTerminal_manager;
   CRTC& rRTC;
   

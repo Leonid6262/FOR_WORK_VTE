@@ -14,7 +14,7 @@ public:
   
   R Ready = R::NOT_READY;
   
-  void getManager(CSystemManager*);
+  void setSysManager(CSystemManager*);
   void check(bool);
   
 private:

@@ -16,7 +16,6 @@ CRTC CFactory::createRTC()              { return CRTC(); }                      
 
 StatusRet CFactory::load_settings()     { return CEEPSettings::getInstance().loadSettings(); }  // Загрузка уставок
 
-
 CDin_cpu CFactory::createDINcpu()       { return CDin_cpu(); }                                  // Дискретные входы контроллера                                      
 
 // Создание объекта доступа к dIO доступных по SPI
@@ -32,23 +31,26 @@ CRegManager CFactory::createRegManager() {
   return CRegManager(curr_reg, q_reg, cos_reg); 
 }
 
-// Управление каналами DMA
-CDMAcontroller CFactory::createDMAc()   { return CDMAcontroller(); }
+// ModBus slave
+CMBSLAVE CFactory::create_MBslave() {
+  static CDMAcontroller cont_dma;       // Управление каналами DMA
+  return CMBSLAVE(cont_dma);
+}
 
 // Запуск всей системы: System Manager + СИФУ 
-CSystemManager& CFactory::start_system(CDMAcontroller& rCont_dma) {
+CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   // --- Регуляторы ---
   static auto reg_manager = CFactory::createRegManager();
   
   // --- СИФУ и его окружение ---
   static CADC adc(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_1));
-  static CPULSCALC puls_calc(adc);
-  static CFaultCtrlP fault_p(CADC_STORAGE::getInstance());
+  static CPULSCALC puls_calc(adc);                                              
+  static CFaultCtrlP fault_p(CADC_STORAGE::getInstance(), CEEPSettings::getInstance());                      
   static CSIFU sifu(puls_calc, reg_manager, fault_p, CEEPSettings::getInstance());
   reg_manager.getSIFU(&sifu);
   
   CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_2);
-  static CREM_OSC rem_osc(rCont_dma, puls_calc, CADC_STORAGE::getInstance());
+  static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance());
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu, &rem_osc);
   sifu.init_and_start();
   
@@ -60,18 +62,11 @@ CSystemManager& CFactory::start_system(CDMAcontroller& rCont_dma) {
   static CWorkMode work_mode;
   static CWarningMode warning_ctrl;
   
-  static CSystemManager sys_manager(
-                                    sifu,
-                                    adjustment,
-                                    ready_check,
-                                    fault_ctrl,
-                                    pusk_mode,
-                                    work_mode,
-                                    warning_ctrl,
-                                    reg_manager);
+  static CSystemManager sys_manager(sifu, adjustment, ready_check, fault_ctrl, 
+                                    pusk_mode, work_mode, warning_ctrl, reg_manager);
   
-  ready_check.getManager(&sys_manager);
-  //fault_p.setSysManager(&sys_manager); // связываем после создания
+  ready_check.setSysManager(&sys_manager);
+  fault_p.setSysManager(&sys_manager); 
   
   return sys_manager;
 }
@@ -92,7 +87,7 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
   
   static CRTC rt_clock;                                                         // Системные часы
   static CMenuNavigation menu_navigation(udrv, rSysMgr, rt_clock);              // Пультовый терминал (менеджер меню).
-  static CMessageDisplay mes_display(udrv, rt_clock);                           // Пультовый терминал (менеджер сообщений).
+  static CMessageDisplay mes_display(udrv, rSysMgr, rt_clock);                  // Пультовый терминал (менеджер сообщений).
   static CTerminalManager terminal_manager(menu_navigation, mes_display);       // Управление режимами пультового терминал
   menu_navigation.set_pTerminal(&terminal_manager);                             // Создание циклической зависимости menu  
   mes_display.set_pTerminal(&terminal_manager);                                 // Создание циклической зависимости mes

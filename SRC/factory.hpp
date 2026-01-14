@@ -25,7 +25,8 @@
 #include "AdcStorage.hpp"
 #include "bool_name.hpp"
 #include "Adjustment.hpp" 
-#include "SystemManager.hpp" 
+#include "SystemManager.hpp"
+#include "mb_slave.hpp" 
 
 class CFactory {
 public:
@@ -48,23 +49,16 @@ public:
     static CDin_cpu createDINcpu();
     
     static CEMAC_DRV createEMACdrv();
-    
-    static CDMAcontroller createDMAc();
-   
+       
     static CRTC createRTC();
-    
-    //static CSystemManager& createSysManager(CSIFU&, CRegManager&);
     
     static CTerminalManager& createTM(CSystemManager&);
     
-    //static CSIFU& start_puls_system(CDMAcontroller&, CRegManager&);
+    static CMBSLAVE create_MBslave();
     
     static CRegManager createRegManager();
-    
-    
-    static CSystemManager& start_system(CDMAcontroller&);
-    
-    
+       
+    static CSystemManager& start_system(CMBSLAVE&);       
     
 };
 

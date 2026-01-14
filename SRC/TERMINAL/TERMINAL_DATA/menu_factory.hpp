@@ -47,7 +47,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
   auto& set = rSet.getSettings();
   using namespace menu_alias;
   auto& sfc = rSysMgr.rSIFU.s_const;
-  
+  auto& sifu = rSysMgr.rSIFU;
   unsigned short l = set.Language - 1;                          // Установка языка отображения согласно уставке
   enum Precision : unsigned char { p0, p1, p2, p3, p4 };        // количество знаков после запятой p4->0.0001
    
@@ -56,7 +56,9 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
   o(Mn.INDICATION[l],{
       o(Mn.CURRENT_DATA[l],{
           o::DualReg("I-Rotor", id::Irotor,   p0, "U-Rotor", id::Urotor,   p0, nm::In2V),
-          o::DualReg("IStator", id::IstatRms, p0, "UStator", id::UstatRms, p0, nm::In2V)}),
+          o::DualReg("IStator", id::IstatRms, p0, "UStator", id::UstatRms, p0, nm::In2V),
+          o::DualRaw("Sync",    sifu.getSyncStat(),         un::b,  cd::one, p0, vt::eb_0,
+                     "Fsync",   sifu.get_Sync_Frequency(),  un::Hz, cd::one, p1, vt::vfloat, nm::In2V),}),
       o(Mn.BIT_DATA[l],{
           o("dInCPU-D", {}, id::pi0_cpu, p0, nm::In1V),
           o("dInCPU-S", {}, id::pi0_spi, p0, nm::In1V),}),}),

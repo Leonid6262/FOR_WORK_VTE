@@ -48,6 +48,7 @@ void CSIFU::rising_puls() {
     case EOperating_mode::NO_SYNC: {
       signed int res = static_cast<signed int>(LPC_TIM3->MR0) + s_const._60gr;
       LPC_TIM3->MR0 = static_cast<unsigned int>(res);
+      curSyncStat = static_cast<unsigned char>(State::OFF);
     }  // Старт следующего через 60 градусов
     break;
     case EOperating_mode::RESYNC: {
@@ -61,6 +62,7 @@ void CSIFU::rising_puls() {
                        static_cast<signed int>(v_sync.cur_power_shift);
       LPC_TIM3->MR0 = static_cast<unsigned int>(res);
       N_Pulse = 6;
+      curSyncStat = static_cast<unsigned char>(State::OFF);
     } break;
     case EOperating_mode::PHASING:
       // Ограничения величины сдвига
@@ -69,11 +71,13 @@ void CSIFU::rising_puls() {
       limits_dval(&v_sync.task_power_shift, &v_sync.cur_power_shift, s_const.dAlpha);
       Alpha_setpoint = s_const._0gr;
       LPC_TIM3->MR0 = timing_calc();  // Задание тайминга для следующего импульса
+      curSyncStat = static_cast<unsigned char>(State::ON);
       break;
     case EOperating_mode::NORMAL:
       // Ограничения величины альфа
       Alpha_setpoint = limits_val(&Alpha_setpoint, s_const.AMin, s_const.AMax);
       LPC_TIM3->MR0 = timing_calc();  // Задание тайминга для следующего импульса
+      curSyncStat = static_cast<unsigned char>(State::ON);
       break;
   }
 
@@ -85,10 +89,22 @@ void CSIFU::rising_puls() {
   //
   LPC_TIM3->MR1 = static_cast<unsigned int>(res);  // Окончание текущего
 
+  if(phase_stop) {
+    rReg_manager.setCurrent(State::OFF);
+    rReg_manager.setQPower(State::OFF);
+    rReg_manager.setCosPhi(State::OFF);
+    n_pulses_stop--;
+    if(n_pulses_stop <= 0){
+      phase_stop = false;
+      forcing_bridge = false;
+      main_bridge = false;
+    }   
+  }
+  
   rPulsCalc.conv_and_calc();     // Измерения, вычисления и т.п.
   rReg_manager.applyModeRules();
   rReg_manager.stepAll();       // Регулирование
-  
+
 }
 
 signed int CSIFU::timing_calc() {
@@ -140,7 +156,9 @@ void CSIFU::faling_puls() {
   LPC_PWM0->TCR = COUNTER_STOP;  // Стоп счётчик b1<-1
   LPC_PWM0->TCR = COUNTER_RESET;
   
-  rFault_p.check(); // Контроль аварийных ситуаций
+  if (forcing_bridge || main_bridge) {
+      rFault_p.check();         // Контроль аварийных ситуаций
+  }
 }
 
 void CSIFU::control_sync() {
@@ -200,10 +218,13 @@ void CSIFU::set_main_bridge() {
   forcing_bridge = false;
   main_bridge = true;
 }
+
 void CSIFU::pulses_stop() {
-  forcing_bridge = false;
-  main_bridge = false;
+  set_alpha(s_const.AMax);
+  n_pulses_stop = s_const.N_PULSES_STOP;
+  phase_stop = true;
 }
+
 void CSIFU::start_phasing_mode() {
   v_sync.task_power_shift = rSettings.getSettings().set_sifu.power_shift;
   v_sync.cur_power_shift = v_sync.task_power_shift;
@@ -224,7 +245,10 @@ void CSIFU::set_d_shift(unsigned char d_shift) {
     v_sync.d_power_shift = d_shift;
   }
 }
-float CSIFU::get_Sync_Frequency() { return v_sync.SYNC_FREQUENCY; }
+
+float* CSIFU::get_Sync_Frequency() { return &v_sync.SYNC_FREQUENCY; }
+
+unsigned char* CSIFU::getSyncStat() { return &curSyncStat; } 
 
 void CSIFU::init_and_start() {
   forcing_bridge = false;

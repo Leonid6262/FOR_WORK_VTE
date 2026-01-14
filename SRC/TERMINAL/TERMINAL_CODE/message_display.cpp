@@ -1,9 +1,10 @@
 #include "message_display.hpp"
+#include "SystemManager.hpp"
 #include "string_utils.hpp"
 #include "pause_us.hpp"
 
-CMessageDisplay::CMessageDisplay(CTerminalUartDriver& uartDrv, CRTC& rRTC) : 
-  uartDrv(uartDrv), rRTC(rRTC), l(CEEPSettings::getInstance().getSettings().Language - 1),
+CMessageDisplay::CMessageDisplay(CTerminalUartDriver& uartDrv, CSystemManager& rSysMgr, CRTC& rRTC) : 
+  uartDrv(uartDrv), rSysMgr(rSysMgr), rRTC(rRTC), l(CEEPSettings::getInstance().getSettings().Language - 1),
   COUNT_CATEGORIES(static_cast<unsigned char>(ECategory::COUNT)) {
   // Регистрация категорий в CategoryContext
   contexts[static_cast<unsigned char>(ECategory::NOT_READY)] = {
@@ -118,142 +119,6 @@ void CMessageDisplay::rotate_messages() {
 }
 
 
-
-/*
-void CMessageDisplay::rotate_messages() {
-  static unsigned char cur_cat = 0;     // Текущая категория
-  static unsigned char emp_num = 0;     // Счётчик "пустых" категорий
-  static bool print_title = true;       // Признак вывода заголовка
-  static bool had_active = false;       // В текущей категории был актив
-  
-  while (true) {
-    auto &ctx = contexts[cur_cat];
-    
-    // Ранний гард: если курсор вне диапазона, делаем переход категории
-    if (ctx.cursor >= ctx.count) {
-      ctx.cursor = 0;
-      cur_cat = (cur_cat + 1) % COUNT_CATEGORIES;
-      print_title = true;
-      
-      if (had_active) {
-        emp_num = 0;
-      } else {
-        emp_num++;
-        if (emp_num >= COUNT_CATEGORIES) {
-          emp_num = 0;
-          render_messages(data_time, false); // все категории пустые
-          return;
-        }
-      }
-      had_active = false;
-      
-      if (cur_cat == 0) {
-        render_messages(data_time, false);   // полный круг
-        return;
-      }
-      return;
-    }
-    
-    // Активное сообщение
-    if (ctx.active[ctx.cursor]) {
-      if (first_call) {
-        first_call = false;
-        print_title = true;
-      }
-      render_messages(cur_cat, print_title);
-      print_title = false;
-      
-      ctx.cursor++;    // двигаем на следующее
-      emp_num = 0;
-      had_active = true;
-      return;
-    }
-    
-    // Неактивное сообщение
-    ctx.cursor++;
-    if (ctx.cursor >= ctx.count) {
-      ctx.cursor = 0;
-      cur_cat = (cur_cat + 1) % COUNT_CATEGORIES;
-      print_title = true;
-      
-      if (had_active) {
-        emp_num = 0;
-      } else {
-        emp_num++;
-        if (emp_num >= COUNT_CATEGORIES) {
-          emp_num = 0;
-          render_messages(data_time, false); // все пустые
-          return;
-        }
-      }
-      had_active = false;
-      
-      if (cur_cat == 0) {
-        render_messages(data_time, false);   // полный круг
-        return;
-      }
-    }
-  }
-}
-*/
-
-/*
-void CMessageDisplay::rotate_messages() {
-  static unsigned char cur_cat = 0;     // Текущая категория
-  static unsigned char emp_num = 0;     // Счётчик "пустых" категорий
-  static bool print_title = true;       // Признак вывода заголовка
-  static bool had_active = false;       // В текущей категории был актив
-  
-  while (true) {
-    if (contexts[cur_cat].active[contexts[cur_cat].cursor]) {
-      if(first_call) {
-        first_call = false; 
-        print_title = true;
-      }
-      render_messages(cur_cat, print_title);
-      print_title = false;
-      contexts[cur_cat].cursor++;
-      emp_num = 0;
-      had_active = true;
-      if (contexts[cur_cat].cursor >= contexts[cur_cat].count) {
-        contexts[cur_cat].cursor = 0;
-        cur_cat = (cur_cat + 1) % COUNT_CATEGORIES;
-        print_title = true;
-        had_active = false;
-        if (cur_cat == 0) { 
-          render_messages(data_time, false);  
-        }
-      }      
-      return;
-    }
-    else {
-      contexts[cur_cat].cursor++;
-      if (contexts[cur_cat].cursor >= contexts[cur_cat].count) {
-        contexts[cur_cat].cursor = 0;
-        cur_cat = (cur_cat + 1) % COUNT_CATEGORIES;
-        print_title = true;       
-        if (had_active) { 
-          emp_num = 0; 
-        } else { 
-          emp_num++; 
-          if (emp_num >= COUNT_CATEGORIES) { 
-            emp_num = 0; 
-            render_messages(data_time, false);             
-            return; 
-          } 
-        } 
-        had_active = false;
-        if (cur_cat == 0) { 
-          render_messages(data_time, false);          
-          return;
-        }
-      }
-    }
-  }
-}
-*/
-
-
 // "Опрос" клавиатуры
 void CMessageDisplay::get_key() {
   unsigned char input_key;
@@ -271,12 +136,17 @@ void CMessageDisplay::Key_Handler(EKey_code key) {
     pTerminal_manager->switchToMenu(); // переключаемся в меню
     break;
   case EKey_code::FnEsc:
-    {unsigned char led_blue[] = {static_cast<unsigned char>(ELED::LED_BLUE), '\r'}; 
-    uartDrv.sendBuffer(led_blue, sizeof(led_blue));
-    CategoryUtils::clearAllMessages();
-    Pause_us(200000);
-    unsigned char led_off[] = {static_cast<unsigned char>(ELED::LED_OFF), '\r'};
-    uartDrv.sendBuffer(led_off, sizeof(led_off));}
+    {
+      unsigned char led_blue[] = {static_cast<unsigned char>(ELED::LED_BLUE), '\r'}; 
+      uartDrv.sendBuffer(led_blue, sizeof(led_blue));
+      CategoryUtils::clearMessages(ECategory::FAULT);
+      CategoryUtils::clearMessages(ECategory::COUNT);
+      Pause_us(200000);
+      unsigned char led_off[] = {static_cast<unsigned char>(ELED::LED_OFF), '\r'};
+      uartDrv.sendBuffer(led_off, sizeof(led_off));
+      rSysMgr.setFault(State::OFF);
+      rSysMgr.setReadyCheck(Mode::ALLOWED);
+    }
     break;
   case EKey_code::NONE:
   default: {

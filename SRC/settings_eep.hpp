@@ -39,14 +39,6 @@ namespace cd {
   inline float cd_r(float NomVal, unsigned short discr) { return NomVal / discr; } 
 }
 
-// Пространство имён коэффициентов отображения в % (для rem_osc)
-namespace pd {
-  constexpr float IRotor  = 100.0f / cd::ADC_DISCR_ID;  
-  constexpr float URotor  = 100.0f / cd::ADC_DISCR_UD; 
-  constexpr float IStator = 100.0f / cd::ADC_DISCR_IS;
-  constexpr float UStator = 100.0f / cd::ADC_DISCR_US; 
-}
-
 class CEEPSettings {
  private:
   // --- Структура уставок ---

@@ -6,6 +6,7 @@
 #include "rem_osc.hpp"
 #include "RegManager.hpp"
 #include "FaultCtrlP.hpp" 
+#include "bool_name.hpp"
 
 class CRegManager;
 
@@ -27,8 +28,8 @@ class CSIFU {
   void set_d_shift(unsigned char);  // Установка дискретного сдвига синхронизации
   void set_alpha(signed short);     // Установка Alpha
   signed short get_alpha();         // Чтение Alpha
-
-  float get_Sync_Frequency();  // Возвращает частоту синхронизации
+  unsigned char* getSyncStat();     // Чтение текущего статуса синхронизации
+  float* get_Sync_Frequency();      // Возвращает частоту синхронизации
   signed short* getPointerAlpha();
 
   void init_and_start();  // Инициализация
@@ -41,6 +42,7 @@ class CSIFU {
     static constexpr float DT_MAX = 20408; // 49.0 Hz 
     static constexpr signed short _0gr = 0;
     static constexpr signed short _5gr = 278;
+    static constexpr signed short _10gr = 555;
     static constexpr signed short _30gr = 1667;
     static constexpr signed short _60gr = 3333;
     static constexpr signed short _90gr = 5000;
@@ -48,7 +50,7 @@ class CSIFU {
     static constexpr signed short _150gr = 8333;
     static constexpr signed short _180gr = 10000;
     
-    static constexpr signed int PULSE_WIDTH = 3048;  // us
+    static constexpr signed int PULSE_WIDTH = 1505;  // us
     
     static constexpr float TIC_SEC = 1000000.0;
     
@@ -57,9 +59,10 @@ class CSIFU {
     
     static constexpr signed short AMax = _150gr;
     static constexpr signed short AMin = _30gr;
-    static constexpr signed short dAlpha = _5gr;
+    static constexpr signed short dAlpha = _10gr;
     
     static constexpr unsigned int N_PULSES = 6;
+    static constexpr unsigned int N_PULSES_STOP = 50;
     
   } s_const;
   
@@ -72,6 +75,8 @@ class CSIFU {
 
   bool forcing_bridge;
   bool main_bridge;
+  bool phase_stop = false;
+  signed short n_pulses_stop = 0;
 
   signed short Alpha_setpoint;
   signed short Alpha_current;
@@ -84,6 +89,7 @@ class CSIFU {
   enum class EOperating_mode { NO_SYNC, RESYNC, NORMAL, PHASING };
 
   EOperating_mode Operating_mode;  // Текущий режим работы СИФУ
+  unsigned char curSyncStat;
 
   struct SyncState  // Структура переменных касающихся синхронизации
   {

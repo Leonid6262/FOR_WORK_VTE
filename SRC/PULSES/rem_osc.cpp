@@ -26,14 +26,14 @@ CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, CPULSCALC& rPulsCalc, CADC_STORAGE&
       adc_instans.getEPointer(CADC_STORAGE::ROTOR_VOLTAGE)     // Напряжение ротора
     },
     {
-      "I_ROT", "ISTAT", "USTAT", "U_ROT" // Имена треков (как будут подписаны треки в ПО ПК)
+      "IROT", "ISTAT", "USTAT", "U_ROT" // Имена треков (как будут подписаны треки в ПО ПК)
     }, 
     {
       // Уставки коэффициентов отображения (дискрет на 100%)
-      static_cast<unsigned short>(round(pd::IRotor)),
-      static_cast<unsigned short>(round(pd::IStator)), 
-      static_cast<unsigned short>(round(pd::UStator)),  
-      static_cast<unsigned short>(round(pd::URotor)),                   
+      cd::ADC_DISCR_ID,
+      cd::ADC_DISCR_IS,
+      cd::ADC_DISCR_US,
+      cd::ADC_DISCR_UD,               
       // Количество треков определяется по размеру этого массива (d_100p)
     },
     CREM_OSC::Operating_mode::Access_point,                   // Режим работы Access_point или Station

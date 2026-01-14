@@ -36,6 +36,7 @@ namespace NProxyVar {
   };  
   struct Unit {
     static constexpr const char* Amp  = "A";
+    static constexpr const char* Hz   = "Hz";
     static constexpr const char* Volt = "V";
     static constexpr const char* Deg  = "deg";
     static constexpr const char* bits = "bits";

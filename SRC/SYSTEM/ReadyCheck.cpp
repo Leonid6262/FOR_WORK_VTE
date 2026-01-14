@@ -2,7 +2,7 @@
 
 CReadyCheck::CReadyCheck(CADC_STORAGE& rAdcStr, CDIN_STORAGE& rDinStr) : rAdcStr(rAdcStr), rDinStr(rDinStr) {}
 
-void CReadyCheck::getManager(CSystemManager* pSys_manager) {
+void CReadyCheck::setSysManager(CSystemManager* pSys_manager) {
   this->pSys_manager = pSys_manager;
 }
 
