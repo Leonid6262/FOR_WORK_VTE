@@ -36,40 +36,38 @@ struct SNotReady : CategoryActive<ENotReadyId>{
 };
 
 // ======================= READY =======================
-enum class EReadyId { PUSK, DRY, COUNT };
+enum class EReadyId { PUSK, DRYING, COUNT };
 struct SReady : CategoryActive<EReadyId>{
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "ГОТОВ", "READY", "ГОТОВИЙ" };
   static constexpr const char* MSG[][G_CONST::Nlang] = {
     {"К Пуску",         "To Start",             "До Пуску"},
-    {"К режиму СУШКА",  "To Drying mode",       "До режимум СУШКА"},
+    {"К режиму СУШКА",  "To Drying mode",       "До СУШIННЯ"},
   };      
   static constexpr auto _checkMsg = (checkMsgSize<EReadyId>(MSG), 0);
 };
 // ======================= WORK =======================
-enum class EWorkId { ADJ_MODE, CURRENT_REG, COS_REG, Q_POWER_REG, COUNT };
+enum class EWorkId { CURRENT_REG, COS_REG, Q_POWER_REG, DRYING, COUNT };
 struct SWork : CategoryActive<EWorkId> {
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "РАБОТА:", "WORK:", "РОБОТА:" };
   static constexpr const char* MSG[][G_CONST::Nlang] = {
-    {"Режим Наладки",       "Adjustmen mode",       "Режим Наладки"},
     {"Регулятор тока",      "Current Reg",          "Регулятор струму"},
     {"Регулятор Cos",       "Cos Reg",              "Регулятор Cos"},
-    {"Регулятор Q",         "Q Power Reg",          "Регулятор Q"}
+    {"Регулятор Q",         "Q Power Reg",          "Регулятор Q"},
+    {"Сушка",               "Drying",               "Сушiння"}
   };
-    
-
-
   static constexpr auto _checkMsg = (checkMsgSize<EWorkId>(MSG), 0);  
 };
 
 // ======================= FAULT =======================
-enum class EFaultId { ID_MAX, COUNT };
+enum class EFaultId { ID_MAX_SOFT, ID_MAX_HARD, COUNT };
 struct SFault : CategoryActive<EFaultId> {
    
   static constexpr const char* NAME[G_CONST::Nlang] = { "АВАРИЯ:", "FAULT:", "АВАРIЯ:" };
   static constexpr const char* MSG[][G_CONST::Nlang] = { 
-    {"Id max",   "Id max",       "Id max"} 
+    {"Id max soft",   "Id max soft",       "Id max soft"},
+    {"Id max hard",   "Id max hard",       "Id max hard"}
   };
   
 

@@ -16,7 +16,7 @@ void CFaultCtrlP::check() {
   auto& set = rSet.getSettings();
   Fault = F::NOT_FAULT;
   
-  check(Fault, abs(*rAdcStr.getEPointer(sadc::ROTOR_CURRENT)) > set.set_faults.IdMax,   EFaultId::ID_MAX);
+  check(Fault, abs(*rAdcStr.getEPointer(sadc::ROTOR_CURRENT)) > set.set_faults.IdMax, EFaultId::ID_MAX_SOFT);
   
   if(Fault == F::FAULT){
     pSys_manager->setFault(State::ON);

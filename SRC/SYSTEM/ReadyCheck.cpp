@@ -19,11 +19,11 @@ void CReadyCheck::check(bool mode) {
   
   if(Ready == R::READY){
     SReady::setMessage(EReadyId::PUSK);
-    SReady::setMessage(EReadyId::DRY);
+    SReady::setMessage(EReadyId::DRYING);
     pSys_manager->setReady(State::ON);
   }else{
     SReady::clrMessage(EReadyId::PUSK);
-    SReady::clrMessage(EReadyId::DRY);
+    SReady::clrMessage(EReadyId::DRYING);
     pSys_manager->setReady(State::OFF);
   }
   
