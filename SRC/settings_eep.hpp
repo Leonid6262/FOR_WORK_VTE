@@ -75,6 +75,7 @@ class CEEPSettings {
     } set_sifu;
     struct {                                               // 14 Уставки Аварийные
       unsigned short IdMax;                                  /* IdMax */
+      unsigned short IdMin;                                  /* IdMin */
     } set_faults;
     struct {                                               // 15 Параметры. Ном. значения
       unsigned short IdNom;                                  /* IdNom */
@@ -120,6 +121,7 @@ class CEEPSettings {
     },
     .set_faults = {
       .IdMax = 0,
+      .IdMin = 0,
     },
     .set_params = {
       .IdNom = 320,

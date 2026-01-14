@@ -57,8 +57,10 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
       o(Mn.CURRENT_DATA[l],{
           o::DualReg("I-Rotor", id::Irotor,   p0, "U-Rotor", id::Urotor,   p0, nm::In2V),
           o::DualReg("IStator", id::IstatRms, p0, "UStator", id::UstatRms, p0, nm::In2V),
-          o::DualRaw("Sync",    sifu.getSyncStat(),         un::b,  cd::one, p0, vt::eb_0,
-                     "Fsync",   sifu.get_Sync_Frequency(),  un::Hz, cd::one, p1, vt::vfloat, nm::In2V),}),
+          o::DualRaw("Sync",    sifu.getSyncStat(),                un::b,    cd::one, p0, vt::eb_0,
+                     "Fsync",   sifu.get_Sync_Frequency(),         un::Hz,   cd::one, p1, vt::vfloat, nm::In2V),
+          o::DualRaw("P5",      pAdc.getIPointer(sadc::SUPPLY_P5), un::Volt, cd::one, p1, vt::vfloat,
+                     "N5",      pAdc.getIPointer(sadc::SUPPLY_N5), un::Volt, cd::one, p1, vt::vfloat, nm::In2V),}),
       o(Mn.BIT_DATA[l],{
           o("dInCPU-D", {}, id::pi0_cpu, p0, nm::In1V),
           o("dInCPU-S", {}, id::pi0_spi, p0, nm::In1V),}),}),
@@ -93,8 +95,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
               o("I-set",  {}, &set.set_reg.Iset0,un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.set_params.IdNom),
               o("I-fors", {}, &set.set_reg.Ifors,un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.set_params.IdNom),
               o("I-dry",  {}, &set.set_reg.Idry, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 0.1f*set.set_params.IdNom),
-              o("Alpha-0",{}, &set.set_reg.A0,   un::Deg, cd::Alpha,  p0, vt::sshort, nm::Ed1V, 90, 120)
-          }),
+              o("Alpha-0",{}, &set.set_reg.A0,   un::Deg, cd::Alpha,  p0, vt::sshort, nm::Ed1V, 90, 120)}),
           o(Mn.COS_PHI[l],{
               o("KpCos", {}, &set.set_reg.KpCos, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiCos", {}, &set.set_reg.KiCos, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
@@ -108,7 +109,8 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("IS Nom", {}, &set.set_params.IdNom, un::Amp,  cd::one, p0, vt::ushort, nm::Ed1V,   0, 1000),
           o("US Nom", {}, &set.set_params.UdNom, un::Volt, cd::one, p0, vt::ushort, nm::Ed1V, 400, 6300),}),
       o(Mn.FAULTS[l], {
-          o("Id Max", {}, &set.set_faults.IdMax, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.set_params.IdNom),}),
+          o("Id Max", {}, &set.set_faults.IdMax, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.set_params.IdNom),
+          o("Id Min", {}, &set.set_faults.IdMin, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.set_params.IdNom),}),
       o(Mn.ADC_SHIFT[l],{
           o::DualRaw("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT),   un::d, cd::one, p0, vt::sshort,
                        "shift", &set.shift_adc[  sadc::ROTOR_CURRENT],   un::d, cd::one, p0, vt::sshort, nm::IE2V, 0, 3000),

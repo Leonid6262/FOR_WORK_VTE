@@ -101,10 +101,14 @@ void CSIFU::rising_puls() {
     }   
   }
   
-  rPulsCalc.conv_and_calc();     // Измерения, вычисления и т.п.
-  rReg_manager.applyModeRules();
-  rReg_manager.stepAll();       // Регулирование
-
+  rPulsCalc.conv_and_calc();            // Измерения, вычисления и т.п.
+  
+  if (forcing_bridge || main_bridge) {
+    rFault_p.check();                   // Контроль аварийных ситуаций
+    rReg_manager.applyModeRules();      // Контроль правил комбинации регуляторов
+    rReg_manager.stepAll();             // Регулирование
+  }
+  
 }
 
 signed int CSIFU::timing_calc() {
@@ -156,9 +160,6 @@ void CSIFU::faling_puls() {
   LPC_PWM0->TCR = COUNTER_STOP;  // Стоп счётчик b1<-1
   LPC_PWM0->TCR = COUNTER_RESET;
   
-  if (forcing_bridge || main_bridge) {
-      rFault_p.check();         // Контроль аварийных ситуаций
-  }
 }
 
 void CSIFU::control_sync() {

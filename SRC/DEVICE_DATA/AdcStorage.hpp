@@ -45,8 +45,11 @@ class CADC_STORAGE {
   inline unsigned int getTimings(unsigned char channel) { return timings[channel]; }
   // --- Чтени данных внутреннего АЦП ---
   inline float getInternal(unsigned char channel) { return internal_data[channel]; }
+  // --- Чтение internal_data[] указателей ---
+  inline float* getIPointer(unsigned char channel) { return &internal_data[channel]; }
   // --- Чтение external_data[] указателей ---
   inline signed short* getEPointer(unsigned char channel) { return &external_data[channel]; }
+
 
   // Для отладочного указателя на external_data[]
   inline signed short (&getExternal()) [G_CONST::NUMBER_CHANNELS] { return external_data; }
