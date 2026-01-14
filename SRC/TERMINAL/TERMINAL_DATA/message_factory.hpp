@@ -19,15 +19,20 @@ struct CategoryActive
 enum class ECategory { NOT_READY, READY, WORK, FAULT, WARNING, COUNT }; // Список категорий
 
 // ======================= NOT_READY =======================
-enum class ENotReadyId { ADJ_MODE, Q1_is_OFF, SENS_CR_FAULT, SENS_CS_FAULT, COUNT };
+enum class ENotReadyId { 
+  ADJ_MODE, NOT_SYNC, Q1_is_OFF, SENS_CR_FAULT, SENS_CS_FAULT, SENS_VR_FAULT, BC_HVS_FAUL, COUNT 
+};
 struct SNotReady : CategoryActive<ENotReadyId>{
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "НЕТ ГОТОВНОСТ:", "NOT READY:", "НЕМА ГОТОВНОСТI:" };
   static constexpr const char* MSG[][G_CONST::Nlang] = {
-    {"Режим Наладки",  "Adjustment mode", "Режим Наладки"},
-    {"Отключен Q1",    "Q1 is OFF",       "Вимкнено Q1"},
-    {"Неисправен ДТР", "Sens Curr FAULT", "Несправний ДСР"},
-    {"Неисправен ДТС", "Stat Curr FAULT", "Несправний ДСС"}
+    {"Режим Наладки",   "Adjustment mode", "Режим Наладки"},
+    {"Нет синх-ции",    "Not Sync",        "Нема Sync"},
+    {"Отключен Q1",     "Q1 is OFF",       "Вимкнено Q1"},
+    {"Неисправен ДТР",  "SCR FAULT",       "Несправний ДСР"},
+    {"Неисправен ДТС",  "SCS FAULT",       "Несправний ДСС"},
+    {"Неисправен ДНР",  "SVR FAULT",       "Несправний ДНР"},
+    {"Неиспр-ны БК ВВ", "BC HVS FAULT",    "Несправнi БК ВВ"}
   };
   
   
@@ -61,13 +66,14 @@ struct SWork : CategoryActive<EWorkId> {
 };
 
 // ======================= FAULT =======================
-enum class EFaultId { ID_MAX_SOFT, ID_MAX_HARD, COUNT };
+enum class EFaultId { ID_MAX_SOFT, ID_MAX_HARD, NOT_SYNC, COUNT };
 struct SFault : CategoryActive<EFaultId> {
    
   static constexpr const char* NAME[G_CONST::Nlang] = { "АВАРИЯ:", "FAULT:", "АВАРIЯ:" };
   static constexpr const char* MSG[][G_CONST::Nlang] = { 
     {"Id max soft",   "Id max soft",       "Id max soft"},
-    {"Id max hard",   "Id max hard",       "Id max hard"}
+    {"Id max hard",   "Id max hard",       "Id max hard"},
+    {"Нет синх-ции",  "Not Sync",          "Нема Sync"},
   };
   
 
