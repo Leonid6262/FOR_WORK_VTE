@@ -26,9 +26,7 @@ private:
     if (condition) { 
       SFault::setMessage(id); 
       fault = F::FAULT;
-    } else { 
-      SFault::clrMessage(id); 
-    } 
+    }
   }
  
 };

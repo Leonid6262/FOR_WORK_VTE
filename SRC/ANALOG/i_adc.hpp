@@ -28,8 +28,8 @@ public:
   
   CIADC();
   
-  float P5_prev;
-  float N5_prev;
+  float P5_cur;
+  float N5_cur;
 
   StatusRet measure_5V();
   

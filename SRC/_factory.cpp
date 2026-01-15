@@ -45,8 +45,8 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   // --- СИФУ и его окружение ---
   static CADC adc(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_1));
   static CPULSCALC puls_calc(adc);                                              
-  static CFaultCtrlP fault_p(CADC_STORAGE::getInstance(), CEEPSettings::getInstance());                      
-  static CSIFU sifu(puls_calc, reg_manager, fault_p, CEEPSettings::getInstance());
+  static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), CEEPSettings::getInstance());                      
+  static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, CEEPSettings::getInstance());
   reg_manager.getSIFU(&sifu);
   
   CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_2);
@@ -57,16 +57,20 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   // --- System Manager ---
   static CAdjustmentMode adjustment(sifu, CEEPSettings::getInstance());
   static CReadyCheck ready_check(CADC_STORAGE::getInstance(), CDIN_STORAGE::getInstance());
-  static CFaultControl fault_ctrl;
+  static CFaultCtrlF fault_ctrl_f;
   static CPuskMode pusk_mode;
   static CWorkMode work_mode;
   static CWarningMode warning_ctrl;
   
-  static CSystemManager sys_manager(sifu, adjustment, ready_check, fault_ctrl, 
+  static CSystemManager sys_manager(sifu, adjustment, ready_check, fault_ctrl_f, 
                                     pusk_mode, work_mode, warning_ctrl, reg_manager);
   
   ready_check.setSysManager(&sys_manager);
-  fault_p.setSysManager(&sys_manager); 
+  fault_ctrl_f.setSysManager(&sys_manager);
+  fault_ctrl_f.initEINT2();                       // Настройка прерывания аппаратной защиты IdMax hard
+
+  CProxyHandlerEINT2::getInstance().set_pointers(&sys_manager, &fault_ctrl_f);
+  fault_ctrl_p.setSysManager(&sys_manager); 
   
   return sys_manager;
 }

@@ -8,7 +8,7 @@ void CReadyCheck::setSysManager(CSystemManager* pSys_manager) {
 
 void CReadyCheck::check(bool mode) { 
   
-  if(!mode) return;
+  if(!mode) {CategoryUtils::clearMessages(ECategory::COUNT); return;}
   
   Ready = R::READY;
 

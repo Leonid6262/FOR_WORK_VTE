@@ -1,7 +1,7 @@
 #include "SystemManager.hpp"
 
 CSystemManager::CSystemManager(CSIFU& rSIFU, CAdjustmentMode& rAdj_mode, CReadyCheck& rReady_check, 
-                               CFaultControl& rFault_ctrl, CPuskMode& rPusk_mode, CWorkMode& rWork_mode,
+                               CFaultCtrlF& rFault_ctrl, CPuskMode& rPusk_mode, CWorkMode& rWork_mode,
                                CWarningMode& rWarning_ctrl, CRegManager& rReg_manager)
 
 : rSIFU(rSIFU), rAdj_mode(rAdj_mode), rReady_check(rReady_check), 

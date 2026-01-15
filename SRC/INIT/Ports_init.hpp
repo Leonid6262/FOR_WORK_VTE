@@ -22,7 +22,12 @@ public:
     LPC_GPIO2->DIR |= 0xFF000020; // D-OUT7...D-OUT0, DAVR
     LPC_GPIO3->DIR |= 0x3F3F0000; // V6...V1, U6...U1
     LPC_GPIO4->DIR |= 0x00000000; // нет выходов
-    LPC_GPIO5->DIR |= 0x00000008; // PROG_CS    
+    LPC_GPIO5->DIR |= 0x00000008; // PROG_CS  
+    
+    // Сброс настроек и флагов EXTINT
+    LPC_SC->EXTINT = 0xF;
+    LPC_SC->EXTMODE = 0x0;
+    LPC_SC->EXTPOLAR = 0x0;
   }
 };
 

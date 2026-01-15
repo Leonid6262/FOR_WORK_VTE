@@ -26,6 +26,7 @@ namespace Priorities {
   enum ES { sgroup0, sgroup1, sgroup2, sgroup3, sgroup4, sgroup5, sgroup6, sgroup7 };
   
   // --- Группа 0 зарезервирована для критических системных прерываний ---
+  constexpr unsigned int INT2 = make_priority(group0, sgroup0);
   
   // ---  Группа 1  --- 8 подгрупп
   constexpr unsigned int Timer3 = make_priority(group1, sgroup0);
@@ -41,6 +42,7 @@ namespace Priorities {
   inline void initPriorities() { 
     NVIC_SetPriorityGrouping(G4S8); // распределение по группам 
     
+    NVIC_SetPriority(EINT2_IRQn, INT2);     // IdMax hard
     NVIC_SetPriority(TIMER3_IRQn, Timer3);  // СИФУ
     NVIC_SetPriority(UART0_IRQn, UART);     // Терминал
   }

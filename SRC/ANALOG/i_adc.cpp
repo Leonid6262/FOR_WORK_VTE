@@ -28,9 +28,9 @@ StatusRet CIADC::measure_5V() {
       return StatusRet::ERROR;
     }
   }
-  P5_prev = K_P5 * ((LPC_ADC->DR[CH_P5] >> 4) & 0xFFF);
+  P5_cur = K_P5 * ((LPC_ADC->DR[CH_P5] >> 4) & 0xFFF);
   float P5_A = pStorage.getInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_P5);
-  P5_A = (P5_A + P5_prev) / 2.0f;
+  P5_A = (P5_A + P5_cur) / 2.0f;
   pStorage.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_P5, P5_A);
 
   // Измерение напряжение питания -5V
@@ -44,9 +44,9 @@ StatusRet CIADC::measure_5V() {
       return StatusRet::ERROR;
     }
   }
-  N5_prev = (K_N5 * ((LPC_ADC->DR[CH_N5] >> 4) & 0xFFF)) - (3 * P5_A);
+  N5_cur = (K_N5 * ((LPC_ADC->DR[CH_N5] >> 4) & 0xFFF)) - (3 * P5_A);
   float N5_A = pStorage.getInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_N5);
-  N5_A = (N5_A + N5_prev) / 2.0f;
+  N5_A = (N5_A + N5_cur) / 2.0f;
   pStorage.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_N5, N5_A);
   return StatusRet::SUCCESS;
 }

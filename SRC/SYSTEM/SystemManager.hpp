@@ -1,7 +1,7 @@
 #pragma once 
 
 #include "Adjustment.hpp"
-#include "FaultControl.hpp"
+#include "FaultCtrlF.hpp"
 #include "ReadyCheck.hpp"
 #include "PuskMode.hpp"
 #include "WorkMode.hpp"
@@ -13,13 +13,13 @@ class CReadyCheck;
 class CSystemManager {
   
 public:
- CSystemManager(CSIFU&, CAdjustmentMode&, CReadyCheck&, CFaultControl&, 
+ CSystemManager(CSIFU&, CAdjustmentMode&, CReadyCheck&, CFaultCtrlF&, 
                 CPuskMode&, CWorkMode&, CWarningMode&, CRegManager&);
  
  CSIFU& rSIFU;
  CAdjustmentMode& rAdj_mode; 
  CReadyCheck& rReady_check;
- CFaultControl& rFault_ctrl;
+ CFaultCtrlF& rFault_ctrl;
  CPuskMode& rPusk_mode;
  CWorkMode& rWork_mode;
  CWarningMode& rWarning_ctrl;
