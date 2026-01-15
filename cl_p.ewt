@@ -2967,6 +2967,9 @@
                 <name>$PROJ_DIR$\SRC\SYSTEM\SystemManager.cpp</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\SystemManager.hpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\SRC\SYSTEM\WarningControl.cpp</name>
             </file>
             <file>

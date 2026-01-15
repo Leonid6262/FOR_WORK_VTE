@@ -69,7 +69,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   fault_ctrl_f.setSysManager(&sys_manager);
   fault_ctrl_f.initEINT2();                       // Настройка прерывания аппаратной защиты IdMax hard
 
-  CProxyHandlerEINT2::getInstance().set_pointers(&sys_manager, &fault_ctrl_f);
+  CProxyHandlerEINT2::getInstance().set_pFaultCtrl(&fault_ctrl_f);
   fault_ctrl_p.setSysManager(&sys_manager); 
   
   return sys_manager;

@@ -97,24 +97,35 @@ struct SWarning : CategoryActive<EWarningId> {
 
 // ===== Утилита очистки =====
 struct CategoryUtils {
-  static void clearMessages(ECategory Category) {
-    switch (Category) {
+  static void clearMessages(ECategory category) {
+    switch (category) {
+    case ECategory::NOT_READY:
+      for (unsigned char i = 0; i < static_cast<unsigned char>(ENotReadyId::COUNT); ++i)
+        SNotReady::active[i] = false;
+      break;
+    case ECategory::READY:
+      for (unsigned char i = 0; i < static_cast<unsigned char>(EReadyId::COUNT); ++i)
+        SReady::active[i] = false;
+      break;
+    case ECategory::WORK:
+      for (unsigned char i = 0; i < static_cast<unsigned char>(EWorkId::COUNT); ++i)
+        SWork::active[i] = false;
+      break;
     case ECategory::FAULT:
       for (unsigned char i = 0; i < static_cast<unsigned char>(EFaultId::COUNT); ++i)
-        SFault::active[i] = false;   
-      break;     
-    case ECategory::COUNT:
-    default:
-      {
-        for (unsigned char i = 0; i < static_cast<unsigned char>(ENotReadyId::COUNT); ++i)
-          SNotReady::active[i] = false;  
-        for (unsigned char i = 0; i < static_cast<unsigned char>(EReadyId::COUNT); ++i)
-          SReady::active[i] = false;  
-        for (unsigned char i = 0; i < static_cast<unsigned char>(EWorkId::COUNT); ++i)
-          SWork::active[i] = false;            
-        for (unsigned char i = 0; i < static_cast<unsigned char>(EWarningId::COUNT); ++i)
-          SWarning::active[i] = false;
-      }      
+        SFault::active[i] = false;
+      break;
+    case ECategory::WARNING:
+      for (unsigned char i = 0; i < static_cast<unsigned char>(EWarningId::COUNT); ++i)
+        SWarning::active[i] = false;
+      break;
+    case ECategory::COUNT: // глобальная очистка
+      clearMessages(ECategory::NOT_READY);
+      clearMessages(ECategory::READY);
+      clearMessages(ECategory::WORK);
+      clearMessages(ECategory::FAULT);
+      clearMessages(ECategory::WARNING);
+      break;
     }
   }
 };

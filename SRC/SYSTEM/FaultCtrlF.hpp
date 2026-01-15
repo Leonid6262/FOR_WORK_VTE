@@ -13,10 +13,11 @@ public:
   void setSysManager(CSystemManager*);
   void initEINT2();
   void control(bool);
+  void fault_stop();
   
 private:
   CSystemManager* pSys_manager;
- 
+
 };
 
 /*
@@ -28,9 +29,8 @@ class CProxyHandlerEINT2
 public:
   
   static CProxyHandlerEINT2& getInstance();  
-  void set_pointers(CSystemManager*, CFaultCtrlF*);
+  void set_pFaultCtrl(CFaultCtrlF*);
   
-  CSystemManager* pSys_manager;
   CFaultCtrlF* pFaultCtrl;
   
 private:

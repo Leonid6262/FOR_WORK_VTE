@@ -18,21 +18,21 @@ namespace Priorities {
   constexpr unsigned int G4S8 = 5;          // 4 группы (2 бита) по 8 подгрупп (3 бита)
   constexpr unsigned int SubgroupBits = 3;  // Количество бит подгруппы
   
-  constexpr unsigned int make_priority(unsigned int group, unsigned int subgroup) {
-    return (group << SubgroupBits) | subgroup;
+  enum class EG { group0, group1, group2, group3, group4 };
+  enum class ES { sgroup0, sgroup1, sgroup2, sgroup3, sgroup4, sgroup5, sgroup6, sgroup7 };
+ 
+  constexpr unsigned int make_priority(EG group, ES subgroup) {
+    return (static_cast<unsigned int>(group) << SubgroupBits) | static_cast<unsigned int>(subgroup);
   }
   
-  enum EG { group0, group1, group2, group3, group4 };
-  enum ES { sgroup0, sgroup1, sgroup2, sgroup3, sgroup4, sgroup5, sgroup6, sgroup7 };
-  
-  // --- Группа 0 зарезервирована для критических системных прерываний ---
-  constexpr unsigned int INT2 = make_priority(group0, sgroup0);
+  // --- Группа 0 --- 8 подгрупп (критических и системные прерывания) ---
+  constexpr unsigned int INT2 = make_priority(EG::group0, ES::sgroup0);
   
   // ---  Группа 1  --- 8 подгрупп
-  constexpr unsigned int Timer3 = make_priority(group1, sgroup0);
+  constexpr unsigned int Timer3 = make_priority(EG::group1, ES::sgroup0);
   
   // ---  Группа 2  --- 8 подгрупп
-  constexpr unsigned int UART = make_priority(group2, sgroup0);
+  constexpr unsigned int UART = make_priority(EG::group2, ES::sgroup0);
   
   // ---  Группа 3  --- 8 подгрупп
   
@@ -40,6 +40,7 @@ namespace Priorities {
   
   // --- инициализация NVIC --- 
   inline void initPriorities() { 
+    
     NVIC_SetPriorityGrouping(G4S8); // распределение по группам 
     
     NVIC_SetPriority(EINT2_IRQn, INT2);     // IdMax hard

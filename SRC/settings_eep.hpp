@@ -3,6 +3,9 @@
 #include "bool_name.hpp"
 #include "crc16.hpp"
 #include "lpc_eeprom.h"
+#include <stddef.h>
+
+
 
 // Пространство имён глобальных констант
 namespace G_CONST {
@@ -40,6 +43,7 @@ namespace cd {
 }
 
 class CEEPSettings {
+  
  private:
   // --- Структура уставок ---
   struct WorkSettings {
@@ -81,7 +85,7 @@ class CEEPSettings {
       unsigned short IdNom;                                  /* IdNom */
       unsigned short UdNom;                                  /* UdNom */
       unsigned short ISNom;                                  /* ISNom */
-      unsigned short USNom;                                  /* USNom */
+      unsigned short USNom;                                  /* USNom */      
     } set_params;       
     unsigned char ssid[G_CONST::SSID_PS_L];                // 16 Имя сети
     unsigned char password[G_CONST::SSID_PS_L];            // 17 Пароль
@@ -127,12 +131,12 @@ class CEEPSettings {
       .IdNom = 320,
       .UdNom = 75,
       .ISNom = 100,
-      .USNom = 400,      
+      .USNom = 400,
     },      
     .ssid = "NetName",
     .password = "Password"
   };
-  
+    
   // Текущий набор уставок, хранящийся в RAM ---
   WorkSettings settings;
 
@@ -148,7 +152,7 @@ class CEEPSettings {
   void EEP_init(void);
   void EEPr(uint16_t page_offset, uint16_t page_address, void* data, EEPROM_Mode_Type mode, uint32_t count);
   void EEPw(uint16_t page_offset, uint16_t page_address, void* data, EEPROM_Mode_Type mode, uint32_t count);
-
+  
  public:
   // Публичный метод для получения единственного экземпляра ---
   static CEEPSettings& getInstance();

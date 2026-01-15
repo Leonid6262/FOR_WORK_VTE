@@ -16,18 +16,11 @@ void CFaultCtrlP::check() {
   auto& set = rSet.getSettings();
   Fault = F::NOT_FAULT;
   
-  check(Fault, abs(*rAdcStr.getEPointer(sadc::ROTOR_CURRENT)) > set.set_faults.IdMax, EFaultId::ID_MAX_SOFT);
-  
-  if(Fault == F::FAULT){
-    pSys_manager->setFault(State::ON);
-    pSys_manager->rReg_manager.setCurrent(State::OFF);
-    pSys_manager->rReg_manager.setQPower(State::OFF);
-    pSys_manager->rReg_manager.setCosPhi(State::OFF);
-    CategoryUtils::clearMessages(ECategory::COUNT);
-    pSys_manager->rSIFU.pulses_stop();
-  }
-  
-  
+  check(Fault, *rAdcStr.getEPointer(sadc::ROTOR_CURRENT) > set.set_faults.IdMax,            EFaultId::ID_MAX_SOFT);
+  check(Fault, !pSys_manager->rSIFU.getSyncStat() && !pSys_manager->USystemMode.Adjustment, EFaultId::NOT_SYNC);
+
+  if(Fault == F::FAULT) pSys_manager->rFault_ctrl.fault_stop();
+ 
 }
 
 

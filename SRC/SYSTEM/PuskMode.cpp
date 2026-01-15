@@ -3,6 +3,8 @@
 CPuskMode::CPuskMode(){}
 
 void CPuskMode::pusk(bool mode) { 
+  
+  
 }
 
 

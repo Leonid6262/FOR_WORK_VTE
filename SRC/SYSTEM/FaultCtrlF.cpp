@@ -14,6 +14,15 @@ void CFaultCtrlF::control(bool mode) {
     Аварийные ситуации определяемые в фоновом цикле
 
   */
+    if(Fault == F::FAULT) fault_stop();
+}
+
+void CFaultCtrlF::fault_stop() {
+    pSys_manager->setFault(State::ON);
+    pSys_manager->rReg_manager.setCurrent(State::OFF);
+    pSys_manager->rReg_manager.setQPower(State::OFF);
+    pSys_manager->rReg_manager.setCosPhi(State::OFF);
+    pSys_manager->rSIFU.pulses_stop();
 }
 
 void CFaultCtrlF::setSysManager(CSystemManager* pSys_manager) {
@@ -22,30 +31,20 @@ void CFaultCtrlF::setSysManager(CSystemManager* pSys_manager) {
 
 
 // Реализация Синглтон-прокси к EINT2_IRQHandler
-CProxyHandlerEINT2::CProxyHandlerEINT2() : pSys_manager(nullptr) {}
+CProxyHandlerEINT2::CProxyHandlerEINT2() : pFaultCtrl(nullptr) {}
 
 CProxyHandlerEINT2& CProxyHandlerEINT2::getInstance() {
   static CProxyHandlerEINT2 instance;
   return instance;
 }
-void CProxyHandlerEINT2::set_pointers(CSystemManager* pSys_manager, CFaultCtrlF* pFaultCtrl) { 
-  this->pSys_manager = pSys_manager;
+void CProxyHandlerEINT2::set_pFaultCtrl(CFaultCtrlF* pFaultCtrl) { 
   this->pFaultCtrl = pFaultCtrl;
 }
-
+// Handler EINT2
 extern "C" {  
-  void  EINT2_IRQHandler( void )
-  {
+  void  EINT2_IRQHandler( void ) {
     LPC_SC->EXTINT |= EXTI_EINT2_BIT_MARK;
-    auto* pFault = CProxyHandlerEINT2::getInstance().pFaultCtrl;
-    auto* pSys_manager = CProxyHandlerEINT2::getInstance().pSys_manager;
-    pSys_manager->setFault(State::ON);
-    pSys_manager->rReg_manager.setCurrent(State::OFF);
-    pSys_manager->rReg_manager.setQPower(State::OFF);
-    pSys_manager->rReg_manager.setCosPhi(State::OFF);
-    SFault::setMessage(EFaultId::ID_MAX_HARD);
-    CategoryUtils::clearMessages(ECategory::COUNT);
-    pSys_manager->rSIFU.pulses_stop();
+    CProxyHandlerEINT2::getInstance().pFaultCtrl->fault_stop();
   }
 }
 

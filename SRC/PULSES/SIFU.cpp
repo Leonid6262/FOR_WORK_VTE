@@ -84,10 +84,10 @@ void CSIFU::rising_puls() {
   signed int res = cur_MR0 + SIFUConst::PULSE_WIDTH;
   //
   //
-  // Ограничение длительности импульса при движении Alpha в сторону Alpha Min
+  // Ограничение длительности импульса при движении Alpha в сторону Alpha Min при длинных импульсах
   //
   //
-  LPC_TIM3->MR1 = static_cast<unsigned int>(res);  // Окончание текущего
+  LPC_TIM3->MR1 = static_cast<unsigned int>(res);  // Задание окончания текущего
 
   if(phase_stop) {
     rReg_manager.setCurrent(State::OFF);
