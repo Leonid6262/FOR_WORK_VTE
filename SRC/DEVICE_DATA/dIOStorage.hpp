@@ -46,10 +46,10 @@ class CDIN_STORAGE {
   inline void DoutControllerB1  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b1 = static_cast<bool>(state);}
   inline void DoutControllerB2  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b2 = static_cast<bool>(state);}
   inline void DoutControllerB3  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b3 = static_cast<bool>(state);}
-  inline void System_FAILURE    (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b4 = static_cast<bool>(state);}
-  inline void Excitation_Applied(State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b5 = static_cast<bool>(state);}
-  inline void START_Premission  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b6 = static_cast<bool>(state);}
-  inline void ON_Shunt_HVS      (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b7 = static_cast<bool>(state);}
+  inline void Relay_FAULT       (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b4 = static_cast<bool>(state);}
+  inline void Relay_Ex_Applied  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b5 = static_cast<bool>(state);}
+  inline void Relay_Premission  (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b6 = static_cast<bool>(state);}
+  inline void Relay_Shunt_HVS   (State state) {UData_dout[static_cast<char>(EOBNumber::CPU_SPI)].b7 = static_cast<bool>(state);}
   
   //--- Выходы S600 ---
   //

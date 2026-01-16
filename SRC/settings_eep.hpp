@@ -128,7 +128,7 @@ class CEEPSettings {
       .IdMin = 0,
     },
     .set_params = {
-      .IdNom = 320,
+      .IdNom = 315,
       .UdNom = 75,
       .ISNom = 100,
       .USNom = 400,

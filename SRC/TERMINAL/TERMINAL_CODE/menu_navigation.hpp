@@ -42,7 +42,7 @@ public:
     float min_value;                    // Min
     float max_value;                    // Max
     
-    // Универсальный конструктор
+    // Конструктор
     MenuNode(const char* t,
              std::vector<MenuNode> c = {},
              void* v = nullptr,
@@ -52,44 +52,24 @@ public:
              et vt = et::NONE,
              ENodeMode m = ENodeMode::Menu,
              float min = -99999.0f,
-             float max = +99999.0f);
+             float max = +99999.0f);       
     
-    // Конструктор узла переменных реестра
-    MenuNode(const char* t,
-             std::vector<MenuNode> c,
-             NProxyVar::ProxyVarID id,
-             unsigned char p,
-             ENodeMode m,
-             float min = -99999.0f,
-             float max = +99999.0f);
-    
-    // Фабрика дуал-узла зарегистрированных переменных
-    static MenuNode DualReg(const char* title1,
-                            NProxyVar::ProxyVarID id1,
-                            unsigned char precision1,
-                            const char* title2,
-                            NProxyVar::ProxyVarID id2,
-                            unsigned char precision2,
-                            ENodeMode m,
-                            float min = -99999.0f,
-                            float max = +99999.0f);
-    
-    // Фабрика дуал-узла сырых переменных
-    static MenuNode DualRaw(const char* title1,
-                            void* pVar1,
-                            const char* unit1,
-                            float scale1,
-                            unsigned char precision1,
-                            et type1,
-                            const char* title2,
-                            void* pVar2,
-                            const char* unit2,
-                            float scale2,
-                            unsigned char precision2,
-                            et type2,
-                            ENodeMode m,
-                            float min = -99999.0f,
-                            float max = +99999.0f);
+    // Фабрика дуал-узла
+    static MenuNode Dual(const char* title1,
+                         void* pVar1,
+                         const char* unit1,
+                         float scale1,
+                         unsigned char precision1,
+                         et type1,
+                         const char* title2,
+                         void* pVar2,
+                         const char* unit2,
+                         float scale2,
+                         unsigned char precision2,
+                         et type2,
+                         ENodeMode m,
+                         float min = -99999.0f,
+                         float max = +99999.0f);
   };
   
   

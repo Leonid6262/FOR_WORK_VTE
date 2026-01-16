@@ -33,7 +33,7 @@ CMenuNavigation::CMenuNavigation(CTerminalUartDriver& uartDrv, CSystemManager& r
   //render_menu(); // первая отрисовка, если в менеджере задано старт терминала с режима меню
 }
 
-// Конструктор узла универсальный (все поля из меню)
+// Конструктор узла
 CMenuNavigation::MenuNode::MenuNode(const char* t,
                                  std::vector<MenuNode> c,
                                  void* v,
@@ -55,52 +55,9 @@ mode(m),
 min_value(min_value),
 max_value(max_value) {}
 
-// Конструктор узла переменных реестра
-CMenuNavigation::MenuNode::MenuNode(const char* t,
-                                 std::vector<MenuNode> c,
-                                 NProxyVar::ProxyVarID id,
-                                 unsigned char p,
-                                 ENodeMode m,
-                                 float min_value,
-                                 float max_value)
-: title(t),
-children(std::move(c)),
-precision(p),
-mode(m),
-min_value(min_value),
-max_value(max_value)
-{
-  CProxyPointerVar& ppv = CProxyPointerVar::getInstance();
-  pVariable = ppv.gE(id).ptr;
-  unit      = ppv.gE(id).unit;   
-  scale     = ppv.gE(id).c_disp;
-  varType   = ppv.gE(id).type;
-}
-
-// DualReg
+// Dual
 CMenuNavigation::MenuNode
-CMenuNavigation::MenuNode::DualReg(const char* title1,
-                                NProxyVar::ProxyVarID id1,
-                                unsigned char precision1,
-                                const char* title2,
-                                NProxyVar::ProxyVarID id2,
-                                unsigned char precision2,
-                                ENodeMode m,
-                                float min_value,
-                                float max_value) {
-    MenuNode child1(title1, {}, id1, precision1, ENodeMode::NONE);
-    MenuNode child2(title2, {}, id2, precision2, ENodeMode::NONE, min_value, max_value);
-    return MenuNode("",
-                    {std::move(child1), std::move(child2)},
-                    nullptr, "",
-                    1.0f, 0,
-                    NProxyVar::EVarType::NONE,
-                    m);
-}
-
-// DualRaw
-CMenuNavigation::MenuNode
-CMenuNavigation::MenuNode::DualRaw(const char* title1,
+CMenuNavigation::MenuNode::Dual(const char* title1,
                                 void* pVar1,
                                 const char* unit1,
                                 float scale1,

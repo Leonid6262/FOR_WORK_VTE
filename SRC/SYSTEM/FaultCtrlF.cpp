@@ -4,25 +4,30 @@
 #include "lpc177x_8x_exti.h"
 #include "SystemManager.hpp"
 
-CFaultCtrlF::CFaultCtrlF() : pSys_manager(nullptr) {}
+CFaultCtrlF::CFaultCtrlF(CDIN_STORAGE& rDinStr) : rDinStr(rDinStr), pSys_manager(nullptr) {}
 
 void CFaultCtrlF::control(bool mode) {  
   
-    Fault = F::NOT_FAULT;
-  /*
-
-    Аварийные ситуации определяемые в фоновом цикле
-
+  if(!mode) {return;}
+  
+  Fault = F::NOT_FAULT;
+  
+  check(Fault, !rDinStr.Bl_Contact_Q1(),      EFaultId::Q1_TRIPPED);
+  /*  
+     Остальные аварийные ситуации определяемые в фоновом цикле 
   */
-    if(Fault == F::FAULT) fault_stop();
+  
+  
+  if(Fault == F::FAULT) fault_stop();
 }
 
 void CFaultCtrlF::fault_stop() {
-    pSys_manager->setFault(State::ON);
-    pSys_manager->rReg_manager.setCurrent(State::OFF);
-    pSys_manager->rReg_manager.setQPower(State::OFF);
-    pSys_manager->rReg_manager.setCosPhi(State::OFF);
-    pSys_manager->rSIFU.pulses_stop();
+  pSys_manager->setFault(State::ON);
+  pSys_manager->rReg_manager.setCurrent(State::OFF);
+  pSys_manager->rReg_manager.setQPower(State::OFF);
+  pSys_manager->rReg_manager.setCosPhi(State::OFF);
+  pSys_manager->rSIFU.pulses_stop();
+  rDinStr.Relay_FAULT(State::ON);
 }
 
 void CFaultCtrlF::setSysManager(CSystemManager* pSys_manager) {
@@ -44,6 +49,7 @@ void CProxyHandlerEINT2::set_pFaultCtrl(CFaultCtrlF* pFaultCtrl) {
 extern "C" {  
   void  EINT2_IRQHandler( void ) {
     LPC_SC->EXTINT |= EXTI_EINT2_BIT_MARK;
+    SFault::setMessage(EFaultId::ID_MAX_HARD);
     CProxyHandlerEINT2::getInstance().pFaultCtrl->fault_stop();
   }
 }

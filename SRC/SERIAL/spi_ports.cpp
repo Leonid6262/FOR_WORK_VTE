@@ -15,6 +15,7 @@ void CSPI_ports::rw() {
 
   for (char byte = 0; byte < G_CONST::BYTES_RW_REAL; byte++) {
     // Запись в dout с учётом инверсии
+    
     SSP->DR = s_instans.UData_dout[byte + (G_CONST::BYTES_RW_MAX - G_CONST::BYTES_RW_REAL)].all ^
               settings.dout_spi_invert[byte + (G_CONST::BYTES_RW_MAX - G_CONST::BYTES_RW_REAL)];
 

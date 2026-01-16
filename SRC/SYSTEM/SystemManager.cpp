@@ -34,7 +34,7 @@ void CSystemManager::dispatch() {
   rReady_check.check(USystemMode.ReadyCheck);           // Сборка готовности
   rPusk_mode.pusk(USystemMode.PuskMode);                // Режим работы при пуске двигателя
   rWork_mode.work(USystemMode.WorkMode);                // Режим работы после успешного пуска двигателя
-  rFault_ctrl.control(USystemMode.FaultCtrl);           // Проверка аварийных состояний
+  rFault_ctrl.control(USystemMode.FaultCtrlF);          // Проверка аварийных состояний
   rWarning_ctrl.control();                              // Проверка предупреждающих состояний (выполняется всегда)
   
 }

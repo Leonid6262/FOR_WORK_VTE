@@ -57,7 +57,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   // --- System Manager ---
   static CAdjustmentMode adjustment(sifu, CEEPSettings::getInstance());
   static CReadyCheck ready_check(CADC_STORAGE::getInstance(), CDIN_STORAGE::getInstance());
-  static CFaultCtrlF fault_ctrl_f;
+  static CFaultCtrlF fault_ctrl_f(CDIN_STORAGE::getInstance());
   static CPuskMode pusk_mode;
   static CWorkMode work_mode;
   static CWarningMode warning_ctrl;

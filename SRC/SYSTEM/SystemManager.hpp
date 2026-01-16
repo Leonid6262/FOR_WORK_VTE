@@ -49,7 +49,7 @@ public:
    struct {
      unsigned char Adjustment   : 1;  // Наладки
      unsigned char ReadyCheck   : 1;  // Сборка готовности
-     unsigned char FaultCtrl    : 1;  // Контроль аварий
+     unsigned char FaultCtrlF   : 1;  // Контроль аварий в фоновом режиме
      unsigned char PuskMode     : 1;  // Фаза пуска
      unsigned char WorkMode     : 1;  // Работа
    };
@@ -59,7 +59,7 @@ public:
  
  void setAdjustment(Mode mode)  { USMode_r.Adjustment = static_cast<unsigned char>(mode); } 
  void setReadyCheck(Mode mode)  { USMode_r.ReadyCheck = static_cast<unsigned char>(mode); } 
- void setFaultCtrl(Mode mode)   { USMode_r.FaultCtrl  = static_cast<unsigned char>(mode); } 
+ void setFaultCtrlF(Mode mode)  { USMode_r.FaultCtrlF = static_cast<unsigned char>(mode); } 
  void setPuskMode(Mode mode)    { USMode_r.PuskMode   = static_cast<unsigned char>(mode); } 
  void setWorkMode(Mode mode)    { USMode_r.WorkMode   = static_cast<unsigned char>(mode); }
  
@@ -80,7 +80,7 @@ private:
   enum MBit : unsigned char { 
     Adjustment = 1 << 0, // Наладка 
     ReadyCheck = 1 << 1, // Сборка готовности 
-    FaultCtrl  = 1 << 2, // Контроль аварий 
+    FaultCtrlF = 1 << 2, // Контроль аварий в фоновом режиме
     PuskMode   = 1 << 3, // Фаза пуска 
     WorkMode   = 1 << 4  // Работа 
   };
@@ -102,7 +102,7 @@ static constexpr std::array<DependencyRule, 5> rules {{
                                                                           MBit::WorkMode   },
   { MBit::PuskMode,   SBit::Ready,    SBit::Fault,   0,                   MBit::WorkMode   },
   { MBit::WorkMode,   SBit::PuskOK,   SBit::Fault,   0,                   MBit::PuskMode   },
-  { MBit::FaultCtrl,  0,              SBit::Fault,   MBit::PuskMode | 
+  { MBit::FaultCtrlF, 0,              SBit::Fault,   MBit::PuskMode | 
                                                      MBit::WorkMode | 
                                                      MBit::Adjustment,    0                }
   }};

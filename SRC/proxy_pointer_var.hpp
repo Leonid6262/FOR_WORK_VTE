@@ -86,8 +86,8 @@ class CProxyPointerVar {
     return instance;
   }
 
- private:
-  // Реестр указателей, типов и коэффициентов отображения
+private:
+
   ProxyEntry table[static_cast<unsigned char>(NProxyVar::ProxyVarID::LENGTH)] = {nullptr};
 
   CProxyPointerVar() = default;

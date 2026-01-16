@@ -1,13 +1,16 @@
 #pragma once 
 #include "bool_name.hpp"
+#include "message_factory.hpp"
 
 class CSystemManager;
+class CDIN_STORAGE;
 
 class CFaultCtrlF {
   
 public:
-  CFaultCtrlF();
-  
+  CFaultCtrlF(CDIN_STORAGE&);
+  CDIN_STORAGE& rDinStr;
+    
   F Fault = F::NOT_FAULT;
   
   void setSysManager(CSystemManager*);
@@ -17,7 +20,15 @@ public:
   
 private:
   CSystemManager* pSys_manager;
-
+  
+  // Хелпер проверки 
+  inline void check(F& fault, bool condition, EFaultId id ) { 
+    if (condition) { 
+      SFault::setMessage(id); 
+      fault = F::FAULT;
+    }
+  }
+  
 };
 
 /*
