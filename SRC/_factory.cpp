@@ -90,8 +90,8 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
   cd::cdr.US = cd::cd_r(set.set_params.USNom, cd::ADC_DISCR_US);
   
   static CRTC rt_clock;                                                         // Системные часы
-  static CMenuNavigation menu_navigation(udrv, rSysMgr, rt_clock);              // Пультовый терминал (менеджер меню).
-  static CMessageDisplay mes_display(udrv, rSysMgr, rt_clock);                  // Пультовый терминал (менеджер сообщений).
+  static CMenuNavigation menu_navigation(udrv, rSysMgr, rt_clock);              // Пультовый терминал (навигация по меню).
+  static CMessageDisplay mes_display(udrv, rSysMgr, rt_clock);                  // Пультовый терминал (индикация сообщений).
   static CTerminalManager terminal_manager(menu_navigation, mes_display);       // Управление режимами пультового терминал
   menu_navigation.set_pTerminal(&terminal_manager);                             // Создание циклической зависимости menu  
   mes_display.set_pTerminal(&terminal_manager);                                 // Создание циклической зависимости mes
