@@ -18,6 +18,8 @@ StatusRet CFactory::load_settings()     { return CEEPSettings::getInstance().loa
 
 CDin_cpu CFactory::createDINcpu()       { return CDin_cpu(); }                                  // Дискретные входы контроллера                                      
 
+CIsoMeas CFactory::createIsoMeas()      { return CIsoMeas(); }                                  // Измерение сопротивления изоляции 
+
 // Создание объекта доступа к dIO доступных по SPI
 CSPI_ports CFactory::createSPIports() { 
   return CSPI_ports(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_0));

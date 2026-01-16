@@ -3028,6 +3028,9 @@
             <name>$PROJ_DIR$\SRC\IntPriority.hpp</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\SRC\iso_meas.cpp</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\SRC\mb_slave.cpp</name>
         </file>
         <file>

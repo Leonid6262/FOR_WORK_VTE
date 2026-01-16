@@ -19,6 +19,7 @@ void main(void) {
   static auto spi_ports = CFactory::createSPIports();   // Входы и выходы доступные по SPI.
   static auto din_cpu = CFactory::createDINcpu();       // Дискретные входы контроллера (порты Pi0 и Pi1 по аналогии с СМ3)                                                          
   static auto mb_slave = CFactory::create_MBslave();    // ModBus slave
+  static auto iso_meas = CFactory::createIsoMeas();     // Измерение сопротивления изоляции
   
   static auto& sys_manager = CFactory::start_system(mb_slave);  // Создание всех менеджеров и запуск СИФУ 
   static auto& term_manager = CFactory::createTM(sys_manager);  // Управление объектами ПТ
@@ -28,11 +29,12 @@ void main(void) {
   while (true) {  
     
     int_adc.measure_5V();       // Измерение напряжения питания +/- 5V (внутреннее ADC)
+    iso_meas.meas();            // Измерение сопротивления изоляции
     din_cpu.input_Pi0();        // Чтение состояния дискретных входов контроллера Pi0
     spi_ports.rw();             // Запись в дискретные выходы и чтение дискретных входов доступных по SPI
     term_manager.dispatch();    // Управление объектами (режимами) пультового терминал   
     sys_manager.dispatch();     // Управление объектами (режимами) устройства 
     mb_slave.monitor();         // Мониторинг запросов по ModBus
-    
+
   }
 }

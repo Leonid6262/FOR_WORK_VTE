@@ -28,6 +28,7 @@
 #include "Adjustment.hpp" 
 #include "SystemManager.hpp"
 #include "mb_slave.hpp" 
+#include "iso_meas.hpp" 
 
 class CFactory {
 public:
@@ -59,7 +60,8 @@ public:
     
     static CRegManager createRegManager();
        
-    static CSystemManager& start_system(CMBSLAVE&);       
+    static CSystemManager& start_system(CMBSLAVE&); 
     
+    static CIsoMeas createIsoMeas();
 };
 
