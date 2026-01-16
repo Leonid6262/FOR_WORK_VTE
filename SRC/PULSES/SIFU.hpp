@@ -32,7 +32,7 @@ class CSIFU {
   float* get_Sync_Frequency();      // Возвращает частоту синхронизации
   signed short* getPointerAlpha();
 
-  void init_and_start();  // Инициализация
+  void init_and_start(CProxyPointerVar&);  // Инициализация
   void rising_puls();     // Фронт импульса
   void faling_puls();     // Спад импульса
   

@@ -11,8 +11,8 @@
   c_disp - коэффициент отображения
   unit - единицы измерения
   Пример регистрации текущего угла управления:
-  CProxyPointerVar::getInstance().registerVar 
-     (CProxyPointerVar::ProxyVarID::AlphaCur, sifu.getPointerAlpha(), 180.0f / 10000, CProxyPointerVar::su.Deg);
+  PPV.registerVar (NProxyVar::ProxyVarID::AlphaCur, &Alpha_current, cd::Alpha, NProxyVar::Unit::Deg);
+  PPV - Instance CProxyPointerVar
 */
 
 namespace NProxyVar {
@@ -75,7 +75,6 @@ class CProxyPointerVar {
   void registerVar(NProxyVar::ProxyVarID id, unsigned char* ptr, float c_disp = 1.0f, const char* unit = "") {
     table[(unsigned char)id] = {ptr, NProxyVar::EVarType::char2b, c_disp, unit};  // char*
   }
-
 
   // Доступ к записи
   inline const ProxyEntry& gE(NProxyVar::ProxyVarID id) const { return table[(unsigned char)id]; }

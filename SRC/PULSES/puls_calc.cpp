@@ -1,25 +1,15 @@
 #include "puls_calc.hpp"
-
 #include <string>
-
 #include "AdcStorage.hpp"
-#include "proxy_pointer_var.hpp"
 
-CPULSCALC::CPULSCALC(CADC& rAdc) : rAdc(rAdc) {
+CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV) : rAdc(rAdc) {
   v_restoration.ind_d_avr = 0;
 
   // Регистрация в реестре указателейconst
-  CProxyPointerVar& Ppv = CProxyPointerVar::getInstance();
-  Ppv.registerVar
-    (
-     NProxyVar::ProxyVarID::UstatRms, 
-     &U_STATORA, 
-     cd::cdr.US, NProxyVar::Unit::Volt);
-  Ppv.registerVar
-    (
-     NProxyVar::ProxyVarID::IstatRms, 
-     &I_STATORA, 
-     cd::cdr.IS, NProxyVar::Unit::Amp);
+  PPV.registerVar(NProxyVar::ProxyVarID::UstatRms, &U_STATORA, 
+                  cd::cdr.US, NProxyVar::Unit::Volt);
+  PPV.registerVar(NProxyVar::ProxyVarID::IstatRms, &I_STATORA, 
+                  cd::cdr.IS, NProxyVar::Unit::Amp);
 }
 
 void CPULSCALC::conv_and_calc() {

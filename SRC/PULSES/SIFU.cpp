@@ -251,7 +251,7 @@ float* CSIFU::get_Sync_Frequency() { return &v_sync.SYNC_FREQUENCY; }
 
 unsigned char* CSIFU::getSyncStat() { return &curSyncStat; } 
 
-void CSIFU::init_and_start() {
+void CSIFU::init_and_start(CProxyPointerVar& PPV) {
   forcing_bridge = false;
   main_bridge = false;
 
@@ -266,12 +266,9 @@ void CSIFU::init_and_start() {
   Alpha_current = s_const.AMax;
   Operating_mode = EOperating_mode::NO_SYNC;
   
-  CProxyPointerVar::getInstance().registerVar   // Регистрация Alpha в реестре указателей
-    (           
-     NProxyVar::ProxyVarID::AlphaCur, 
-     &Alpha_current, 
-     cd::Alpha, 
-     NProxyVar::Unit::Deg);
+  // Регистрация Alpha в реестре указателей
+  PPV.registerVar (NProxyVar::ProxyVarID::AlphaCur, &Alpha_current, 
+                   cd::Alpha, NProxyVar::Unit::Deg);
 
   LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0;  // PWM0 power/clock control bit.
   LPC_PWM0->PR = PWM_div_0 - 1;          // при PWM_div=60, F=60МГц/60=1МГц, 1тик=1мкс

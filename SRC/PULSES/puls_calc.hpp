@@ -1,10 +1,11 @@
 #pragma once
 
 #include "adc.hpp"
+#include "proxy_pointer_var.hpp"
 
 class CPULSCALC {
  public:
-  CPULSCALC(CADC&);
+  CPULSCALC(CADC&, CProxyPointerVar&);
 
   CADC& rAdc;
   void conv_and_calc();

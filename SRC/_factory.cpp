@@ -46,7 +46,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   
   // --- СИФУ и его окружение ---
   static CADC adc(CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_1));
-  static CPULSCALC puls_calc(adc);                                              
+  static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance());                                              
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), CEEPSettings::getInstance());                      
   static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, CEEPSettings::getInstance());
   reg_manager.getSIFU(&sifu);
@@ -54,7 +54,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   CSET_SPI::configure(CSET_SPI::ESPIInstance::SPI_2);
   static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance());
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu, &rem_osc);
-  sifu.init_and_start();
+  sifu.init_and_start(CProxyPointerVar::getInstance());
   
   // --- System Manager ---
   static CAdjustmentMode adjustment(sifu, CEEPSettings::getInstance());
