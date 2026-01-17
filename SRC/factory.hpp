@@ -31,37 +31,17 @@
 #include "iso_meas.hpp" 
 
 class CFactory {
-public:
-    
-    static StatusRet load_settings();
-  
-    LPC_UART_TypeDef* initRS485_01();
-    LPC_UART_TypeDef* initRS485_02();
-    
-    static CCAN initCAN1();
-    static CCAN initCAN2();
-
-    static CDAC0 createDAC0();
-    static CDAC_PWM createPWMDac1();
-    static CDAC_PWM createPWMDac2();
-    
-    static CIADC createIADC();
-   
-    static CSPI_ports createSPIports();    
-    static CDin_cpu createDINcpu();
-    
-    static CEMAC_DRV createEMACdrv();
-       
-    static CRTC createRTC();
-    
-    static CTerminalManager& createTM(CSystemManager&);
-    
-    static CMBSLAVE create_MBslave();
-    
-    static CRegManager createRegManager();
-       
-    static CSystemManager& start_system(CMBSLAVE&); 
-    
-    static CIsoMeas createIsoMeas();
+public:    
+  static StatusRet load_settings();
+  static CDAC0 createDAC0();    
+  static CIADC createIADC();  
+  static CSPI_ports createSPIports();    
+  static CDin_cpu createDINcpu();    
+  static CEMAC_DRV createEMACdrv();        
+  static CTerminalManager& createTM(CSystemManager&);    
+  static CMBSLAVE create_MBslave();    
+  static CRegManager createRegManager();       
+  static CSystemManager& start_system(CMBSLAVE&);     
+  static CIsoMeas createIsoMeas();
 };
 

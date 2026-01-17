@@ -5,25 +5,14 @@ using ESET = CEEPSettings;
 using EUART = CSET_UART::EUartInstance;
 using ESPI = CSET_SPI::ESPIInstance;
 
-CCAN CFactory::initCAN1()               { return CCAN(CCAN::ECAN_Id_Instance::CAN1_Id); }    // For the control class
-CCAN CFactory::initCAN2()               { return CCAN(CCAN::ECAN_Id_Instance::CAN2_Id); }    // For the control class
-CEMAC_DRV CFactory::createEMACdrv()     { return CEMAC_DRV(); }                              // For the control class
-
-CDAC0 CFactory::createDAC0()            { return CDAC0(ESET::getInstance()); }                                  // DAC0 
-CDAC_PWM CFactory::createPWMDac1()      { return CDAC_PWM(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance()); } // DAC1                                                           
-CDAC_PWM CFactory::createPWMDac2()      { return CDAC_PWM(CDAC_PWM::EPWM_DAC::PWM_DAC2, ESET::getInstance()); } // DAC2                                                                  
+CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                 // For the control class
+CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance()); }  // DAC0 For system test
  
-CIADC CFactory::createIADC()            { return CIADC(); }                               // Внутренее ADC.
-CRTC CFactory::createRTC()              { return CRTC(); }                                // Системные часы  
-
-StatusRet CFactory::load_settings()     { return ESET::getInstance().loadSettings(); }    // Загрузка уставок
-
-CDin_cpu CFactory::createDINcpu()       { return CDin_cpu(); }                            // Дискретные входы контроллера                                      
-
-CIsoMeas CFactory::createIsoMeas()      { return CIsoMeas(); }                            // Измерение сопротивления изоляции 
-
-// Создание объекта доступа к dIO доступных по SPI
-CSPI_ports CFactory::createSPIports()   { return CSPI_ports(CSET_SPI::configure(ESPI::SPI_0)); }
+CIADC CFactory::createIADC()          { return CIADC(); }                                   // Внутренее ADC.
+StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }        // Загрузка уставок
+CDin_cpu CFactory::createDINcpu()     { return CDin_cpu(); }                                // Дискретные входы контроллера
+CIsoMeas CFactory::createIsoMeas()    { return CIsoMeas(); }                                // Измерение сопротивления изоляции 
+CSPI_ports CFactory::createSPIports() { return CSPI_ports(CSET_SPI::config(ESPI::SPI_0)); } // R/W  dIO доступных по SPI
 
 // Создание регуляторов и их менеджера
 CRegManager CFactory::createRegManager() { 
@@ -46,12 +35,13 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static auto reg_manager = CFactory::createRegManager();
   
   // --- СИФУ и его окружение ---
-  static CADC adc(CSET_SPI::configure(ESPI::SPI_1));
-  static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance());                                              
+  static CADC adc(CSET_SPI::config(ESPI::SPI_1));
+  static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance());
+  static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos); 
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), ESET::getInstance());                      
   static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, ESET::getInstance());
   reg_manager.getSIFU(&sifu);
-  CSET_SPI::configure(ESPI::SPI_2);
+  CSET_SPI::config(ESPI::SPI_2);
   static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance());
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu, &rem_osc);
   sifu.init_and_start(CProxyPointerVar::getInstance());
@@ -77,7 +67,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   return sys_manager;
 }
 
-// Инициализация драйвера ПТ и создание объектов Пультового терминала
+// Инициализация драйвера ПТ, создание объектов ПТ и его окружения
 CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {   
   // Конфигурация и инициализация UART-0 - пультовый терминал
   LPC_UART_TypeDef* U0 = CSET_UART::configure(EUART::UART_0);  

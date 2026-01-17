@@ -12,7 +12,7 @@ class CSET_SPI {
     SPI_2
   };
 
-  static LPC_SSP_TypeDef* configure(ESPIInstance);
+  static LPC_SSP_TypeDef* config(ESPIInstance);
 
  private:
   static constexpr unsigned int Hz_SPI0 = 800000;

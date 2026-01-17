@@ -2,12 +2,14 @@
 
 #include "adc.hpp"
 #include "proxy_pointer_var.hpp"
+#include "dac.hpp"
 
 class CPULSCALC {
  public:
-  CPULSCALC(CADC&, CProxyPointerVar&);
+  CPULSCALC(CADC&, CProxyPointerVar&, CDAC_PWM&);
 
   CADC& rAdc;
+  CDAC_PWM& dac_cos;
   void conv_and_calc();
 
   inline signed short* getPointer_USTATORA() { return &U_STATORA; }

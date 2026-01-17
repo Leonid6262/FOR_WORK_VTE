@@ -2,7 +2,7 @@
 #include <string>
 #include "AdcStorage.hpp"
 
-CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV) : rAdc(rAdc) {
+CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos) : rAdc(rAdc), dac_cos(dac_cos) {
   v_restoration.ind_d_avr = 0;
 
   // Регистрация в реестре указателейconst

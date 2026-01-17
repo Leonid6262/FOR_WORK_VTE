@@ -1,6 +1,6 @@
 #include "set_spi.hpp"
 
-LPC_SSP_TypeDef* CSET_SPI::configure(ESPIInstance SN) {
+LPC_SSP_TypeDef* CSET_SPI::config(ESPIInstance SN) {
   LPC_SSP_TypeDef* SSP = nullptr;
 
   switch (SN) {
