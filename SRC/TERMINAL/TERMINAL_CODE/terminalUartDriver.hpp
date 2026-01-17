@@ -1,7 +1,5 @@
 #pragma once
-
 #include <cstdint>
-
 #include "LPC407x_8x_177x_8x.h"
 
 // Singleton класс драйвера UART для терминала

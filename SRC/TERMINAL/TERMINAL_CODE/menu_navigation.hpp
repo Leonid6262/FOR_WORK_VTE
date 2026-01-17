@@ -12,7 +12,7 @@
 
 class CMenuNavigation {
 public:
-  CMenuNavigation(CTerminalUartDriver&, CSystemManager&, CRTC&);
+  CMenuNavigation(CTerminalUartDriver&, CSystemManager&, CRTC&, CEEPSettings&);
   void get_key();
   void set_pTerminal(CTerminalManager*);
   void first_render();
@@ -76,6 +76,7 @@ public:
 private:
   CTerminalUartDriver& uartDrv;
   CTerminalManager* pTerminal_manager;
+  CEEPSettings& rSet;
   CRTC& rRTC;
   
   struct SFrame {

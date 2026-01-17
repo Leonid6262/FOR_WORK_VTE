@@ -20,10 +20,8 @@ CTerminalUartDriver& CTerminalUartDriver::getInstance() {
   static CTerminalUartDriver instance;
   return instance;
 }
-
-// -------------------------------------------------------------
-//              Реализации RingBuffer
-// -------------------------------------------------------------
+             
+// -------------- Реализации RingBuffer-------------------------
 bool CTerminalUartDriver::RingBuffer::push(unsigned char byte) {
   unsigned short next = (head + 1) % SIZE;
   if (next == tail) return false;  // переполнение

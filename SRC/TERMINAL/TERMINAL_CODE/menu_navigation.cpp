@@ -5,8 +5,8 @@
 #include "pause_us.hpp"
 #include "settings_eep.hpp"
 
-CMenuNavigation::CMenuNavigation(CTerminalUartDriver& uartDrv, CSystemManager& rSysMgr, CRTC& rRTC ) :
-  uartDrv(uartDrv), rRTC(rRTC) {
+CMenuNavigation::CMenuNavigation(CTerminalUartDriver& uartDrv, CSystemManager& rSysMgr, CRTC& rRTC, CEEPSettings& rSet ) :
+  uartDrv(uartDrv), rRTC(rRTC), rSet(rSet) {
   // очистка экрана
   unsigned char clr_data[] = {"                \r\n"};
   uartDrv.sendBuffer(clr_data, sizeof(clr_data));

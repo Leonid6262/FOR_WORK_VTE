@@ -12,7 +12,9 @@ void CDin_cpu::input_Pi0() {
   // Фильтр (интегратор входного сигнала) и фиксация в CDIN_STORAGE
   unsigned int dT = LPC_TIM0->TC - prev_TC0;
   prev_TC0 = LPC_TIM0->TC;
-  CDIN_STORAGE::getInstance().filter(data_din_Pi0, dT, static_cast<unsigned char>(CDIN_STORAGE::EIBNumber::CPU_PORT));
+  CDIN_STORAGE::getInstance().filter(data_din_Pi0, dT, 
+                                     static_cast<unsigned char>(CDIN_STORAGE::EIBNumber::CPU_PORT),
+                                     CEEPSettings::getInstance());
 }
 
 // Порт Pi1, по сути, набор входов прерываний. Не фильтруется как Pi0

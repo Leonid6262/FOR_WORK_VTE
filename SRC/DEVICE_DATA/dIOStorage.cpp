@@ -24,10 +24,9 @@ CDIN_STORAGE::CDIN_STORAGE() {
      NProxyVar::Unit::bits);
 };
 
-void CDIN_STORAGE::filter(unsigned char data_din_Pi, unsigned int dT, unsigned char n_port) {
+void CDIN_STORAGE::filter(unsigned char data_din_Pi, unsigned int dT, unsigned char n_port, CEEPSettings& rSet) {
   // Входные данные порта  с учётом инверсии
-  unsigned char data_din_invert = data_din_Pi ^ 
-    CEEPSettings::getInstance().getSettings().din_Pi_invert[n_port];
+  unsigned char data_din_invert = data_din_Pi ^ rSet.getSettings().din_Pi_invert[n_port];
 
   // Фильтр 8-ми бит
   for (char b = 0; b < N_BITS; b++) {

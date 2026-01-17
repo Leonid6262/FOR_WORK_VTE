@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LPC407x_8x_177x_8x.h"
+#include "settings_eep.hpp"
 
 // DAC контроллера
 class CDAC0 {
@@ -9,8 +10,8 @@ class CDAC0 {
   static constexpr unsigned int START_BITS_VALUE = 6;
 
  public:
-  CDAC0();
-
+  CDAC0(CEEPSettings&);
+  CEEPSettings& rSet;
   static constexpr signed short DAC0_MAX_VAL = 511;   // Максимальное значение DAC0
   static constexpr signed short DAC0_MIN_VAL = -512;  // Минимальное значение DAC0
 
@@ -41,8 +42,9 @@ class CDAC_PWM {
   static constexpr signed short _DAC_PWM_MAX_VAL = _DAC_PWM_T - 1;  // Максимальное значение DAC_PWM
   static constexpr signed short _DAC_PWM_MIN_VAL = 0;               // Минимальное значение DAC_PWM
 
-  enum class EPWM_DACInstance { PWM_DAC1, PWM_DAC2 };
+  enum class EPWM_DAC { PWM_DAC1, PWM_DAC2 };
 
-  CDAC_PWM(EPWM_DACInstance);
+  CDAC_PWM(EPWM_DAC, CEEPSettings&);
+  CEEPSettings& rSet;
   void conv(unsigned short);
 };

@@ -93,7 +93,7 @@ class CDIN_STORAGE {
     };
   } UData_din_f[G_CONST::BYTES_RW_MAX + 1];  // Данные din портов после фильтра
 
-  void filter(unsigned char, unsigned int, unsigned char);
+  void filter(unsigned char, unsigned int, unsigned char, CEEPSettings&);
 
   union {
     unsigned char all;
