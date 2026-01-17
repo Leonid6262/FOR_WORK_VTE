@@ -7,11 +7,11 @@
 class CMBSLAVE {
   
 public:
- CMBSLAVE(CDMAcontroller&);
+ CMBSLAVE(CDMAcontroller&, LPC_UART_TypeDef*);
  CDMAcontroller& rDMAc;
  void monitor();
   
 private:
- 
+ LPC_UART_TypeDef* UART;
 
 };

@@ -5,11 +5,9 @@ using ESET = CEEPSettings;
 using EUART = CSET_UART::EUartInstance;
 using ESPI = CSET_SPI::ESPIInstance;
 
-LPC_UART_TypeDef* CFactory::initRS485_01() { return CSET_UART::configure(EUART::UART_1); }      // For the control class
-LPC_UART_TypeDef* CFactory::initRS485_02() { return CSET_UART::configure(EUART::UART_2); }      // For the control class
-CCAN CFactory::initCAN1()                  { return CCAN(CCAN::ECAN_Id_Instance::CAN1_Id); }    // For the control class
-CCAN CFactory::initCAN2()                  { return CCAN(CCAN::ECAN_Id_Instance::CAN2_Id); }    // For the control class
-CEMAC_DRV CFactory::createEMACdrv()        { return CEMAC_DRV(); }                              // For the control class
+CCAN CFactory::initCAN1()               { return CCAN(CCAN::ECAN_Id_Instance::CAN1_Id); }    // For the control class
+CCAN CFactory::initCAN2()               { return CCAN(CCAN::ECAN_Id_Instance::CAN2_Id); }    // For the control class
+CEMAC_DRV CFactory::createEMACdrv()     { return CEMAC_DRV(); }                              // For the control class
 
 CDAC0 CFactory::createDAC0()            { return CDAC0(ESET::getInstance()); }                                  // DAC0 
 CDAC_PWM CFactory::createPWMDac1()      { return CDAC_PWM(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance()); } // DAC1                                                           
@@ -37,8 +35,9 @@ CRegManager CFactory::createRegManager() {
 
 // ModBus slave
 CMBSLAVE CFactory::create_MBslave() {
-  static CDMAcontroller cont_dma;       // Управление каналами DMA
-  return CMBSLAVE(cont_dma);
+  LPC_UART_TypeDef* U1 = CSET_UART::configure(EUART::UART_1);
+  static CDMAcontroller cont_dma; // Управление каналами DMA
+  return CMBSLAVE(cont_dma, U1);
 }
 
 // Запуск всей системы: System Manager + СИФУ 
