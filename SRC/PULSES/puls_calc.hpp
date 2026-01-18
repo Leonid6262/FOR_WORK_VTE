@@ -18,6 +18,10 @@ class CPULSCALC {
  private:
   signed short U_STATORA;
   signed short I_STATORA;
+  float PHI;
+  float COS_PHI;
+  float P;
+  float Q;
 
   struct RestorationState {
     static constexpr char PULS_AVR = 6;   // Пульсов усреднения
@@ -27,17 +31,18 @@ class CPULSCALC {
     float u_stat[PULS_AVR];
     float i_stat[PULS_AVR];
     char ind_d_avr;
-    signed short u_stator_1;
-    signed short u_stator_2;
+    
+    float u_stator_1;
+    float u_stator_2;
     unsigned int timing_ustator_1;
     unsigned int timing_ustator_2;
-    unsigned short dT_ustator;
+    unsigned int dT_ustator;
 
-    signed short i_stator_1;
-    signed short i_stator_2;
+    float i_stator_1;
+    float i_stator_2;
     unsigned int timing_istator_1;
     unsigned int timing_istator_2;
-    unsigned short dT_istator;
+    unsigned int dT_istator;
 
   } v_restoration;
 

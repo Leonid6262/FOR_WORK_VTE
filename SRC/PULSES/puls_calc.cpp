@@ -1,6 +1,6 @@
 #include "puls_calc.hpp"
-#include <string>
 #include "AdcStorage.hpp"
+#include <string>
 
 CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos) : rAdc(rAdc), dac_cos(dac_cos) {
   v_restoration.ind_d_avr = 0;
@@ -42,9 +42,9 @@ void CPULSCALC::sin_restoration() {
   v_restoration.u_stator_2 = pStorage.getExternal(CADC_STORAGE::STATOR_VOLTAGE);
   v_restoration.timing_ustator_2 = pStorage.getTimings(CADC_STORAGE::STATOR_VOLTAGE + 1);
 
-  unsigned int us1us1 = v_restoration.u_stator_1 * v_restoration.u_stator_1;
-  unsigned int us2us2 = v_restoration.u_stator_2 * v_restoration.u_stator_2;
-  signed int us1us2 = v_restoration.u_stator_1 * v_restoration.u_stator_2;
+  float us1us1 = v_restoration.u_stator_1 * v_restoration.u_stator_1;
+  float us2us2 = v_restoration.u_stator_2 * v_restoration.u_stator_2;
+  float us1us2 = v_restoration.u_stator_1 * v_restoration.u_stator_2;
 
   v_restoration.dT_ustator = v_restoration.timing_ustator_2 - v_restoration.timing_ustator_1;
 
@@ -60,9 +60,9 @@ void CPULSCALC::sin_restoration() {
   v_restoration.i_stator_2 = pStorage.getExternal(CADC_STORAGE::STATOR_CURRENT);
   v_restoration.timing_istator_2 = pStorage.getTimings(CADC_STORAGE::STATOR_CURRENT + 1);
 
-  unsigned int is1is1 = v_restoration.i_stator_1 * v_restoration.i_stator_1;
-  unsigned int is2is2 = v_restoration.i_stator_2 * v_restoration.i_stator_2;
-  signed int is1is2 = v_restoration.i_stator_1 * v_restoration.i_stator_2;
+  float is1is1 = v_restoration.i_stator_1 * v_restoration.i_stator_1;
+  float is2is2 = v_restoration.i_stator_2 * v_restoration.i_stator_2;
+  float is1is2 = v_restoration.i_stator_1 * v_restoration.i_stator_2;
 
   v_restoration.dT_istator = v_restoration.timing_istator_2 - v_restoration.timing_istator_1;
 
@@ -94,4 +94,9 @@ void CPULSCALC::sin_restoration() {
                 v_restoration.i_stat[4] + 
                 v_restoration.i_stat[5]) / v_restoration.PULS_AVR;
   I_STATORA = static_cast<int>(iavr + 0.5f);
+  
+  float u_phi = std::atan2((v_restoration.u_stator_2*ucos - v_restoration.u_stator_1),  v_restoration.u_stator_2*usin);
+  float i_phi = std::atan2((v_restoration.i_stator_2*icos - v_restoration.i_stator_1),  v_restoration.i_stator_2*isin);
+  PHI = u_phi - i_phi;
+  COS_PHI = std::cos(PHI);
 }

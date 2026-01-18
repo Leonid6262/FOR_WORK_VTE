@@ -1,18 +1,24 @@
-#include "crc16.hpp"
 #include "factory.hpp"
+
+#pragma data_section=".dma_buffers"
+__root signed short CREM_OSC::tx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
+__root signed short CREM_OSC::rx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
+__root signed short CMBSLAVE::tx_dma_buffer[CMBSLAVE::TRANSACTION_LENGTH];
+__root signed short CMBSLAVE::rx_dma_buffer[CMBSLAVE::TRANSACTION_LENGTH];
+#pragma data_section
 
 using ESET = CEEPSettings;
 using EUART = CSET_UART::EUartInstance;
 using ESPI = CSET_SPI::ESPIInstance;
 
 CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                 // For the control class
-CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance()); }  // DAC0 For system test
+CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance()); }  // DAC0. For system test
  
 CIADC CFactory::createIADC()          { return CIADC(); }                                   // Внутренее ADC.
 StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }        // Загрузка уставок
 CDin_cpu CFactory::createDINcpu()     { return CDin_cpu(); }                                // Дискретные входы контроллера
+CSPI_ports CFactory::createSPIports() { return CSPI_ports(CSET_SPI::config(ESPI::SPI_0)); } // R/W  dIO доступные по SPI
 CIsoMeas CFactory::createIsoMeas()    { return CIsoMeas(); }                                // Измерение сопротивления изоляции 
-CSPI_ports CFactory::createSPIports() { return CSPI_ports(CSET_SPI::config(ESPI::SPI_0)); } // R/W  dIO доступных по SPI
 
 // Создание регуляторов и их менеджера
 CRegManager CFactory::createRegManager() { 
@@ -24,9 +30,8 @@ CRegManager CFactory::createRegManager() {
 
 // ModBus slave
 CMBSLAVE CFactory::create_MBslave() {
-  LPC_UART_TypeDef* U1 = CSET_UART::configure(EUART::UART_1);
-  static CDMAcontroller cont_dma; // Управление каналами DMA
-  return CMBSLAVE(cont_dma, U1);
+  static CDMAcontroller cont_dma;     // Управление каналами DMA
+  return CMBSLAVE(cont_dma, CSET_UART::configure(EUART::UART_1));
 }
 
 // Запуск всей системы: System Manager + СИФУ 
@@ -69,10 +74,9 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
 
 // Инициализация драйвера ПТ, создание объектов ПТ и его окружения
 CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {   
-  // Конфигурация и инициализация UART-0 - пультовый терминал
-  LPC_UART_TypeDef* U0 = CSET_UART::configure(EUART::UART_0);  
+  // Конфигурация и инициализация UART-0 - пультовый терминал 
   auto& udrv = CTerminalUartDriver::getInstance();
-  udrv.init(U0, UART0_IRQn);                       
+  udrv.init(CSET_UART::configure(EUART::UART_0), UART0_IRQn);                       
   
   // Вычисление коэффициентов отображения в системе СИ
   auto& set = ESET::getInstance().getSettings();

@@ -8,11 +8,6 @@
 #include "settings_eep.hpp"
 #include "system_LPC177x.h"
 
-/* Буферы передачи/приёма по DMA класса CREM_OSC */
-#pragma location = ".dma_buffers"
-__root signed short CREM_OSC::tx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
-#pragma location = ".dma_buffers"
-__root signed short CREM_OSC::rx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
 
 CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, CPULSCALC& rPulsCalc, CADC_STORAGE& adc_instans) : rContDMA(rContDMA) {
   
