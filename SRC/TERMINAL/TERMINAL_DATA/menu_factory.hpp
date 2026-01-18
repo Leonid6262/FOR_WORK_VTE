@@ -42,7 +42,18 @@ static const struct {
 } Mn;
 
 
-// Фабрика дерева меню.
+//--- Фабрика дерева меню ---
+/*
+  Структура узла:
+
+  { "Name", {children}, &var, un, cd, p, vt, nm, min, max }
+
+  un - размерност
+  cd - коэффициент отображения
+  p  - точность
+  vt - тип переменной
+  nm - тип узла
+*/
 inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings& rSet, CSystemManager& rSysMgr) {
   auto& set = rSet.getSettings();
   
