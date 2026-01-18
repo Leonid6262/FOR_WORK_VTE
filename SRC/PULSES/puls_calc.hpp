@@ -12,12 +12,14 @@ class CPULSCALC {
   CDAC_PWM& dac_cos;
   void conv_and_calc();
 
-  inline signed short* getPointer_USTATORA() { return &U_STATORA; }
-  inline signed short* getPointer_ISTATORA() { return &I_STATORA; }
+  inline unsigned short* getPointer_AUSTATORA() { return &AU_STATORA; }
+  inline unsigned short* getPointer_AISTATORA() { return &AI_STATORA; }
 
  private:
-  signed short U_STATORA;
-  signed short I_STATORA;
+  float au_stator; 
+  unsigned short AU_STATORA;
+  float ai_stator;
+  unsigned short AI_STATORA;
   float PHI;
   float COS_PHI;
   float P;

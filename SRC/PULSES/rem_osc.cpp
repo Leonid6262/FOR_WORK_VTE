@@ -16,8 +16,8 @@ CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, CPULSCALC& rPulsCalc, CADC_STORAGE&
     // Указатели на отображаемые переменные (до 10-ти переменных).
     {
       adc_instans.getEPointer(CADC_STORAGE::ROTOR_CURRENT),    // Ток ротора
-      rPulsCalc.getPointer_ISTATORA(),                         // Полный ток статора
-      rPulsCalc.getPointer_USTATORA(),                         // Напряжение статора
+      reinterpret_cast<signed short*>(rPulsCalc.getPointer_AISTATORA()),                         // Полный ток статора
+      reinterpret_cast<signed short*>(rPulsCalc.getPointer_AUSTATORA()),                         // Напряжение статора
       adc_instans.getEPointer(CADC_STORAGE::ROTOR_VOLTAGE)     // Напряжение ротора
     },
     {

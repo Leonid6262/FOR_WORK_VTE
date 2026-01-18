@@ -6,9 +6,9 @@ CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos) : rAd
   v_restoration.ind_d_avr = 0;
 
   // Регистрация в реестре указателейconst
-  PPV.registerVar(NProxyVar::ProxyVarID::UstatRms, &U_STATORA, 
+  PPV.registerVar(NProxyVar::ProxyVarID::AUstat, &AU_STATORA, 
                   cd::cdr.US, NProxyVar::Unit::Volt);
-  PPV.registerVar(NProxyVar::ProxyVarID::IstatRms, &I_STATORA, 
+  PPV.registerVar(NProxyVar::ProxyVarID::AIstat, &AI_STATORA, 
                   cd::cdr.IS, NProxyVar::Unit::Amp);
 }
 
@@ -84,7 +84,8 @@ void CPULSCALC::sin_restoration() {
                 v_restoration.u_stat[3] +
                 v_restoration.u_stat[4] + 
                 v_restoration.u_stat[5]) / v_restoration.PULS_AVR;
-  U_STATORA = static_cast<int>(uavr + 0.5f);
+  au_stator = uavr;
+  AU_STATORA = static_cast<int>(uavr + 0.5f);
 
   v_restoration.i_stat[v_restoration.ind_d_avr] = sqrt(((is1is1 + is2is2) - (is1is2 * 2 * icos)) / (isin * isin));
   float iavr = (v_restoration.i_stat[0] + 
@@ -93,7 +94,8 @@ void CPULSCALC::sin_restoration() {
                 v_restoration.i_stat[3] +
                 v_restoration.i_stat[4] + 
                 v_restoration.i_stat[5]) / v_restoration.PULS_AVR;
-  I_STATORA = static_cast<int>(iavr + 0.5f);
+  ai_stator = iavr;
+  AI_STATORA = static_cast<int>(iavr + 0.5f);
   
   float u_phi = std::atan2((v_restoration.u_stator_2*ucos - v_restoration.u_stator_1),  v_restoration.u_stator_2*usin);
   float i_phi = std::atan2((v_restoration.i_stator_2*icos - v_restoration.i_stator_1),  v_restoration.i_stator_2*isin);
