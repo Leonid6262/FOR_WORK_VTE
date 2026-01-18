@@ -1,7 +1,5 @@
 #include "adc.hpp"
-
 #include <math.h>
-
 #include "AdcStorage.hpp"
 #include "system_LPC177x.h"
 

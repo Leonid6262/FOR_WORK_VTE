@@ -25,7 +25,7 @@ namespace Priorities {
     return (static_cast<unsigned int>(group) << SubgroupBits) | static_cast<unsigned int>(subgroup);
   }
   
-  // --- Группа 0 --- 8 подгрупп (критических и системные прерывания) ---
+  // --- Группа 0 --- 8 подгрупп (критические и системные прерывания) ---
   constexpr unsigned int INT2 = make_priority(EG::group0, ES::sgroup0);
   
   // ---  Группа 1  --- 8 подгрупп

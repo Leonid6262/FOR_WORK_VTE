@@ -21,7 +21,7 @@ void main(void) {
   static auto mb_slave = CFactory::create_MBslave();    // ModBus slave
   static auto iso_meas = CFactory::createIsoMeas();     // Измерение сопротивления изоляции
   
-  static auto& sys_manager = CFactory::start_system(mb_slave);  // Управление системрй, окружение и запуск СИФУ 
+  static auto& sys_manager = CFactory::start_system(mb_slave);  // Управление системой, окружение и запуск СИФУ 
   static auto& term_manager = CFactory::createTM(sys_manager);  // Управление объектами ПТ
   
   CDIN_STORAGE::UserLedOff();                           // Визуальный контроль окончания инициализации

@@ -12,23 +12,27 @@ class CPULSCALC {
   CDAC_PWM& dac_cos;
   void conv_and_calc();
 
-  inline unsigned short* getPointer_AUSTATORA() { return &AU_STATORA; }
-  inline unsigned short* getPointer_AISTATORA() { return &AI_STATORA; }
+  inline unsigned short* getPointer_USTATORA_RMS() { return &U_STATORA_RMS; }
+  inline unsigned short* getPointer_ISTATORA_RMS() { return &I_STATORA_RMS; }
 
  private:
-  float au_stator; 
-  unsigned short AU_STATORA;
-  float ai_stator;
-  unsigned short AI_STATORA;
-  float PHI;
-  float COS_PHI;
-  float P;
-  float Q;
+  float u_stator_rms; 
+  unsigned short U_STATORA_RMS;
+  float i_stator_rms;
+  unsigned short I_STATORA_RMS;
+  float phi;
+  float cos_phi;
+  unsigned short COS_PHI;
+  float p;
+  unsigned short P;
+  float q;
+  signed short Q;
 
   struct RestorationState {
     static constexpr char PULS_AVR = 6;   // Пульсов усреднения
     static constexpr float freq = 50.0f;  // Частота сети
     static constexpr float pi = 3.141592653589793;
+    static constexpr float sqrt_2 = 1.414213562373095;
 
     float u_stat[PULS_AVR];
     float i_stat[PULS_AVR];
@@ -46,7 +50,7 @@ class CPULSCALC {
     unsigned int timing_istator_2;
     unsigned int dT_istator;
 
-  } v_restoration;
+  } v_rest;
 
   void sin_restoration();
 };

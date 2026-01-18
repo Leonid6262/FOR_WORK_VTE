@@ -30,8 +30,8 @@ namespace NProxyVar {
   }; 
   enum class ProxyVarID // ID переменных
   {
-    Irotor,  Urotor,  AIstat,   AUstat,   AlphaCur, Alpha_set, CosPhi,  CosSet,  Rinsul,  Inode,    // 0...9
-    EIset,   empty11, empty12,  empty13,  empty14,  empty15,   empty16, empty17, pi0_cpu, pi0_spi,  // 10...19
+    Irotor,  Urotor,  Istat,    Ustat,    P,        Q,       CosPhi,  AlphaCur,  Rinsul,   empty9,   // 0...9
+    empty10, empty11, empty12,  empty13,  empty14,  empty15, empty16, empty17,   pi0_cpu,  pi0_spi,  // 10...19
     LENGTH
   };  
   struct Unit {
