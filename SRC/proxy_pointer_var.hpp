@@ -4,7 +4,7 @@
 
 /* Prox-Singleton реестра указателей, типов и коэффициентов отображения
 
-  Абстракция предназначена для доступа к переменным сетевых интерфейсов и ПТ
+  Абстракция предназначена для доступа к переменным сетевых интерфейсов
   Для регистрации переменных в реестре служат методы registerVar(VarID, Pointer, c_display)
   id - ID переменной из ProxyVarID
   ptr - void* указатель
@@ -30,15 +30,19 @@ namespace NProxyVar {
   }; 
   enum class ProxyVarID // ID переменных
   {
-    Irotor,  Urotor,  Istat,    Ustat,    P,        Q,       CosPhi,  AlphaCur,  Rinsul,   empty9,   // 0...9
-    empty10, empty11, empty12,  empty13,  empty14,  empty15, empty16, empty17,   pi0_cpu,  pi0_spi,  // 10...19
+    Irotor,  Urotor,  Istat,    Ustat,   P,            // 0...4
+    Q,       CosPhi,  AlphaCur, Rinsul,  pi0_cpu,      // 5...9
+    pi0_spi,                                           // 10
     LENGTH
   };  
   struct Unit {
-    static constexpr const char* Amp  = "A";
-    static constexpr const char* Hz   = "Hz";
+    static constexpr const char*  Amp = "A";
+    static constexpr const char*   Hz = "Hz";
     static constexpr const char* Volt = "V";
-    static constexpr const char* Deg  = "deg";
+    static constexpr const char*   kW = "kW";
+    static constexpr const char* kVAR = "kVAR";
+    static constexpr const char*  kVA = "kVA";
+    static constexpr const char*  Deg = "deg";
     static constexpr const char* bits = "bits";
     static constexpr const char*    d = "d";
     static constexpr const char*    b = "b";

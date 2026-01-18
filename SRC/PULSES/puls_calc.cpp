@@ -8,6 +8,8 @@ CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos) : rAd
   // Регистрация в реестре указателейconst
   PPV.registerVar(NProxyVar::ProxyVarID::Ustat,  &U_STATORA_RMS, cd::cdr.US, NProxyVar::Unit::Volt);
   PPV.registerVar(NProxyVar::ProxyVarID::Istat,  &I_STATORA_RMS, cd::cdr.IS, NProxyVar::Unit::Amp);
+  PPV.registerVar(NProxyVar::ProxyVarID::P,      &P,             cd::cdr.P,  NProxyVar::Unit::kW);
+  PPV.registerVar(NProxyVar::ProxyVarID::Q,      &Q,             cd::cdr.Q,  NProxyVar::Unit::kVAR);
   PPV.registerVar(NProxyVar::ProxyVarID::CosPhi, &COS_PHI,       0.01f,      "");
 }
 
@@ -75,30 +77,37 @@ void CPULSCALC::sin_restoration() {
 
   // Скользящее среднее по 6-ти пульсам
   v_rest.ind_d_avr = (v_rest.ind_d_avr + 1) % v_rest.PULS_AVR;
-
-  v_rest.u_stat[v_rest.ind_d_avr] = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * ucos)) / (usin * usin));
+  float cur_u_stat = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * ucos)) / (usin * usin));
+  v_rest.u_stat[v_rest.ind_d_avr] = cur_u_stat;
   float uavr = (v_rest.u_stat[0] + 
                 v_rest.u_stat[1] + 
                 v_rest.u_stat[2] + 
                 v_rest.u_stat[3] +
                 v_rest.u_stat[4] + 
                 v_rest.u_stat[5]) / v_rest.PULS_AVR;
-  u_stator_rms = uavr;
-  U_STATORA_RMS = static_cast<int>((uavr/v_rest.sqrt_2) + 0.5f);
-
-  v_rest.i_stat[v_rest.ind_d_avr] = sqrt(((is1is1 + is2is2) - (is1is2 * 2 * icos)) / (isin * isin));
+  u_stator_rms = uavr/v_rest.sqrt_2;
+  U_STATORA_RMS = static_cast<unsigned short>((uavr/v_rest.sqrt_2) + 0.5f);
+  
+  float cur_i_stat = sqrt(((is1is1 + is2is2) - (is1is2 * 2 * icos)) / (isin * isin));
+  v_rest.i_stat[v_rest.ind_d_avr] = cur_i_stat;
   float iavr = (v_rest.i_stat[0] + 
                 v_rest.i_stat[1] + 
                 v_rest.i_stat[2] + 
                 v_rest.i_stat[3] +
                 v_rest.i_stat[4] + 
                 v_rest.i_stat[5]) / v_rest.PULS_AVR;
-  i_stator_rms = iavr;
-  I_STATORA_RMS = static_cast<int>((iavr/v_rest.sqrt_2) + 0.5f);
+  i_stator_rms = iavr/v_rest.sqrt_2;
+  I_STATORA_RMS = static_cast<unsigned short>((iavr/v_rest.sqrt_2) + 0.5f);
   
   float u_phi = std::atan2((v_rest.u_stator_2*ucos - v_rest.u_stator_1),  v_rest.u_stator_2*usin);
   float i_phi = std::atan2((v_rest.i_stator_2*icos - v_rest.i_stator_1),  v_rest.i_stator_2*isin);
   phi = u_phi - i_phi;
-  cos_phi = std::cos(phi);
+  
+  cos_phi = std::cos(phi);  
+  p = cur_u_stat * cur_i_stat * cos_phi / 2.0f;
+  q = cur_u_stat * cur_i_stat * std::sin(phi) / 2.0f;
+  
   COS_PHI = static_cast<int>((cos_phi*100) + 0.5f);
+  P = static_cast<unsigned short>(p + 0.5f);
+  Q = static_cast<signed short>(q + 0.5f);
 }

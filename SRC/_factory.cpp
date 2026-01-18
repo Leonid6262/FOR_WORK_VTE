@@ -84,6 +84,8 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
   cd::cdr.Ud = cd::cd_r(set.set_params.UdNom, cd::ADC_DISCR_UD);
   cd::cdr.IS = cd::cd_r(set.set_params.ISNom, cd::ADC_DISCR_IS);
   cd::cdr.US = cd::cd_r(set.set_params.USNom, cd::ADC_DISCR_US);
+  cd::cdr.P  = (cd::cdr.US * cd::cdr.IS) / 1000.0f;
+  cd::cdr.Q  = cd::cdr.P;
   
   static CRTC rt_clock;                                                                 // Системные часы
   static CMenuNavigation menu_navigation(udrv, rSysMgr, rt_clock, ESET::getInstance()); // Пультовый терминал (навигация по меню).

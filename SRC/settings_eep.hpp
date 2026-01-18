@@ -35,6 +35,8 @@ namespace cd {
     float Ud;
     float IS; 
     float US;
+    float P;
+    float Q;
   };
   inline DisplayCoeffs cdr;
   
