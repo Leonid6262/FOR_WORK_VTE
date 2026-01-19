@@ -84,16 +84,15 @@ struct SFault : CategoryActive<EFaultId> {
 };
 
 // ======================= WARNING =======================
-enum class EWarningId { DEFAULT_SET, COUNT};
+enum class EWarningId { DEFAULT_SET, W_RINS1, W_RINS2, COUNT};
 struct SWarning : CategoryActive<EWarningId> {
 
   static constexpr const char* NAME[G_CONST::Nlang] = { "ПРЕДУПРЕЖДЕНИЕ:", "WARNING:", "ПОПЕРЕДЖЕННЯ:" };  
   static constexpr const char* MSG[][G_CONST::Nlang] = {
     {"Дефолтные уст-ки", "Default settings", "Дефолтнi уставки"},
+    {"Rизол. < Rmin1",   "Rinsul. < Rmin1",  "Riзол. < Rmin1"},
+    {"Rизол. < Rmin2",   "Rinsul. < Rmin2",  "Riзол. < Rmin2"},
   };
-  
-
-
   static constexpr auto _checkMsg = (checkMsgSize<EWarningId>(MSG), 0);
 };
 
