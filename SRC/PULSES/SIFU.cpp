@@ -20,28 +20,50 @@ CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFaul
   rFault_p(rFault_p),
   rSettings(rSettings){}
 
-void CSIFU::rising_puls() {
-  N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;
-
-  // Старт ИУ форсировочного моста
-  if (main_bridge) {
-    LPC_GPIO3->CLR = pulses[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
-    LPC_IOCON->P1_2 = IOCON_P_PWM;  // P1_2->PWM0:1 (SUM-1)
-    LPC_PWM0->PCR = PCR_PWMENA1;
-    LPC_PWM0->TCR = COUNTER_START;  // Старт счётчик b1<-0
-    LPC_PWM0->LER = LER_012;        // Обновление MR0,MR1 и MR2
-  }
-  // Старт ИУ рабочего моста
-  if (forcing_bridge) {
-    LPC_GPIO3->CLR = pulses[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
-    LPC_IOCON->P1_3 = IOCON_P_PWM;  // P1_3->PWM0:2 (SUM-2)
-    LPC_PWM0->PCR = PCR_PWMENA2;
-    LPC_PWM0->TCR = COUNTER_START;  // Старт счётчик b1<-0
-    LPC_PWM0->LER = LER_012;        // Обновление MR0,MR1 и MR2
-  }
-
-  control_sync();  // Мониторинг события захвата синхроимпульса
-
+  void CSIFU::rising_puls() {
+    N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;
+    
+    // Старт ИУ форсировочного моста
+    if (main_bridge) {
+      LPC_GPIO3->CLR = pulses[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
+      
+      LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
+      
+      LPC_PWM0->PR = PWM_div_0 - 1;
+      LPC_PWM0->MCR = MR0R; // Reset TC on MR0
+      LPC_PWM0->MR0 = PWM_WIDTH * 2;
+      LPC_PWM0->MR1 = PWM_WIDTH;
+      LPC_PWM0->LER = LER_012; 
+      LPC_PWM0->PCR |= PCR_PWMENA1;
+      // Важно
+      LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
+      LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
+      // ----
+      LPC_IOCON->P1_2 = IOCON_P_PWM; 
+      LPC_PWM0->TCR = COUNTER_START; // Запускаем      
+    }
+    // Старт ИУ рабочего моста
+    if (forcing_bridge) {
+      LPC_GPIO3->CLR = pulses[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
+      
+      LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
+      
+      LPC_PWM0->PR = PWM_div_0 - 1;
+      LPC_PWM0->MCR = MR0R; // Reset TC on MR0
+      LPC_PWM0->MR0 = PWM_WIDTH * 2;
+      LPC_PWM0->MR1 = PWM_WIDTH;
+      LPC_PWM0->LER = LER_012; 
+      LPC_PWM0->PCR |= PCR_PWMENA2;
+      // Важно
+      LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
+      LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
+      // ----
+      LPC_IOCON->P1_3 = IOCON_P_PWM; 
+      LPC_PWM0->TCR = COUNTER_START; // Запускаем
+    }
+    
+    control_sync();  // Мониторинг события захвата синхроимпульса
+    
   signed int cur_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
 
   switch (Operating_mode) {
@@ -111,7 +133,7 @@ void CSIFU::rising_puls() {
   
 }
 
-signed int CSIFU::timing_calc() {
+unsigned int CSIFU::timing_calc() {
   // Ограничения приращения альфа
   signed short d_Alpha = limits_dval(&Alpha_setpoint, &Alpha_current, s_const.dAlpha);
   if (v_sync.SYNC_EVENT) {
@@ -150,6 +172,7 @@ signed short CSIFU::limits_dval(signed short* input, signed short* output, signe
 }
 
 void CSIFU::faling_puls() {
+  
   LPC_IOCON->P1_2 = IOCON_P_PORT;  // P1_2 - Port
   LPC_GPIO1->CLR = 1UL << P1_2;
   LPC_IOCON->P1_3 = IOCON_P_PORT;  // P1_3 - Port
@@ -157,8 +180,7 @@ void CSIFU::faling_puls() {
 
   LPC_GPIO3->SET = OFF_PULSES;
 
-  LPC_PWM0->TCR = COUNTER_STOP;  // Стоп счётчик b1<-1
-  LPC_PWM0->TCR = COUNTER_RESET;
+  LPC_SC->PCONP &= ~CLKPWR_PCONP_PCPWM0; // Выкл PWM
   
 }
 
@@ -269,21 +291,6 @@ void CSIFU::init_and_start(CProxyPointerVar& PPV) {
   // Регистрация Alpha в реестре указателей
   PPV.registerVar (NProxyVar::ProxyVarID::AlphaCur, &Alpha_current, 
                    cd::Alpha, NProxyVar::Unit::Deg);
-
-  LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0;  // PWM0 power/clock control bit.
-  LPC_PWM0->PR = PWM_div_0 - 1;          // при PWM_div=60, F=60МГц/60=1МГц, 1тик=1мкс
-
-  LPC_PWM0->TCR = COUNTER_CLR;    // Сброс регистра таймера
-  LPC_PWM0->TCR = COUNTER_RESET;  // Сброс таймера
-
-  LPC_PWM0->PCR = 0x00;           // Отключение PWM0
-  LPC_PWM0->MR0 = PWM_WIDTH * 2;  // Период ШИМ. MR0 - включение
-  LPC_PWM0->MR1 = PWM_WIDTH;      // Выключение PWM0:1 по MR1
-  LPC_PWM0->MR2 = PWM_WIDTH;      // Выключение PWM0:2 по MR2
-
-  LPC_PWM0->LER = LER_012;       // Обновление MR0,MR1 и MR2
-  LPC_PWM0->TCR = COUNTER_STOP;  // Включение PWM. Счётчик - стоп
-  LPC_PWM0->TCR = COUNTER_RESET;
 
   LPC_IOCON->P2_23 = IOCON_T3_CAP1;  // T3 CAP1
   LPC_TIM3->MCR = 0x00000000;        // Compare TIM3 с MR0 и MR1, с прерываниями (disabled)

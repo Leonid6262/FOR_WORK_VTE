@@ -50,7 +50,7 @@ class CSIFU {
     static constexpr signed short _150gr = 8333;
     static constexpr signed short _180gr = 10000;
     
-    static constexpr signed int PULSE_WIDTH = 1505;  // us
+    static constexpr signed int PULSE_WIDTH = 1515;  // us
     
     static constexpr float TIC_SEC = 1000000.0;
     
@@ -82,7 +82,7 @@ class CSIFU {
   signed short Alpha_current;
 
   void control_sync();
-  signed int timing_calc();
+  unsigned int timing_calc();
   signed short limits_val(signed short*, signed short, signed short);
   signed short limits_dval(signed short*, signed short*, signed short);
 
@@ -129,6 +129,7 @@ class CSIFU {
   static constexpr unsigned int PCR_PWMENA1 = 0x200;
   static constexpr unsigned int PCR_PWMENA2 = 0x400;
   static constexpr unsigned int LER_012 = 0x07;
+  static constexpr unsigned int MR0R = 1 << 1;
   static constexpr unsigned int COUNTER_CLR = 0x00;
   static constexpr unsigned int COUNTER_RESET = 0x02;
   static constexpr unsigned int COUNTER_STOP = 0x0B;
