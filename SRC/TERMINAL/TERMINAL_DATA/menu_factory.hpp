@@ -85,11 +85,11 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("Fors Bridge",{}, &rSysMgr.rAdj_mode.reqADJmode,         "",      cd::one,    p0, vt::eb_1,   nm::Ed1V),
           o("Main Bridge",{}, &rSysMgr.rAdj_mode.reqADJmode,         "",      cd::one,    p0, vt::eb_2,   nm::Ed1V),
           o::Dual("I-Rotor",  pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::cdr.Id, p0, vt::sshort,
-                     "Alpha",  &rSysMgr.rAdj_mode.AlphaAdj,           un::Deg, cd::Alpha,  p1, vt::sshort, nm::IE2V, sfc.AMin*0.018, sfc.AMax*0.018),}),
+                     "Alpha",  &rSysMgr.rAdj_mode.AlphaAdj,          un::Deg, cd::Alpha,  p1, vt::sshort, nm::IE2V, sfc.AMin*0.018, sfc.AMax*0.018),}),
       o("I-REG",{
           o("I-Regulator",{},&rSysMgr.rAdj_mode.reqADJmode,         "",      cd::one,    p0, vt::eb_3,   nm::Ed1V),
           o::Dual("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::cdr.Id, p0, vt::sshort,
-                     "I-set", &rSysMgr.rAdj_mode.IsetAdj,            un::Amp, cd::cdr.Id, p0, vt::sshort, nm::IE2V, 0, 200),}),
+                     "I-set", &rSysMgr.rAdj_mode.IsetAdj,           un::Amp, cd::cdr.Id, p0, vt::sshort, nm::IE2V, 0, 200),}),
       o("I-CYCLES",{
           o("Iset cyc1",{},    &rSysMgr.rAdj_mode.IsetCyc_1,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.set_params.IdNom),
           o("Iset cyc2",{},    &rSysMgr.rAdj_mode.IsetCyc_2,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.set_params.IdNom),

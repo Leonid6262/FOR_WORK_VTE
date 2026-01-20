@@ -2955,6 +2955,9 @@
                 <name>$PROJ_DIR$\SRC\SYSTEM\Adjustment.cpp</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\DryingMode.cpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\SRC\SYSTEM\FaultCtrlF.cpp</name>
             </file>
             <file>

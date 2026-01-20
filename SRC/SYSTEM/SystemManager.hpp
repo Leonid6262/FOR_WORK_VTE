@@ -6,6 +6,7 @@
 #include "PuskMode.hpp"
 #include "WorkMode.hpp"
 #include "WarningControl.hpp" 
+#include "DryingMode.hpp" 
 #include "SIFU.hpp"
 
 class CReadyCheck;
@@ -14,7 +15,7 @@ class CSystemManager {
   
 public:
  CSystemManager(CSIFU&, CAdjustmentMode&, CReadyCheck&, CFaultCtrlF&, 
-                CPuskMode&, CWorkMode&, CWarningMode&, CRegManager&);
+                CPuskMode&, CWorkMode&, CWarningMode&, CDryingMode&, CRegManager&);
  
  CSIFU& rSIFU;
  CAdjustmentMode& rAdj_mode; 
@@ -23,6 +24,7 @@ public:
  CPuskMode& rPusk_mode;
  CWorkMode& rWork_mode;
  CWarningMode& rWarning_ctrl;
+ CDryingMode& rDrying_mode;
  CRegManager& rReg_manager;
  
  // --- Статус системы ---
@@ -50,6 +52,7 @@ public:
      unsigned char Adjustment   : 1;  // Наладки
      unsigned char ReadyCheck   : 1;  // Сборка готовности
      unsigned char FaultCtrlF   : 1;  // Контроль аварий в фоновом режиме
+     unsigned char DryingMode   : 1;  // Сушка
      unsigned char PuskMode     : 1;  // Фаза пуска
      unsigned char WorkMode     : 1;  // Работа
    };
@@ -60,7 +63,8 @@ public:
  void setAdjustment(Mode mode)  { USMode_r.Adjustment = static_cast<unsigned char>(mode); } 
  void setReadyCheck(Mode mode)  { USMode_r.ReadyCheck = static_cast<unsigned char>(mode); } 
  void setFaultCtrlF(Mode mode)  { USMode_r.FaultCtrlF = static_cast<unsigned char>(mode); } 
- void setPuskMode(Mode mode)    { USMode_r.PuskMode   = static_cast<unsigned char>(mode); } 
+ void setPuskMode(Mode mode)    { USMode_r.PuskMode   = static_cast<unsigned char>(mode); }
+ void setDryMode(Mode mode)     { USMode_r.DryingMode = static_cast<unsigned char>(mode); }
  void setWorkMode(Mode mode)    { USMode_r.WorkMode   = static_cast<unsigned char>(mode); }
  
  void dispatch();
@@ -81,8 +85,9 @@ private:
     Adjustment = 1 << 0, // Наладка 
     ReadyCheck = 1 << 1, // Сборка готовности 
     FaultCtrlF = 1 << 2, // Контроль аварий в фоновом режиме
-    PuskMode   = 1 << 3, // Фаза пуска 
-    WorkMode   = 1 << 4  // Работа 
+    DryMode    = 1 << 3, // Сушка
+    PuskMode   = 1 << 4, // Фаза пуска 
+    WorkMode   = 1 << 5  // Работа 
   };
   
   // --- Таблица правил --- 
@@ -94,13 +99,12 @@ private:
     unsigned char forbiddenModes;   // Какие режимы должны быть отключены
   };
 
-static constexpr std::array<DependencyRule, 5> rules {{
+static constexpr std::array<DependencyRule, 6> rules {{
   //    Check Mode      status on      status off       mode on              mode off
-  { MBit::ReadyCheck, 0,              SBit::Fault,   0,                   MBit::PuskMode | 
-                                                                          MBit::WorkMode   },
-  { MBit::Adjustment, 0,              SBit::Fault,   MBit::ReadyCheck,    MBit::PuskMode | 
-                                                                          MBit::WorkMode   },
-  { MBit::PuskMode,   SBit::Ready,    SBit::Fault,   0,                   MBit::WorkMode   },
+  { MBit::ReadyCheck, 0,              SBit::Fault,   0,                   MBit::PuskMode | MBit::WorkMode },                                                                         
+  { MBit::Adjustment, 0,              SBit::Fault,   MBit::ReadyCheck,    MBit::PuskMode | MBit::WorkMode | MBit::DryMode },                                                                                                                                                  
+  { MBit::PuskMode,   SBit::Ready,    SBit::Fault,   0,                   MBit::WorkMode | MBit::DryMode  },
+  { MBit::DryMode,    SBit::Ready,    SBit::Fault,   0,                   MBit::WorkMode | MBit::PuskMode },
   { MBit::WorkMode,   SBit::PuskOK,   SBit::Fault,   0,                   MBit::PuskMode   },
   { MBit::FaultCtrlF, 0,              SBit::Fault,   MBit::PuskMode | 
                                                      MBit::WorkMode | 
