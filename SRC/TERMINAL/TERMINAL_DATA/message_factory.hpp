@@ -41,12 +41,13 @@ struct SNotReady : CategoryActive<ENotReadyId>{
 };
 
 // ======================= READY =======================
-enum class EReadyId { PUSK, DRYING, COUNT };
+enum class EReadyId { PUSK, TESTING, DRYING, COUNT };
 struct SReady : CategoryActive<EReadyId>{
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "ГОТОВ", "READY", "ГОТОВИЙ" };
   static constexpr const char* MSG[][G_CONST::Nlang] = {
     {"К Пуску",         "To Start",             "До Пуску"},
+    {"К Опробованию",   "To Testing",           "До Опробування"},
     {"К режиму СУШКА",  "To Drying mode",       "До СУШIННЯ"},
   };      
   static constexpr auto _checkMsg = (checkMsgSize<EReadyId>(MSG), 0);
