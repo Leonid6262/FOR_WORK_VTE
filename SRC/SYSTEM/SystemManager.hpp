@@ -7,6 +7,7 @@
 #include "WorkMode.hpp"
 #include "WarningControl.hpp" 
 #include "DryingMode.hpp" 
+#include "TestingMode.hpp"
 #include "SIFU.hpp"
 
 class CReadyCheck;
@@ -15,7 +16,8 @@ class CSystemManager {
   
 public:
  CSystemManager(CSIFU&, CAdjustmentMode&, CReadyCheck&, CFaultCtrlF&, 
-                CPuskMode&, CWorkMode&, CWarningMode&, CDryingMode&, CRegManager&);
+                CPuskMode&, CWorkMode&, CWarningMode&, CDryingMode&, 
+                CTestingMode&, CRegManager&);
  
  CSIFU& rSIFU;
  CAdjustmentMode& rAdj_mode; 
@@ -26,19 +28,19 @@ public:
  CWarningMode& rWarning_ctrl;
  CDryingMode& rDrying_mode;
  CRegManager& rReg_manager;
- 
+ CTestingMode& rTest_mode;
+   
  // --- Статус системы ---
  union {
    unsigned short all;
    struct {
      unsigned char sReady        : 1; // Готовность собрана
+     unsigned char sReadyCheck   : 1; // Режим сборки Готовности
      unsigned char sPuskMotor    : 1; // Режим пуска двигателя
      unsigned char sAdjustment   : 1; // Работа в режиме "Наладка"
      unsigned char sWorkDry      : 1; // Работа в режиме "Сушка"
      unsigned char sWorkTest     : 1; // Работа в режиме "Опробование"
-     unsigned char sWorkCur      : 1; // Штатный режим работы с РТ
-     unsigned char sWorkQ        : 1; // Штатный режим работы с РQ
-     unsigned char sWorkCos      : 1; // Штатный режим работы с РCos
+     unsigned char sWorkNormal   : 1; // Штатный режим работы
      unsigned char sWarning      : 1; // Есть предупреждения
      unsigned char sFault        : 1; // Авария
    };
@@ -47,26 +49,24 @@ public:
    // --- Биты статуса системы --- 
  enum SBit : unsigned short { 
     bsReady      = 1 << 0, // Готовность собрана 
-    bsPuskMotor  = 1 << 1, // Режим пуска двигателя
-    bsAdjustment = 1 << 2, // Работа в режиме "Наладка"    
-    bsWorkDry    = 1 << 3, // Работа в режиме "Сушка"
-    bsWorkTest   = 1 << 4, // Работа в режиме "Опробование"
-    bsWorkCur    = 1 << 5, // Штатный режим работы с РТ
-    bsWorkQ      = 1 << 6, // Штатный режим работы с РQ
-    bsWorkCos    = 1 << 7, // Штатный режим работы с РCos
-    bsWarning    = 1 << 8, // Есть предупреждения
-    bsFault      = 1 << 9  // Авария 
+    bsReadyCheck = 1 << 1, // Режим сборки Готовности
+    bsPuskMotor  = 1 << 2, // Режим пуска двигателя
+    bsAdjustment = 1 << 3, // Работа в режиме "Наладка"    
+    bsWorkDry    = 1 << 4, // Работа в режиме "Сушка"
+    bsWorkTest   = 1 << 5, // Работа в режиме "Опробование"
+    bsWorkNormal = 1 << 6, // Штатный режим работы
+    bsWarning    = 1 << 7, // Есть предупреждения
+    bsFault      = 1 << 8  // Авария 
   };
  
  // Установка/сброс битов статуса
  void set_bsReady(State state)        { USystemStatus.sReady      = static_cast<unsigned char>(state); }
+ void set_bsReadyCheck(State state)   { USystemStatus.sReadyCheck = static_cast<unsigned char>(state); }
  void set_bsPuskMotor(State state)    { USystemStatus.sPuskMotor  = static_cast<unsigned char>(state); }
  void set_bsAdjustmen(State state)    { USystemStatus.sAdjustment = static_cast<unsigned char>(state); } 
  void set_bsWorkDry(State state)      { USystemStatus.sWorkDry    = static_cast<unsigned char>(state); }
  void set_bsWorkTest(State state)     { USystemStatus.sWorkTest   = static_cast<unsigned char>(state); }
- void set_bsWorkCur(State state)      { USystemStatus.sWorkCur    = static_cast<unsigned char>(state); }
- void set_bsWorkQ(State state)        { USystemStatus.sWorkQ      = static_cast<unsigned char>(state); }
- void set_bsWorkCos(State state)      { USystemStatus.sWorkCos    = static_cast<unsigned char>(state); }
+ void set_bsWorkNormal(State state)   { USystemStatus.sWorkNormal = static_cast<unsigned char>(state); }
  void set_bsWarning(State state)      { USystemStatus.sWarning    = static_cast<unsigned char>(state); }
  void set_bsFault(State state)        { USystemStatus.sFault      = static_cast<unsigned char>(state); }
 
@@ -81,7 +81,6 @@ public:
      unsigned char pWorkTest     : 1;  // Работа в режим "Опробование"     
      unsigned char pNormalWork   : 1;  // Работа в штатных режимах     
      unsigned char pFaultCtrlF   : 1;  // Контроль аварий в фоновом режиме
-     unsigned char pFaultCtrlP   : 1;  // Контроль аварий в ИУ
    };
  } UPermissionsList;          // Разрешённые режимы
  
@@ -95,7 +94,6 @@ public:
     bpWorkTest   = 1 << 4, // Работа в режим "Опробование" 
     bpNormalWork = 1 << 5, // Работа в штатных режимах  
     bpFaultCtrlF = 1 << 6, // Контроль аварий в фоновом режиме
-    bpFaultCtrlP = 1 << 7  // Контроль аварий в ИУ
       
   };
   
@@ -108,39 +106,25 @@ public:
  void set_bpWorkTest(Mode mode)    { UPermissionsList_r.pWorkTest = static_cast<unsigned short>(mode); }
  void set_bpNormalWork(Mode mode)  { UPermissionsList_r.pNormalWork = static_cast<unsigned short>(mode); }
  void set_bpFaultCtrlF(Mode mode)  { UPermissionsList_r.pFaultCtrlF = static_cast<unsigned short>(mode); }
- void set_bpFaultCtrlP(Mode mode)  { UPermissionsList_r.pFaultCtrlP = static_cast<unsigned short>(mode); }
  
  void dispatch();
  
 private:
-  
-
-  
 
   // --- Таблица правил --- 
   struct DependencyRule {
     PBit req_bit;
-    unsigned short requiredStatus;   // Какие биты статуса должны быть установлены
-    unsigned short forbiddenStatus;  // Какие биты статуса должны быть сброшены
-    unsigned short requiredModes;    // Какие режимы должны быть активны
-    unsigned short forbiddenModes;   // Какие режимы должны быть отключены
+    unsigned short bStatusOn;   // Какие биты статуса должны быть установлены
+    unsigned short bStatusOff;  // Какие биты статуса должны быть сброшены
   };
 
 static constexpr std::array<DependencyRule, 6> rules {{
-  //    Check Mode      status on      status off       mode on              mode off
-  //{ UPermissionsList.pReadyCheck,  0,             SBit::bsFault,   0,                   SBit::bsPuskMotor },                                                                         
-  //{ MBit::Adjustment, 0,              SBit::bFault,   MBit::ReadyCheck,    MBit::PuskMode | MBit::WorkMode | MBit::DryMode },                                                                                                                                                  
-  //{ MBit::PuskMode,   SBit::bReady,   SBit::bFault,   0,                   MBit::WorkMode | MBit::DryMode  },
-  //{ MBit::DryMode,    SBit::bReady,   SBit::bFault,   0,                   MBit::WorkMode | MBit::PuskMode },
-  //{ MBit::WorkMode,   0,              SBit::bFault,   0,                   MBit::PuskMode   },
-  //{ MBit::FaultCtrlF, 0,              SBit::bFault,   MBit::PuskMode | 
-  //                                                    MBit::WorkMode | 
-  //                                                    MBit::Adjustment,    0                }
-  {PBit::bpReadyCheck,0,0,0,0},
-  {PBit::bpReadyCheck,0,0,0,0},
-  {PBit::bpReadyCheck,0,0,0,0},
-  {PBit::bpReadyCheck,0,0,0,0},
-  {PBit::bpReadyCheck,0,0,0,0},
-  {PBit::bpReadyCheck,0,0,0,0},
+  // Check Permission           bits status on          bits status off     
+  {PBit::bpReadyCheck,          0,                      bsWorkDry    | bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsFault },
+  {PBit::bpAdjustment,          bsReadyCheck,           0                                                                   },
+  {PBit::bpWorkDry,             bsReady,                bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsAdjustment | bsFault },
+  {PBit::bpWorkTest,            bsReady,                bsPuskMotor  | bsWorkNormal | bsWorkDry    | bsAdjustment | bsFault },
+  {PBit::bpPuskMotor,           bsReady,                bsWorkNormal | bsWorkDry    | bsWorkTest   | bsAdjustment | bsFault },
+  {PBit::bpFaultCtrlF,          0,                      bsReadyCheck | bsFault                                              },
   }};
 };

@@ -5,13 +5,9 @@
 CFaultCtrlP::CFaultCtrlP(CADC_STORAGE& rAdcStr, CEEPSettings& rSet) : 
   rAdcStr(rAdcStr), rSet(rSet) {} 
 
-void CFaultCtrlP::setSysManager(CSystemManager* pSys_manager) {
-  this->pSys_manager = pSys_manager;
-}
-
 void CFaultCtrlP::check() {  
   
-  //if(pSys_manager->USystemStatus.pFault) return;
+  if(pSys_manager->USystemStatus.sFault) return;
     
   auto& set = rSet.getSettings();
   Fault = F::NOT_FAULT;
@@ -26,4 +22,6 @@ void CFaultCtrlP::check() {
  
 }
 
-
+void CFaultCtrlP::setSysManager(CSystemManager* pSys_manager) {
+  this->pSys_manager = pSys_manager;
+}

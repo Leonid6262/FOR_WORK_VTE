@@ -4,6 +4,7 @@ CDryingMode::CDryingMode(){}
 
 void CDryingMode::dry(bool mode) { 
   
+  if(!mode) {return;}
   
 }
 
