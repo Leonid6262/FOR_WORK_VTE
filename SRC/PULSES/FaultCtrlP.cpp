@@ -11,13 +11,13 @@ void CFaultCtrlP::setSysManager(CSystemManager* pSys_manager) {
 
 void CFaultCtrlP::check() {  
   
-  if(pSys_manager->USystemStatus.Fault) return;
+  //if(pSys_manager->USystemStatus.pFault) return;
     
   auto& set = rSet.getSettings();
   Fault = F::NOT_FAULT;
   
-  check(Fault, *rAdcStr.getEPointer(sadc::ROTOR_CURRENT) > set.set_faults.IdMax,            EFaultId::ID_MAX_SOFT);
-  check(Fault, !pSys_manager->rSIFU.getSyncStat() && !pSys_manager->USystemMode.Adjustment, EFaultId::NOT_SYNC);
+  check(Fault, *rAdcStr.getEPointer(sadc::ROTOR_CURRENT) > set.set_faults.IdMax,               EFaultId::ID_MAX_SOFT);
+  check(Fault, !pSys_manager->rSIFU.getSyncStat() && !pSys_manager->USystemStatus.sAdjustment, EFaultId::NOT_SYNC);
   /*  
      Остальные аварийные ситуации определяемые в ИУ 
   */

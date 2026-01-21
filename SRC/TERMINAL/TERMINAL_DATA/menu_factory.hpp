@@ -80,12 +80,12 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("dInCPU-S", {}, &str.UData_din_f[static_cast<unsigned char>(sbin::CPU_SPI)].all,  un::d, cd::one, p0, vt::char2b, nm::In1V),}),}),
   o(Mn.ADJ_MODE[l],{
       o("On-Off ADJ MODE",{
-          o("ADJ Mode",   {}, &rSysMgr.USMode_r.all, "", cd::one,  p0,vt::eb_0,  nm::Ed1V)}),
+          o("ADJ Mode",   {}, &rSysMgr.UPermissionsList_r.all, "", cd::one,  p0,vt::eb_1,  nm::Ed1V)}),
       o("PULSES",{
           o("Fors Bridge",{}, &rSysMgr.rAdj_mode.reqADJmode,         "",      cd::one,    p0, vt::eb_1,   nm::Ed1V),
           o("Main Bridge",{}, &rSysMgr.rAdj_mode.reqADJmode,         "",      cd::one,    p0, vt::eb_2,   nm::Ed1V),
           o::Dual("I-Rotor",  pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::cdr.Id, p0, vt::sshort,
-                     "Alpha",  &rSysMgr.rAdj_mode.AlphaAdj,          un::Deg, cd::Alpha,  p1, vt::sshort, nm::IE2V, sfc.AMin*0.018, sfc.AMax*0.018),}),
+                     "Alpha", &rSysMgr.rAdj_mode.AlphaAdj,           un::Deg, cd::Alpha,  p1, vt::sshort, nm::IE2V, sfc.AMin*0.018, sfc.AMax*0.018),}),
       o("I-REG",{
           o("I-Regulator",{},&rSysMgr.rAdj_mode.reqADJmode,         "",      cd::one,    p0, vt::eb_3,   nm::Ed1V),
           o::Dual("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::cdr.Id, p0, vt::sshort,

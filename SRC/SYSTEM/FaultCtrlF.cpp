@@ -22,7 +22,7 @@ void CFaultCtrlF::control(bool mode) {
 }
 
 void CFaultCtrlF::fault_stop() {
-  pSys_manager->setFault(State::ON);
+  pSys_manager->set_bsFault(State::ON);
   pSys_manager->rReg_manager.setCurrent(State::OFF);
   pSys_manager->rReg_manager.setQPower(State::OFF);
   pSys_manager->rReg_manager.setCosPhi(State::OFF);

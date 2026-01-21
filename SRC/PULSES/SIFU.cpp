@@ -23,7 +23,7 @@ CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFaul
   void CSIFU::rising_puls() {
     N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;
     
-    // Старт ИУ форсировочного моста
+    // Старт ИУ рабочего моста
     if (main_bridge) {
       LPC_GPIO3->CLR = pulses[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
       
@@ -42,7 +42,7 @@ CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFaul
       LPC_IOCON->P1_2 = IOCON_P_PWM; 
       LPC_PWM0->TCR = COUNTER_START; // Запускаем      
     }
-    // Старт ИУ рабочего моста
+    // Старт ИУ  форсировочного моста
     if (forcing_bridge) {
       LPC_GPIO3->CLR = pulses[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
       

@@ -2,17 +2,13 @@
 
 CReadyCheck::CReadyCheck(CADC_STORAGE& rAdcStr, CDIN_STORAGE& rDinStr) : rAdcStr(rAdcStr), rDinStr(rDinStr) {}
 
-void CReadyCheck::setSysManager(CSystemManager* pSys_manager) {
-  this->pSys_manager = pSys_manager;
-}
-
 void CReadyCheck::check(bool mode) { 
   
   if(!mode) {CategoryUtils::clearMessages(ECategory::NOT_READY); return;}
   
   Ready = R::READY;
 
-  check(Ready, pSys_manager->USystemMode.Adjustment,                    ENotReadyId::ADJ_MODE );
+  check(Ready, pSys_manager->USystemStatus.sAdjustment,                 ENotReadyId::ADJ_MODE );
   check(Ready, !rDinStr.Bl_Contact_Q1(),                                ENotReadyId::Q1_is_OFF);
   check(Ready, abs(*rAdcStr.getEPointer(sadc::ROTOR_CURRENT)) > dMax,   ENotReadyId::SENS_CR_FAULT);
   check(Ready, abs(*rAdcStr.getEPointer(sadc::ROTOR_VOLTAGE)) > dMax,   ENotReadyId::SENS_VR_FAULT);
@@ -23,23 +19,40 @@ void CReadyCheck::check(bool mode) {
      Остальные условия готовности 
   */
   
+  // Разрешения возможных режимов
   if(Ready == R::READY){
-    SReady::setMessage(EReadyId::PUSK);
-    SReady::setMessage(EReadyId::TESTING);
-    SReady::setMessage(EReadyId::DRYING);
-    pSys_manager->setReady(State::ON);
+    pSys_manager->set_bsReady(State::ON);
     rDinStr.Lamp_REDY(State::ON);
-  }else{
-    SReady::clrMessage(EReadyId::PUSK);
-    SReady::clrMessage(EReadyId::TESTING);
-    SReady::clrMessage(EReadyId::DRYING);
-    pSys_manager->setReady(State::OFF);
-    rDinStr.Lamp_REDY(State::OFF);
+    
+    pSys_manager->set_bpWorkDry(Mode::ALLOWED);
+    SReady::setMessage(EReadyId::DRYING);
+    
+    pSys_manager->set_bpPuskMotor(Mode::ALLOWED);
+    SReady::setMessage(EReadyId::PUSK);
+    
+    pSys_manager->set_bpWorkTest(Mode::ALLOWED);
+    SReady::setMessage(EReadyId::TESTING);        
   }
   
-  
+  // Запрет возможных режимов
+  if(Ready == R::NOT_READY){
+    pSys_manager->set_bsReady(State::OFF);
+    rDinStr.Lamp_REDY(State::OFF);
+    
+    pSys_manager->set_bpWorkDry(Mode::FORBIDDEN);
+    SReady::clrMessage(EReadyId::DRYING);
+    
+    pSys_manager->set_bpPuskMotor(Mode::FORBIDDEN);
+    SReady::clrMessage(EReadyId::PUSK);
+    
+    pSys_manager->set_bpWorkTest(Mode::FORBIDDEN);
+    SReady::clrMessage(EReadyId::TESTING);   
+  }  
   
 }
 
+void CReadyCheck::setSysManager(CSystemManager* pSys_manager) {
+  this->pSys_manager = pSys_manager;
+}
 
 
