@@ -24,7 +24,7 @@ void CSystemManager::dispatch() {
       ((USystemStatus.all & rule.bStatusOn)  == rule.bStatusOn) && 
       ((USystemStatus.all & rule.bStatusOff) == 0 );    
     if (!allowed) { 
-      UPermissionsList.all &= ~rule.req_bit;    // снимаем бит разрешения
+      UPermissionsList.all &= ~static_cast<unsigned short>(rule.req_bit);    // снимаем бит разрешения
     }    
   }
   

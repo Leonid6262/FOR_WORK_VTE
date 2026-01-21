@@ -85,7 +85,7 @@ public:
  } UPermissionsList;          // Разрешённые режимы
  
    // --- Биты разрешённых режимов --- 
-  enum PBit : unsigned short { 
+  enum class PBit : unsigned short { 
 
     bpReadyCheck = 1 << 0, // Сборка готовности 
     bpAdjustment = 1 << 1, // Наладка 
@@ -102,8 +102,8 @@ public:
  void set_bpReadyCheck(Mode mode)  { UPermissionsList_r.pReadyCheck = static_cast<unsigned short>(mode); } 
  void set_bpAdjustment(Mode mode)  { UPermissionsList_r.pAdjustment = static_cast<unsigned short>(mode); } 
  void set_bpPuskMotor(Mode mode)   { UPermissionsList_r.pPuskMotor  = static_cast<unsigned short>(mode); }
- void set_bpWorkDry(Mode mode)     { UPermissionsList_r.pWorkDry = static_cast<unsigned short>(mode); }
- void set_bpWorkTest(Mode mode)    { UPermissionsList_r.pWorkTest = static_cast<unsigned short>(mode); }
+ void set_bpWorkDry(Mode mode)     { UPermissionsList_r.pWorkDry    = static_cast<unsigned short>(mode); }
+ void set_bpWorkTest(Mode mode)    { UPermissionsList_r.pWorkTest   = static_cast<unsigned short>(mode); }
  void set_bpNormalWork(Mode mode)  { UPermissionsList_r.pNormalWork = static_cast<unsigned short>(mode); }
  void set_bpFaultCtrlF(Mode mode)  { UPermissionsList_r.pFaultCtrlF = static_cast<unsigned short>(mode); }
  
