@@ -8,7 +8,8 @@ void CDryingMode::dry(bool Permission) {
   
   if(!Permission) {
     cur_status = State::OFF; 
-    pSys_manager->set_bsWorkDry(State::OFF); 
+    pSys_manager->set_bsWorkDry(State::OFF);
+    SWork::clrMessage(EWorkId::DRYING); 
     return; 
   }
   

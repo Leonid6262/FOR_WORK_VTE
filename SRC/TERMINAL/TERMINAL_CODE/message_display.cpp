@@ -146,7 +146,7 @@ void CMessageDisplay::Key_Handler(EKey_code key) {
       uartDrv.sendBuffer(led_off, sizeof(led_off));
       rSysMgr.set_bsFault(State::OFF);
       rSysMgr.rFault_ctrl.rDinStr.Relay_FAULT(State::OFF);
-      //rSysMgr.set_bpReadyCheck(Mode::ALLOWED);
+      rSysMgr.set_bsReadyCheck(State::ON);
     }
     break;
   case EKey_code::NONE:
