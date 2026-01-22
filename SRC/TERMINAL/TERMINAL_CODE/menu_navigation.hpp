@@ -7,7 +7,7 @@
 #include "terminalUartDriver.hpp"
 #include "terminal_manager.hpp"
 #include "proxy_pointer_var.hpp"
-#include "SystemManager.hpp" 
+#include "_SystemManager.hpp" 
 #include "rtc.hpp"
 
 class CMenuNavigation {

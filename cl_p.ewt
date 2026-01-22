@@ -2952,6 +2952,12 @@
         <group>
             <name>SYSTEM</name>
             <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\_SystemManager.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\SYSTEM\_SystemManager.hpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\SRC\SYSTEM\Adjustment.cpp</name>
             </file>
             <file>
@@ -2965,12 +2971,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\SYSTEM\ReadyCheck.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\SRC\SYSTEM\SystemManager.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\SRC\SYSTEM\SystemManager.hpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\SYSTEM\TestingMode.cpp</name>

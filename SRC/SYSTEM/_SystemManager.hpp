@@ -24,7 +24,7 @@ public:
  CReadyCheck& rReady_check;
  CFaultCtrlF& rFault_ctrl;
  CPuskMode& rPusk_mode;
- CWorkMode& rWork_mode;
+ CWorkMode& rWork_normal;
  CWarningMode& rWarning_ctrl;
  CDryingMode& rDrying_mode;
  CRegManager& rReg_manager;
@@ -112,7 +112,7 @@ private:
   };
 
 static constexpr std::array<DependencyRule, 7> rules {{
-  // Check Permission    bits status on     bits status off     
+  /* Check Permission    bits status on     bits status off                                                    */    
   {PBit::bpReadyCheck,   0,                 bsWorkDry    | bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsFault },
   {PBit::bpAdjustment,   bsReadyCheck,      0                                                                   },
   {PBit::bpWorkDry,      bsReady,           bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsAdjustment | bsFault },
