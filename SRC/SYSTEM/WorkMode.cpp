@@ -4,7 +4,7 @@ CWorkMode::CWorkMode(){}
 
 void CWorkMode::work(bool mode) {
   
-  if(!mode) {CategoryUtils::clearMessages(ECategory::WORK); return;}
+  if(!mode) {return;}
   
 }
 

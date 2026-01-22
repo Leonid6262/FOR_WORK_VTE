@@ -1,4 +1,5 @@
-#include "Adjustment.hpp" 
+#include "Adjustment.hpp"
+#include "SystemManager.hpp"
   
 CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU, CEEPSettings& rSettings) : rSIFU(rSIFU), rSettings(rSettings) {} 
 
@@ -6,6 +7,7 @@ void CAdjustmentMode::parsing_request(bool mode) {
   
   // 1. Если наладка запрещена - всё обнуляем
   if(!mode) {
+    pSys_manager->set_bsAdjustmen(State::OFF);
     applyChanges(prevBits, 0);
     prevBits = 0;
     reqADJmode = 0;
@@ -161,4 +163,6 @@ void CAdjustmentMode::stepCycle() {
   }
 }
 
-
+void CAdjustmentMode::setSysManager(CSystemManager* pSys_manager) {
+  this->pSys_manager = pSys_manager;
+}

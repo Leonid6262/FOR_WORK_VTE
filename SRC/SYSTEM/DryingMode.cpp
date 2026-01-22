@@ -1,11 +1,49 @@
 #include "DryingMode.hpp" 
+#include "SystemManager.hpp"
 
-CDryingMode::CDryingMode(){}
+CDryingMode::CDryingMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet) : 
+  rDinStr(rDinStr), cur_status(State::OFF), rSIFU(rSIFU), rSet(rSet) {}
 
-void CDryingMode::dry(bool mode) { 
+void CDryingMode::dry(bool Permission) { 
   
-  if(!mode) {return;}
+  if(!Permission) {
+    cur_status = State::OFF; 
+    pSys_manager->set_bsWorkDry(State::OFF); 
+    return; 
+  }
   
+  if(rDinStr.Reg_Drying() && cur_status == State::OFF) { StartDrain(); } 
+  if(!rDinStr.Reg_Drying() && cur_status == State::ON) { StopDrain();  }
+  
+  switch (cur_status) {
+  case State::ON:
+    SWork::setMessage(EWorkId::DRYING);
+    break;
+  case State::OFF:
+    SWork::clrMessage(EWorkId::DRYING);    
+    break;
+  }
+  
+}   
+
+void CDryingMode::StartDrain(){
+  cur_status = State::ON;
+  pSys_manager->set_bsWorkDry(State::ON);
+  rSIFU.set_alpha(rSIFU.s_const.AMax);
+  rSIFU.set_main_bridge();
+  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_reg.Idry);
+  rSIFU.rReg_manager.setCurrent(State::ON);
 }
 
+void CDryingMode::StopDrain(){
+  cur_status = State::OFF;
+  pSys_manager->set_bsWorkDry(State::OFF);
+  rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
+  rSIFU.rReg_manager.setCurrent(State::OFF);
+  rSIFU.pulses_stop();
+}
+
+void CDryingMode::setSysManager(CSystemManager* pSys_manager) {
+  this->pSys_manager = pSys_manager;
+}
 

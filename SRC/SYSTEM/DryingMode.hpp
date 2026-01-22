@@ -1,13 +1,29 @@
 #pragma once 
 #include "bool_name.hpp"
+#include "dIOStorage.hpp"
+#include "SIFU.hpp"
+
+class CSystemManager;
 
 class CDryingMode {
   
 public:
-  CDryingMode();
+  CDryingMode(CDIN_STORAGE&, CSIFU&, CEEPSettings&);
+
+  void setSysManager(CSystemManager*);
   void dry(bool);
   
 private:
-   
+  CDIN_STORAGE& rDinStr;
+  CSIFU& rSIFU;
+  CEEPSettings& rSet;
+  CSystemManager* pSys_manager;
+  
+  State cur_status;
+    
+  void StartDrain();
+  void StopDrain();
+  
+
  
 };

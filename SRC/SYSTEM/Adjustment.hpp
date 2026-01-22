@@ -5,6 +5,7 @@
 #include "SIFU.hpp"
 
 class CSIFU;
+class CSystemManager;
 
 // Класс управления режимом Наладка
 class CAdjustmentMode {
@@ -20,6 +21,8 @@ public:
   unsigned short IsetCyc_1 = 0;
   unsigned short IsetCyc_2 = 0;
   unsigned short NpulsCyc = 6; 
+  
+  void setSysManager(CSystemManager*);
 
 private:
   // Битовые флаги сборки режимов AdjustmentMode
@@ -79,6 +82,7 @@ private:
   
   CSIFU& rSIFU;
   CEEPSettings& rSettings;
+  CSystemManager* pSys_manager;
   
   unsigned short prevBits = 0; 
   

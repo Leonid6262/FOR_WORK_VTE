@@ -4,7 +4,11 @@ CReadyCheck::CReadyCheck(CADC_STORAGE& rAdcStr, CDIN_STORAGE& rDinStr) : rAdcStr
 
 void CReadyCheck::check(bool mode) { 
   
-  if(!mode) {CategoryUtils::clearMessages(ECategory::NOT_READY); return;}
+  if(!mode) {
+    CategoryUtils::clearMessages(ECategory::NOT_READY);
+    CategoryUtils::clearMessages(ECategory::READY);
+    pSys_manager->set_bsReadyCheck(State::OFF);
+    return;}
   
   Ready = R::READY;
 
@@ -25,7 +29,7 @@ void CReadyCheck::check(bool mode) {
     rDinStr.Lamp_REDY(State::ON);    
     SReady::setMessage(EReadyId::DRYING);
     SReady::setMessage(EReadyId::PUSK);
-    SReady::setMessage(EReadyId::TESTING);        
+    SReady::setMessage(EReadyId::TESTING); 
   }
   
   // Запрет возможных режимов
@@ -34,7 +38,7 @@ void CReadyCheck::check(bool mode) {
     rDinStr.Lamp_REDY(State::OFF);    
     SReady::clrMessage(EReadyId::DRYING);
     SReady::clrMessage(EReadyId::PUSK);
-    SReady::clrMessage(EReadyId::TESTING);   
+    SReady::clrMessage(EReadyId::TESTING);
   }  
   
 }

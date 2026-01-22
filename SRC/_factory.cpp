@@ -58,14 +58,16 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static CTestingMode test_mode;
   static CPuskMode pusk_mode;
   static CWorkMode work_mode;
-  static CDryingMode drying_mode;
+  static CDryingMode drying_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CWarningMode warning_ctrl;
   
   static CSystemManager sys_manager(sifu, adjustment, ready_check, fault_ctrl_f, 
                                     pusk_mode, work_mode, warning_ctrl, drying_mode, 
                                     test_mode, reg_manager);
   
+  adjustment.setSysManager(&sys_manager);
   ready_check.setSysManager(&sys_manager);
+  drying_mode.setSysManager(&sys_manager);
   fault_ctrl_f.setSysManager(&sys_manager);
   fault_ctrl_f.initEINT2();                       
 

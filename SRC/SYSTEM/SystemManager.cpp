@@ -4,8 +4,8 @@ CSystemManager::CSystemManager(CSIFU& rSIFU, CAdjustmentMode& rAdj_mode, CReadyC
                                CFaultCtrlF& rFault_ctrl, CPuskMode& rPusk_mode, CWorkMode& rWork_mode,
                                CWarningMode& rWarning_ctrl, CDryingMode& rDrying_mode, 
                                CTestingMode& rTest_mode, CRegManager& rReg_manager)
-
-: rSIFU(rSIFU), rAdj_mode(rAdj_mode), rReady_check(rReady_check), 
+: 
+rSIFU(rSIFU), rAdj_mode(rAdj_mode), rReady_check(rReady_check), 
 rFault_ctrl(rFault_ctrl), rPusk_mode(rPusk_mode), rWork_mode(rWork_mode),
 rWarning_ctrl(rWarning_ctrl), rDrying_mode(rDrying_mode), 
 rTest_mode(rTest_mode), rReg_manager(rReg_manager){
