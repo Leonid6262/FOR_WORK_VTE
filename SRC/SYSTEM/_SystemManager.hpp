@@ -15,9 +15,10 @@ class CReadyCheck;
 class CSystemManager {
   
 public:
- CSystemManager(CSIFU&, CAdjustmentMode&, CReadyCheck&, CFaultCtrlF&, 
-                CPuskMode&, CWorkMode&, CWarningMode&, CDryingMode&, 
-                CTestingMode&, CRegManager&);
+ CSystemManager(CSIFU&,        CAdjustmentMode&, CReadyCheck&,  
+                CFaultCtrlF&,  CPuskMode&,       CWorkMode&,       
+                CWarningMode&, CDryingMode&,     CTestingMode&, 
+                CRegManager&);
  
  CSIFU& rSIFU;
  CAdjustmentMode& rAdj_mode; 
@@ -79,9 +80,9 @@ public:
    struct {
      unsigned char pReadyCheck   : 1;  // Сборка готовности
      unsigned char pAdjustment   : 1;  // Наладка
-     unsigned char pPuskMotor    : 1;  // Работа в фазе пуска двигателя    
      unsigned char pWorkDry      : 1;  // Работа в режим "Сушка"
-     unsigned char pWorkTest     : 1;  // Работа в режим "Опробование"     
+     unsigned char pWorkTest     : 1;  // Работа в режим "Опробование" 
+     unsigned char pPuskMotor    : 1;  // Работа в фазе пуска двигателя        
      unsigned char pNormalWork   : 1;  // Работа в штатных режимах     
      unsigned char pFaultCtrlF   : 1;  // Контроль аварий в фоновом режиме
    };
@@ -92,9 +93,9 @@ public:
 
     bpReadyCheck = 1 << 0, // Сборка готовности 
     bpAdjustment = 1 << 1, // Наладка 
-    bpPuskMotor  = 1 << 2, // Работа в фазе пуска двигателя
-    bpWorkDry    = 1 << 3, // Работа в режим "Сушка"
-    bpWorkTest   = 1 << 4, // Работа в режим "Опробование" 
+    bpWorkDry    = 1 << 2, // Работа в режим "Сушка"
+    bpWorkTest   = 1 << 3, // Работа в режим "Опробование" 
+    bpPuskMotor  = 1 << 4, // Работа в фазе пуска двигателя    
     bpNormalWork = 1 << 5, // Работа в штатных режимах  
     bpFaultCtrlF = 1 << 6, // Контроль аварий в фоновом режиме
       
@@ -106,13 +107,13 @@ private:
 
   // --- Таблица правил --- 
   struct DependencyRule {
-    PBit req_bit;
+    PBit req_bit;               // Проверяемый режим
     unsigned short bStatusOn;   // Какие биты статуса должны быть установлены
     unsigned short bStatusOff;  // Какие биты статуса должны быть сброшены
   };
 
-static constexpr std::array<DependencyRule, 7> rules {{
-  /* Check Permission    bits status on     bits status off                                                    */    
+static constexpr DependencyRule rules[] {
+/*   Check Permission    bits status on                                 bits status off                        */    
   {PBit::bpReadyCheck,   0,                 bsWorkDry    | bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsFault },
   {PBit::bpAdjustment,   bsReadyCheck,      0                                                                   },
   {PBit::bpWorkDry,      bsReady,           bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsAdjustment | bsFault },
@@ -120,5 +121,5 @@ static constexpr std::array<DependencyRule, 7> rules {{
   {PBit::bpPuskMotor,    bsReady,           bsWorkNormal | bsWorkDry    | bsWorkTest   | bsAdjustment | bsFault },
   {PBit::bpNormalWork,   bsPuskOk,          bsFault                                                             },
   {PBit::bpFaultCtrlF,   0,                 bsReadyCheck | bsFault                                              },
-  }};
+  };
 };

@@ -53,7 +53,7 @@ struct SReady : CategoryActive<EReadyId>{
   static constexpr auto _checkMsg = (checkMsgSize<EReadyId>(MSG), 0);
 };
 // ======================= WORK =======================
-enum class EWorkId { CURRENT_REG, COS_REG, Q_POWER_REG, DRYING, COUNT };
+enum class EWorkId { CURRENT_REG, COS_REG, Q_POWER_REG, DRYING, TESTING, COUNT };
 struct SWork : CategoryActive<EWorkId> {
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "РАБОТА:", "WORK:", "РОБОТА:" };
@@ -61,7 +61,8 @@ struct SWork : CategoryActive<EWorkId> {
     {"Регулятор тока",      "Current Reg",          "Регулятор струму"},
     {"Регулятор Cos",       "Cos Reg",              "Регулятор Cos"},
     {"Регулятор Q",         "Q Power Reg",          "Регулятор Q"},
-    {"Сушка",               "Drying",               "Сушiння"}
+    {"Сушка",               "Drying",               "Сушiння"},
+    {"Опробование",         "Testing",              "Опробування"},
   };
   static constexpr auto _checkMsg = (checkMsgSize<EWorkId>(MSG), 0);  
 };
