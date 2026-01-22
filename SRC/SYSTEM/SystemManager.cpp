@@ -12,23 +12,21 @@ rTest_mode(rTest_mode), rReg_manager(rReg_manager){
   
   UPermissionsList.all = 0;
   USystemStatus.all = 0;
-  set_bpReadyCheck(Mode::ALLOWED);
+  set_bsReadyCheck(State::ON);
 }
 
 void CSystemManager::dispatch() { 
-  
-  UPermissionsList.all = UPermissionsList_r.all; // копируем запросы
-  
+
+  unsigned short AllPermissions = 0xFFFF;
   for (auto& rule : rules) {
     bool allowed =
       ((USystemStatus.all & rule.bStatusOn)  == rule.bStatusOn) && 
       ((USystemStatus.all & rule.bStatusOff) == 0 );    
     if (!allowed) { 
-      UPermissionsList.all &= ~static_cast<unsigned short>(rule.req_bit);    // снимаем бит разрешения
+      AllPermissions &= ~static_cast<unsigned short>(rule.req_bit);    // снимаем бит разрешения
     }    
-  }
-  
-  UPermissionsList_r.all = UPermissionsList.all; // синхронизируем с источником
+  }  
+  UPermissionsList.all = AllPermissions;
   
   rAdj_mode.parsing_request(UPermissionsList.pAdjustment);      // Обработка запросов вкл. наладочных режимов
   rReady_check.check(UPermissionsList.pReadyCheck);             // Сборка готовности

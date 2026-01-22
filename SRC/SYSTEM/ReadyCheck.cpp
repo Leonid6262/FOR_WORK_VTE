@@ -22,30 +22,18 @@ void CReadyCheck::check(bool mode) {
   // Разрешения возможных режимов
   if(Ready == R::READY){
     pSys_manager->set_bsReady(State::ON);
-    rDinStr.Lamp_REDY(State::ON);
-    
-    pSys_manager->set_bpWorkDry(Mode::ALLOWED);
+    rDinStr.Lamp_REDY(State::ON);    
     SReady::setMessage(EReadyId::DRYING);
-    
-    pSys_manager->set_bpPuskMotor(Mode::ALLOWED);
     SReady::setMessage(EReadyId::PUSK);
-    
-    pSys_manager->set_bpWorkTest(Mode::ALLOWED);
     SReady::setMessage(EReadyId::TESTING);        
   }
   
   // Запрет возможных режимов
   if(Ready == R::NOT_READY){
     pSys_manager->set_bsReady(State::OFF);
-    rDinStr.Lamp_REDY(State::OFF);
-    
-    pSys_manager->set_bpWorkDry(Mode::FORBIDDEN);
+    rDinStr.Lamp_REDY(State::OFF);    
     SReady::clrMessage(EReadyId::DRYING);
-    
-    pSys_manager->set_bpPuskMotor(Mode::FORBIDDEN);
     SReady::clrMessage(EReadyId::PUSK);
-    
-    pSys_manager->set_bpWorkTest(Mode::FORBIDDEN);
     SReady::clrMessage(EReadyId::TESTING);   
   }  
   

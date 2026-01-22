@@ -40,6 +40,7 @@ public:
      unsigned char sAdjustment   : 1; // Работа в режиме "Наладка"
      unsigned char sWorkDry      : 1; // Работа в режиме "Сушка"
      unsigned char sWorkTest     : 1; // Работа в режиме "Опробование"
+     unsigned char sPuskOk       : 1; // Успешный пуск двигателя
      unsigned char sWorkNormal   : 1; // Штатный режим работы
      unsigned char sWarning      : 1; // Есть предупреждения
      unsigned char sFault        : 1; // Авария
@@ -54,9 +55,10 @@ public:
     bsAdjustment = 1 << 3, // Работа в режиме "Наладка"    
     bsWorkDry    = 1 << 4, // Работа в режиме "Сушка"
     bsWorkTest   = 1 << 5, // Работа в режиме "Опробование"
-    bsWorkNormal = 1 << 6, // Штатный режим работы
-    bsWarning    = 1 << 7, // Есть предупреждения
-    bsFault      = 1 << 8  // Авария 
+    bsPuskOk     = 1 << 6, // Успешный пуск двигателя
+    bsWorkNormal = 1 << 7, // Штатный режим работы
+    bsWarning    = 1 << 8, // Есть предупреждения
+    bsFault      = 1 << 9  // Авария 
   };
  
  // Установка/сброс битов статуса
@@ -66,6 +68,7 @@ public:
  void set_bsAdjustmen(State state)    { USystemStatus.sAdjustment = static_cast<unsigned char>(state); } 
  void set_bsWorkDry(State state)      { USystemStatus.sWorkDry    = static_cast<unsigned char>(state); }
  void set_bsWorkTest(State state)     { USystemStatus.sWorkTest   = static_cast<unsigned char>(state); }
+ void set_bsPuskOk(State state)       { USystemStatus.sPuskOk     = static_cast<unsigned char>(state); }
  void set_bsWorkNormal(State state)   { USystemStatus.sWorkNormal = static_cast<unsigned char>(state); }
  void set_bsWarning(State state)      { USystemStatus.sWarning    = static_cast<unsigned char>(state); }
  void set_bsFault(State state)        { USystemStatus.sFault      = static_cast<unsigned char>(state); }
@@ -97,15 +100,15 @@ public:
       
   };
   
- UPermissionsList_c UPermissionsList_r;        // Запрос на разрешение режима
+ //UPermissionsList_c UPermissionsList_r;        // Запрос на разрешение режима
  
- void set_bpReadyCheck(Mode mode)  { UPermissionsList_r.pReadyCheck = static_cast<unsigned short>(mode); } 
- void set_bpAdjustment(Mode mode)  { UPermissionsList_r.pAdjustment = static_cast<unsigned short>(mode); } 
- void set_bpPuskMotor(Mode mode)   { UPermissionsList_r.pPuskMotor  = static_cast<unsigned short>(mode); }
- void set_bpWorkDry(Mode mode)     { UPermissionsList_r.pWorkDry    = static_cast<unsigned short>(mode); }
- void set_bpWorkTest(Mode mode)    { UPermissionsList_r.pWorkTest   = static_cast<unsigned short>(mode); }
- void set_bpNormalWork(Mode mode)  { UPermissionsList_r.pNormalWork = static_cast<unsigned short>(mode); }
- void set_bpFaultCtrlF(Mode mode)  { UPermissionsList_r.pFaultCtrlF = static_cast<unsigned short>(mode); }
+ //void set_bpReadyCheck(Mode mode)  { UPermissionsList_r.pReadyCheck = static_cast<unsigned short>(mode); } 
+ //void set_bpAdjustment(Mode mode)  { UPermissionsList_r.pAdjustment = static_cast<unsigned short>(mode); } 
+ //void set_bpPuskMotor(Mode mode)   { UPermissionsList_r.pPuskMotor  = static_cast<unsigned short>(mode); }
+ //void set_bpWorkDry(Mode mode)     { UPermissionsList_r.pWorkDry    = static_cast<unsigned short>(mode); }
+ //void set_bpWorkTest(Mode mode)    { UPermissionsList_r.pWorkTest   = static_cast<unsigned short>(mode); }
+ //void set_bpNormalWork(Mode mode)  { UPermissionsList_r.pNormalWork = static_cast<unsigned short>(mode); }
+ //void set_bpFaultCtrlF(Mode mode)  { UPermissionsList_r.pFaultCtrlF = static_cast<unsigned short>(mode); }
  
  void dispatch();
  
@@ -118,13 +121,14 @@ private:
     unsigned short bStatusOff;  // Какие биты статуса должны быть сброшены
   };
 
-static constexpr std::array<DependencyRule, 6> rules {{
-  // Check Permission           bits status on          bits status off     
-  {PBit::bpReadyCheck,          0,                      bsWorkDry    | bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsFault },
-  {PBit::bpAdjustment,          bsReadyCheck,           0                                                                   },
-  {PBit::bpWorkDry,             bsReady,                bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsAdjustment | bsFault },
-  {PBit::bpWorkTest,            bsReady,                bsPuskMotor  | bsWorkNormal | bsWorkDry    | bsAdjustment | bsFault },
-  {PBit::bpPuskMotor,           bsReady,                bsWorkNormal | bsWorkDry    | bsWorkTest   | bsAdjustment | bsFault },
-  {PBit::bpFaultCtrlF,          0,                      bsReadyCheck | bsFault                                              },
+static constexpr std::array<DependencyRule, 7> rules {{
+  // Check Permission    bits status on     bits status off     
+  {PBit::bpReadyCheck,   0,                 bsWorkDry    | bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsFault },
+  {PBit::bpAdjustment,   bsReadyCheck,      0                                                                   },
+  {PBit::bpWorkDry,      bsReady,           bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsAdjustment | bsFault },
+  {PBit::bpWorkTest,     bsReady,           bsPuskMotor  | bsWorkNormal | bsWorkDry    | bsAdjustment | bsFault },
+  {PBit::bpPuskMotor,    bsReady,           bsWorkNormal | bsWorkDry    | bsWorkTest   | bsAdjustment | bsFault },
+  {PBit::bpNormalWork,   bsPuskOk,          bsFault                                                             },
+  {PBit::bpFaultCtrlF,   0,                 bsReadyCheck | bsFault                                              },
   }};
 };

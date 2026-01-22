@@ -685,9 +685,9 @@ void CMenuNavigation::editValue(MenuNode& node, signed short dir) {
     break;
   }
   default:
-    // Если тип переменнрй бит байта 
+    // Если тип переменнрй бит в node.pVariable
     if (bitIndex(node.varType) >= 0) { 
-      unsigned char* pRaw = static_cast<unsigned char*>(node.pVariable); 
+      unsigned short* pRaw = static_cast<unsigned short*>(node.pVariable); 
       unsigned char bit = bitIndex(node.varType); 
       if (dir > 0) { *pRaw |= (1 << bit); 
       } else if (dir < 0) { 
@@ -743,9 +743,10 @@ void CMenuNavigation::formatValue(const MenuNode& node, char* buf, unsigned shor
   }
   default:
     if (bitIndex(node.varType) >= 0) {
-      unsigned char raw = *static_cast<unsigned char*>(node.pVariable); 
+      unsigned short raw = *static_cast<unsigned short*>(node.pVariable); 
       unsigned char bit = bitIndex(node.varType); 
-      bool val = (raw & (1 << bit)) != 0; snprintf(buf, bufSize, "%s", val ? "ON" : "OFF"); 
+      bool val = (raw & (1 << bit)) != 0; 
+      snprintf(buf, bufSize, "%s", val ? "ON" : "OFF"); 
       break; 
     }
     snprintf(buf, bufSize, "----");
@@ -764,6 +765,14 @@ unsigned char CMenuNavigation::bitIndex(NProxyVar::EVarType t) {
   case NProxyVar::EVarType::eb_5: return 5; 
   case NProxyVar::EVarType::eb_6: return 6; 
   case NProxyVar::EVarType::eb_7: return 7; 
+  case NProxyVar::EVarType::eb_8: return 8; 
+  case NProxyVar::EVarType::eb_9: return 9; 
+  case NProxyVar::EVarType::eb_10: return 10; 
+  case NProxyVar::EVarType::eb_11: return 11; 
+  case NProxyVar::EVarType::eb_12: return 12; 
+  case NProxyVar::EVarType::eb_13: return 13; 
+  case NProxyVar::EVarType::eb_14: return 14; 
+  case NProxyVar::EVarType::eb_15: return 15; 
   default: return -1; // не битовый тип 
   } 
 } 

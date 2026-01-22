@@ -51,7 +51,7 @@ CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFaul
       LPC_PWM0->PR = PWM_div_0 - 1;
       LPC_PWM0->MCR = MR0R; // Reset TC on MR0
       LPC_PWM0->MR0 = PWM_WIDTH * 2;
-      LPC_PWM0->MR1 = PWM_WIDTH;
+      LPC_PWM0->MR2 = PWM_WIDTH;
       LPC_PWM0->LER = LER_012; 
       LPC_PWM0->PCR |= PCR_PWMENA2;
       // Важно
