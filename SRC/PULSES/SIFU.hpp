@@ -101,8 +101,8 @@ class CSIFU {
     bool SYNC_EVENT;            // Флаг события захвата
     unsigned int CURRENT_SYNC;  // Актуальные данные захвата
 
-    unsigned int current_cr;        // Текущие данные захвата таймера
-    unsigned int previous_cr;       // Предыдущие данные захвата таймера
+    unsigned int cur_capture;       // Текущие данные захвата таймера
+    unsigned int prev_capture;      // Предыдущие данные захвата таймера
     unsigned short no_sync_pulses;  // Количество пульсов отсутствия события захвата
     unsigned short sync_pulses;     // Количество пульсов с событиями захвата
 

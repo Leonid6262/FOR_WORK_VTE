@@ -182,41 +182,65 @@ void CSIFU::faling_puls() {
 }
 
 void CSIFU::control_sync() {
-  v_sync.current_cr = LPC_TIM3->CR1;
   
-  if ((Operating_mode == EOperating_mode::NO_SYNC) && (v_sync.previous_cr != v_sync.current_cr)) {
-    unsigned int dt = v_sync.current_cr - v_sync.previous_cr;
-    v_sync.previous_cr = v_sync.current_cr;
-    if (dt >= s_const.DT_MIN && dt <= s_const.DT_MAX) {
-      v_sync.sync_pulses++;
-      if (v_sync.sync_pulses > 100) {
-        Operating_mode = EOperating_mode::RESYNC;
-        v_sync.no_sync_pulses = 0;
-        v_sync.CURRENT_SYNC = v_sync.current_cr;
-      }
-    } else {
-      v_sync.sync_pulses = 0;
-    }
-    return;
-  }
+  v_sync.cur_capture = LPC_TIM3->CR1;   // Копируем текущее значение защёлки
   
-  if (Operating_mode == EOperating_mode::NORMAL || Operating_mode == EOperating_mode::PHASING) {
-    if (v_sync.previous_cr != v_sync.current_cr) {
-      unsigned int dt = v_sync.current_cr - v_sync.previous_cr;
-      v_sync.previous_cr = v_sync.current_cr;
+  // --- Режим определения гарантированной синхронизации ---
+  if (Operating_mode == EOperating_mode::NO_SYNC) {
+    // Если предыдущее значение CR1 отлично от текущего - был импульс
+    if (v_sync.prev_capture != v_sync.cur_capture) { 
+      // Вычисляем дельту и обновляем предыдущее значение
+      unsigned int dt = v_sync.cur_capture - v_sync.prev_capture;
+      v_sync.prev_capture = v_sync.cur_capture;
+      // Проверяем, что дельта в пределах 20мс
       if (dt >= s_const.DT_MIN && dt <= s_const.DT_MAX) {
-        v_sync.SYNC_FREQUENCY = s_const.TIC_SEC / static_cast<float>(dt);
-        v_sync.CURRENT_SYNC = v_sync.current_cr;
-        v_sync.no_sync_pulses = 0;
-        v_sync.SYNC_EVENT = true;
+        // Увеличиваем счётчик корректных синхроимпульсов
+        v_sync.sync_pulses++;
+        if (v_sync.sync_pulses > 50) {
+          // Если 50 импульсов подряд (1сек) корректные, ресинхронизируем СИФУ
+          v_sync.CURRENT_SYNC = v_sync.cur_capture;
+          Operating_mode = EOperating_mode::RESYNC;
+          v_sync.no_sync_pulses = 0; 
+        }
       } else {
+        // дельта не равна периоду сети. 
+        // Сбрасываем счётчик корректных синхроимпульсов.
+        v_sync.sync_pulses = 0;
+      }
+      return;
+    }
+  }
+  // ––------------–----------------------------------------
+  
+  // --- Штатный режим и режим фазировки (СИФУ синхронизировано)
+  if (Operating_mode == EOperating_mode::NORMAL || Operating_mode == EOperating_mode::PHASING) {
+    // Если предыдущее значение CR1 отлично от текущего - был импульс       
+    if (v_sync.prev_capture != v_sync.cur_capture) {
+      // Вычисляем дельту и обновляем предыдущее значение
+      unsigned int dt = v_sync.cur_capture - v_sync.prev_capture;
+      v_sync.prev_capture = v_sync.cur_capture;
+      // Проверяем, что дельта в пределах 20мс
+      if (dt >= s_const.DT_MIN && dt <= s_const.DT_MAX) {
+        // Устанавливаем флаг события синхроимпульса, 
+        // фиксируем текущее значение синхронизации,
+        // вычисляем частоту сети
+        v_sync.SYNC_EVENT = true;
+        v_sync.CURRENT_SYNC = v_sync.cur_capture;
+        v_sync.SYNC_FREQUENCY = s_const.TIC_SEC / static_cast<float>(dt);       
+        v_sync.no_sync_pulses = 0; // сбрасываем счётчик ИУ не "увидевших" синхронизацию
+      } else {
+        // Сбой. Дельта не равна периоду сети.
         v_sync.SYNC_FREQUENCY = 0;
         v_sync.sync_pulses = 0;
+        // Переводим СИФУ в режим "Без синхронизации"
         Operating_mode = EOperating_mode::NO_SYNC;
       }
     } else {
+      // Этот импульс СИФУ синхронизацию не "увидел". Считаем ИУ
       v_sync.no_sync_pulses++;
       if (v_sync.no_sync_pulses > (s_const.N_PULSES * 4)) {
+        // Если 4-ре периода сихроимпульса не было,
+        // переводим СИФУ в режим "Без синхронизации"
         v_sync.SYNC_FREQUENCY = 0;
         v_sync.sync_pulses = 0;
         Operating_mode = EOperating_mode::NO_SYNC;
