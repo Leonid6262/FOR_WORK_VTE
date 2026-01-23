@@ -6,9 +6,9 @@
 
 CFaultCtrlF::CFaultCtrlF(CDIN_STORAGE& rDinStr) : rDinStr(rDinStr), pSys_manager(nullptr) {}
 
-void CFaultCtrlF::control(bool mode) {  
+void CFaultCtrlF::control(bool Permission) {  
   
-  if(!mode) {return;}
+  if(!Permission) {return;}
   
   Fault = F::NOT_FAULT;
   

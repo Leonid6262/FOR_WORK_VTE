@@ -27,12 +27,11 @@ public:
 private:
   // Битовые флаги сборки режимов AdjustmentMode
   enum EAdjBits : unsigned short {
-    AdjMode    = 1 << 0,
-    PulsesF    = 1 << 1,
-    PulsesM    = 1 << 2,
-    CurrReg    = 1 << 3,
-    CurrCycle  = 1 << 4,
-    Phase      = 1 << 5,
+    PulsesF    = 1 << 0,
+    PulsesM    = 1 << 1,
+    CurrReg    = 1 << 2,
+    CurrCycle  = 1 << 3,
+    Phase      = 1 << 4,
     NONE       = 0
   };
   
@@ -44,17 +43,17 @@ private:
   enum class EModeAdj : unsigned short {
     None          = EAdjBits::NONE,
     
-    ForcingPulses = AdjMode | PulsesF,
-    MainPulses    = AdjMode | PulsesM,
+    ForcingPulses =  PulsesF,
+    MainPulses    =  PulsesM,
     
-    CurrentRegF   = AdjMode | PulsesF | CurrReg,
-    CurrentRegM   = AdjMode | PulsesM | CurrReg,
+    CurrentRegF   =  PulsesF | CurrReg,
+    CurrentRegM   =  PulsesM | CurrReg,
     
-    CurrentCycleF = AdjMode | PulsesF | CurrReg | CurrCycle,
-    CurrentCycleM = AdjMode | PulsesM | CurrReg | CurrCycle,
+    CurrentCycleF =  PulsesF | CurrReg | CurrCycle,
+    CurrentCycleM =  PulsesM | CurrReg | CurrCycle,
     
-    PhasingF      = AdjMode | PulsesF | Phase,
-    PhasingM      = AdjMode | PulsesM | Phase
+    PhasingF      =  PulsesF | Phase,
+    PhasingM      =  PulsesM | Phase
   };
   
   EModeAdj cur_mode = EModeAdj::None;

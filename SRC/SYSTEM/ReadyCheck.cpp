@@ -2,14 +2,16 @@
 
 CReadyCheck::CReadyCheck(CADC_STORAGE& rAdcStr, CDIN_STORAGE& rDinStr) : rAdcStr(rAdcStr), rDinStr(rDinStr) {}
 
-void CReadyCheck::check(bool mode) { 
+void CReadyCheck::check(bool Permission) { 
   
-  if(!mode) {
+  if(!Permission) {
     CategoryUtils::clearMessages(ECategory::NOT_READY);
     CategoryUtils::clearMessages(ECategory::READY);
     pSys_manager->set_bsReadyCheck(State::OFF);
-    return;}
+    return;
+  }
   
+  pSys_manager->set_bsReadyCheck(State::ON);
   Ready = R::READY;
 
   check(Ready, pSys_manager->USystemStatus.sAdjustment,                 ENotReadyId::ADJ_MODE );

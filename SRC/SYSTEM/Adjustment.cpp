@@ -3,26 +3,24 @@
   
 CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU, CEEPSettings& rSettings) : rSIFU(rSIFU), rSettings(rSettings) {} 
 
-void CAdjustmentMode::parsing_request(bool mode) {
+void CAdjustmentMode::parsing_request(bool Permission) {
   
   // 1. Если наладка запрещена - всё обнуляем
-  if(!mode) {
+  if(!Permission) {
     pSys_manager->set_bsAdjustmen(State::OFF);
     applyChanges(prevBits, 0);
     prevBits = 0;
     reqADJmode = 0;
     return;
-  } else {
-    reqADJmode |= AdjMode;
-  }
+  } 
   
   // 2. Проверка штатного отключения любого режима 
-  unsigned short prev_active   = prevBits & ~AdjMode;       // что было реально включено
-  unsigned short req_active    = reqADJmode  & ~AdjMode;    // что пользователь хочет сейчас
-  unsigned short disabled_mask = prev_active & ~req_active; // что пользователь штатно снял
+  unsigned short prev_active   = prevBits;                      // что было реально включено
+  unsigned short req_active    = reqADJmode;                    // что пользователь хочет сейчас
+  unsigned short disabled_mask = prev_active & ~req_active;     // что пользователь штатно снял
   
   if (disabled_mask != 0) {  // Если снят любой из режимов - отключаем все остальные
-    unsigned short normalized = AdjMode;
+    unsigned short normalized = 0;//AdjMode;
     applyChanges(prevBits, normalized);
     prevBits = normalized;
     reqADJmode   = normalized;
