@@ -31,11 +31,11 @@ void CTestingMode::StartTest(){
   cur_status = State::ON;
   pSys_manager->set_bsWorkTest(State::ON);
   rSIFU.set_alpha(rSIFU.s_const.AMax);
-  rSIFU.set_forcing_bridge();
+  rSIFU.forcing_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_reg.Ifors);
   rSIFU.rReg_manager.setCurrent(State::ON);
   
-  rSIFU.set_main_bridge();
+  rSIFU.main_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_reg.Iset0);
   
   //rSIFU.set_mode_w_one();
@@ -49,7 +49,7 @@ void CTestingMode::StopTest(){
   pSys_manager->set_bsWorkTest(State::OFF);
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
-  rSIFU.pulses_stop();
+  rSIFU.all_bridge_pulses_Off();
 }
 
 void CTestingMode::setSysManager(CSystemManager* pSys_manager) {

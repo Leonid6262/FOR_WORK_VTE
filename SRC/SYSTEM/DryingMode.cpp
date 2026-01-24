@@ -31,7 +31,7 @@ void CDryingMode::StartDrain(){
   cur_status = State::ON;
   pSys_manager->set_bsWorkDry(State::ON);
   rSIFU.set_alpha(rSIFU.s_const.AMax);
-  rSIFU.set_main_bridge();
+  rSIFU.main_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_reg.Idry);
   rSIFU.rReg_manager.setCurrent(State::ON);
 }
@@ -41,7 +41,7 @@ void CDryingMode::StopDrain(){
   pSys_manager->set_bsWorkDry(State::OFF);
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
-  rSIFU.pulses_stop();
+  rSIFU.all_bridge_pulses_Off();
 }
 
 void CDryingMode::setSysManager(CSystemManager* pSys_manager) {

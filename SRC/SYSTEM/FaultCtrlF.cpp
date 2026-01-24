@@ -27,7 +27,7 @@ void CFaultCtrlF::fault_stop() {
   pSys_manager->rReg_manager.setCurrent(State::OFF);
   pSys_manager->rReg_manager.setQPower(State::OFF);
   pSys_manager->rReg_manager.setCosPhi(State::OFF);
-  pSys_manager->rSIFU.pulses_stop();
+  pSys_manager->rSIFU.all_bridge_pulses_Off();
   rDinStr.Relay_FAULT(State::ON);
 }
 

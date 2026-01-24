@@ -60,12 +60,8 @@ void CSIFU::rising_puls() {
   }
   
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.
-  if (forcing_bridge || main_bridge) {
-    rFault_p.check();                   // Контроль аварийных ситуаций
-    rReg_manager.applyModeRules();      // Контроль правил комбинации регуляторов
-    rReg_manager.stepAll();             // Регулирование
-  }
-  
+  control_fault_and_reg();              // Контроль аварий и регулирование
+ 
   control_sync();  // Мониторинг события захвата CR1 синхроимпульсом
   
   signed int cur_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
@@ -93,7 +89,7 @@ void CSIFU::rising_puls() {
     Operating_mode = EOperating_mode::NORMAL;  
     Alpha_setpoint = s_const.AMax;
     Alpha_current = s_const.AMax;
-    // 5-6-1-2-sync-3->6-1-2-3-4-sync-5->6-1-2.... <-- пример последовательности
+    // ...5-6-1-2-sync-3->6-1-2-3-4-sync-5->6-1-2... <-- пример последовательности
     
     res =                                               // Вычисление значения MR0 для 1-го ИУ в Amax
       static_cast<signed int>(v_sync.CURRENT_SYNC) +    // Значение CR1. Момент прихода синхроимпульса
@@ -119,20 +115,10 @@ void CSIFU::rising_puls() {
 
   }
   
-  res = cur_MR0 + SIFUConst::PULSE_WIDTH;               // Вычисление значения MR1 (окончание импульса)
-  LPC_TIM3->MR1 = static_cast<unsigned int>(res);       // Задание окончания текущего
+  res = cur_MR0 + SIFUConst::PULSE_WIDTH;               // Вычисление значения MR1 (длительности ИУ)
+  LPC_TIM3->MR1 = static_cast<unsigned int>(res);       // Задание длительности текущего ИУ
   
-  if(phase_stop) {
-    rReg_manager.setCurrent(State::OFF);
-    rReg_manager.setQPower(State::OFF);
-    rReg_manager.setCosPhi(State::OFF);
-    n_pulses_stop--;
-    if(n_pulses_stop <= 0){
-      phase_stop = false;
-      forcing_bridge = false;
-      main_bridge = false;
-    }   
-  }
+  void off_pulses_control();                            // Контроль фазы выключения ИУ
 
 }
 
@@ -166,7 +152,7 @@ unsigned int CSIFU::timing_calc() {
   return static_cast<unsigned int>(ret);
 }
 
-// Окончание ИУ
+// Выключения при окончании ИУ
 void CSIFU::faling_puls() {
   
   LPC_IOCON->P1_2 = IOCON_P_PORT;  // P1_2 -> Port
@@ -271,19 +257,38 @@ signed short CSIFU::get_alpha() { return Alpha_current; }
 
 signed short* CSIFU::getPointerAlpha() { return &Alpha_current; }
 
-void CSIFU::set_forcing_bridge() {
+void CSIFU::control_fault_and_reg() {
+  if (forcing_bridge || main_bridge) {
+    rFault_p.check();                   // Контроль аварийных ситуаций
+    rReg_manager.applyModeRules();      // Контроль правил комбинации регуляторов
+    rReg_manager.stepAll();             // Регулирование
+  }
+}
+
+void CSIFU::forcing_bridge_pulses_On() {
   main_bridge = false;
   forcing_bridge = true;
 }
-void CSIFU::set_main_bridge() {
+void CSIFU::main_bridge_pulses_On() {
   forcing_bridge = false;
   main_bridge = true;
 }
 
-void CSIFU::pulses_stop() {
+void CSIFU::all_bridge_pulses_Off() {
   set_alpha(s_const.AMax);
   n_pulses_stop = s_const.N_PULSES_STOP;
-  phase_stop = true;
+  phase_stop = State::ON;
+}
+
+void CSIFU::off_pulses_control() { 
+  
+  if(phase_stop == State::OFF) return; 
+  
+  if(--n_pulses_stop <= 0){
+    phase_stop = State::OFF;
+    forcing_bridge = false;
+    main_bridge = false;
+  }   
 }
 
 void CSIFU::start_phasing_mode() {
@@ -291,15 +296,18 @@ void CSIFU::start_phasing_mode() {
   v_sync.cur_power_shift = v_sync.task_power_shift;
   Operating_mode = EOperating_mode::PHASING;
 }
+
 void CSIFU::stop_phasing_mode() {
   Alpha_setpoint = s_const.AMax;
   Operating_mode = EOperating_mode::NORMAL;
 }
+
 void CSIFU::set_a_shift(signed short shift) {
   if (Operating_mode == EOperating_mode::PHASING) {
     v_sync.task_power_shift = shift;
   }
 }
+
 void CSIFU::set_d_shift(unsigned char d_shift) {
   if (Operating_mode == EOperating_mode::PHASING) {
     if (d_shift > (s_const.N_PULSES - 1)) d_shift = s_const.N_PULSES - 1;  // 0...5

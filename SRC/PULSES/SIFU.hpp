@@ -18,9 +18,9 @@ class CSIFU {
   CRegManager& rReg_manager;
   CFaultCtrlP& rFault_p;
 
-  void set_forcing_bridge();  // Подать импульсы на форсировочный мост
-  void set_main_bridge();     // Подать импульсы на основной мост
-  void pulses_stop();         // Снять импульсы с обоих мостов
+  void forcing_bridge_pulses_On();  // Подать импульсы на форсировочный мост
+  void main_bridge_pulses_On();     // Подать импульсы на основной мост
+  void all_bridge_pulses_Off();     // Снять импульсы с обоих мостов
   void start_phasing_mode();  // Установить режим фазировки
   void stop_phasing_mode();   // Снять режим фазировки
 
@@ -75,12 +75,15 @@ class CSIFU {
 
   bool forcing_bridge;
   bool main_bridge;
-  bool phase_stop = false;
+  State phase_stop = State::OFF;
   signed short n_pulses_stop = 0;
 
   signed short Alpha_setpoint;
   signed short Alpha_current;
-
+  
+  void off_pulses_control();        // Контроль фазы ртключения ИУ
+  void control_fault_and_reg();     // Контроль аварий и регулирование
+  
   void control_sync();
   unsigned int timing_calc();
   signed short limits_val(signed short*, signed short, signed short);
