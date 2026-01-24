@@ -64,9 +64,6 @@ class CEEPSettings {
     struct {                                                    // 12 Параметры регуляторов
       float KpCr;
       float KiCr;
-      unsigned short Iset0;
-      unsigned short Ifors;
-      unsigned short Idry;
       signed short A0;
       float KpCos;
       float KiCos;
@@ -87,10 +84,17 @@ class CEEPSettings {
       unsigned short IdNom;                                  /* IdNom */
       unsigned short UdNom;                                  /* UdNom */
       unsigned short ISNom;                                  /* ISNom */
-      unsigned short USNom;                                  /* USNom */      
-    } set_params;       
-    unsigned char ssid[G_CONST::SSID_PS_L];                // 16 Имя сети
-    unsigned char password[G_CONST::SSID_PS_L];            // 17 Пароль
+      unsigned short USNom;                                  /* USNom */ 
+      unsigned short Idry;                                   /* Ток Сушки */ 
+    } set_params;  
+    struct {                                               // 16 Уставки пуска
+      unsigned short IFors;                                  /* Величина форсировки */
+      unsigned short TFors;                                  /* Длительность форсировки */
+      unsigned short TPusk;                                  /* Максимальное время пуска */
+      unsigned short Iset0;                                  /* Задание после форсировки */      
+    } set_pusk; 
+    unsigned char ssid[G_CONST::SSID_PS_L];                // 17 Имя сети
+    unsigned char password[G_CONST::SSID_PS_L];            // 18 Пароль
     // Добавляя новые уставки сюда, не забывайте обновлять defaultSettings ниже!!!
   };
   //  Статические константные уставки по умолчанию (во Flash) ---
@@ -110,9 +114,6 @@ class CEEPSettings {
     .set_reg = {
       .KpCr = 1.0f,
       .KiCr = 0.001f,
-      .Iset0 = 0,
-      .Ifors = 0,
-      .Idry = 0,
       .A0 = static_cast<signed short>(120.0f/cd::Alpha),
       .KpCos = 1.0f,
       .KiCos = 0.001f,
@@ -134,7 +135,14 @@ class CEEPSettings {
       .UdNom = 75,
       .ISNom = 100,
       .USNom = 400,
-    },      
+      .Idry = 10,
+    },
+    .set_pusk = {
+      .IFors = 470,
+      .TFors = 3,
+      .TPusk = 10,
+      .Iset0 = 150,
+    },          
     .ssid = "NetName",
     .password = "Password"
   };

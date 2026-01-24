@@ -35,4 +35,7 @@ private:
     } 
   }
   
+  bool prevKeyDrying = true;
+  bool prevKeyTesting = true;
+  
 };

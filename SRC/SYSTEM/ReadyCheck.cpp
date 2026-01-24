@@ -20,7 +20,14 @@ void CReadyCheck::check(bool Permission) {
   check(Ready, abs(*rAdcStr.getEPointer(sadc::ROTOR_VOLTAGE)) > dMax,   ENotReadyId::SENS_VR_FAULT);
   check(Ready, abs(*rAdcStr.getEPointer(sadc::STATOR_CURRENT)) > dMax,  ENotReadyId::SENS_CS_FAULT);
   check(Ready, !(*pSys_manager->rSIFU.getSyncStat()),                   ENotReadyId::NOT_SYNC);
-
+  /*  
+     Остальные условия готовности 
+  */
+  if(Ready == R::NOT_READY || prevKeyDrying) { check(Ready, rDinStr.Reg_Drying(), ENotReadyId::DRYING_ON); }
+  if(Ready == R::NOT_READY || prevKeyTesting){ check(Ready, rDinStr.Stator_Key(), ENotReadyId::TESTING_ON); }
+   
+  prevKeyDrying  = rDinStr.Reg_Drying();
+  prevKeyTesting = rDinStr.Stator_Key();
   /*  
      Остальные условия готовности 
   */

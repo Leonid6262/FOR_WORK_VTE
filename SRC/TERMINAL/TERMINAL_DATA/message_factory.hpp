@@ -20,19 +20,22 @@ enum class ECategory { NOT_READY, READY, WORK, FAULT, WARNING, COUNT }; // Сп�
 
 // ======================= NOT_READY =======================
 enum class ENotReadyId { 
-  ADJ_MODE, NOT_SYNC, Q1_is_OFF, SENS_CR_FAULT, SENS_CS_FAULT, SENS_VR_FAULT, BC_HVS_FAUL, COUNT 
+  ADJ_MODE, NOT_SYNC, Q1_is_OFF, SENS_CR_FAULT, SENS_CS_FAULT, 
+  SENS_VR_FAULT, BC_HVS_FAUL, DRYING_ON, TESTING_ON, COUNT 
 };
 struct SNotReady : CategoryActive<ENotReadyId>{
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "НЕТ ГОТОВНОСТ:", "NOT READY:", "НЕМА ГОТОВНОСТI:" };
   static constexpr const char* MSG[][G_CONST::Nlang] = {
-    {"Режим Наладки",   "Adjustment mode", "Режим Наладки"},
-    {"Нет синх-ции",    "Not Sync",        "Нема Sync"},
-    {"Отключен Q1",     "Q1 is OFF",       "Вимкнено Q1"},
-    {"Неисправен ДТР",  "SCR FAULT",       "Несправний ДСР"},
-    {"Неисправен ДТС",  "SCS FAULT",       "Несправний ДСС"},
-    {"Неисправен ДНР",  "SVR FAULT",       "Несправний ДНР"},
-    {"Неиспр-ны БК ВВ", "BC HVS FAULT",    "Несправнi БК ВВ"}
+    {"Режим Наладка",    "Adjustment mode", "Режим Наладка"},
+    {"Нет синх-ции",     "Not Sync",        "Нема Sync"},
+    {"Отключен Q1",      "Q1 is OFF",       "Вимкнено Q1"},
+    {"Неисправен ДТР",   "SCR FAULT",       "Несправний ДСР"},
+    {"Неисправен ДТС",   "SCS FAULT",       "Несправний ДСС"},
+    {"Неисправен ДНР",   "SVR FAULT",       "Несправний ДНР"},
+    {"Неиспр-ны БК ВВ",  "BC HVS FAULT",    "Несправнi БК ВВ"},
+    {"Включена Сушка",   "Drying is On",    "Увiмк. Сушiння"},
+    {"Включ. Опроб-ние", "Testing is On",   "Увiмк. Опроб-ння"},
   };
   
   

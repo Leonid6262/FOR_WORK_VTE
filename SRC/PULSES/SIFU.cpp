@@ -115,8 +115,8 @@ void CSIFU::rising_puls() {
 
   }
   
-  res = cur_MR0 + SIFUConst::PULSE_WIDTH;               // Вычисление значения MR1 (длительности ИУ)
-  LPC_TIM3->MR1 = static_cast<unsigned int>(res);       // Задание длительности текущего ИУ
+  res = cur_MR0 + SIFUConst::PULSE_WIDTH;               // Вычисление момента выключения ИУ
+  LPC_TIM3->MR1 = static_cast<unsigned int>(res);       // Задание значения MR1
   
   void off_pulses_control();                            // Контроль фазы выключения ИУ
 

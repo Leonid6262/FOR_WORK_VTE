@@ -14,13 +14,14 @@ void CSystemManager::dispatch() {
   UPermissionsList.all = AllPermissions;        // Фиксируем разрещённые режимы                      
   
   rAdj_mode.parsing_request(UPermissionsList.pAdjustment);      // Обработка запросов вкл. наладочных режимов
-  rReady_check.check(UPermissionsList.pReadyCheck);             // Сборка готовности
+
   rDrying_mode.dry(UPermissionsList.pWorkDry);                  // Режим работы при сушке ротора  
   rTest_mode.test(UPermissionsList.pWorkTest);                  // Режим работы "Опробование"
   rPusk_mode.pusk(UPermissionsList.pPuskMotor);                 // Режим работы при пуске двигателя
   rWork_normal.work(UPermissionsList.pNormalWork);              // Режим работы после успешного пуска двигателя
-  rFault_ctrl.control(UPermissionsList.pFaultCtrlF);            // Проверка аварийных состояний
-  
+  rFault_ctrl.control(UPermissionsList.pFaultCtrlF);            // Проверка аварийных состояний 
+  //–-----
+  rReady_check.check(UPermissionsList.pReadyCheck);             // Сборка готовности
   rWarning_ctrl.control();                                      // Проверка предупреждающих состояний (выполняется всегда)
   
 }

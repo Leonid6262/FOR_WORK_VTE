@@ -32,11 +32,11 @@ void CTestingMode::StartTest(){
   pSys_manager->set_bsWorkTest(State::ON);
   rSIFU.set_alpha(rSIFU.s_const.AMax);
   rSIFU.forcing_bridge_pulses_On();
-  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_reg.Ifors);
+  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);
   
   rSIFU.main_bridge_pulses_On();
-  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_reg.Iset0);
+  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.Iset0);
   
   //rSIFU.set_mode_w_one();
   

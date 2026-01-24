@@ -30,7 +30,7 @@ static const struct {
     const char* CURRENT[G_CONST::Nlang]        = {"ТОКА",            "CURRENT",          "СТРУМУ"};
     const char* COS_PHI[G_CONST::Nlang]        = {"COS PHI",         "COS PHI",          "COS PHI"};
     const char* Q_POWER[G_CONST::Nlang]        = {"Q МОЩНОСТИ",      "Q POWER",          "Q ПОТУЖНОСТI"};
-    const char* LIMITS[G_CONST::Nlang]         = {"ОГРАНИЧЕНИЯ",     "LIMITS",           "ОБМЕЖЕННЯ"};
+    const char* PUSK[G_CONST::Nlang]           = {"ПУСК",            "PUSK",             "ПУСК"};
     const char* PARAMS[G_CONST::Nlang]         = {"ПАРАМЕТРЫ",       "PARAMETERS",       "ПАРАМЕТРИ"};    
     const char* FAULTS[G_CONST::Nlang]         = {"АВАРИЙНЫЕ",       "FAULTS",           "АВАРIЙНI"};
     const char* ADC_SHIFT[G_CONST::Nlang]      = {"СМЕЩЕНИЯ АЦП",    "ADC SHIFT",        "ЗСУВ АЦП"};
@@ -106,9 +106,6 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o(Mn.CURRENT[l],{
               o("KpCr",   {}, &set.set_reg.KpCr, "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiCr",   {}, &set.set_reg.KiCr, "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),
-              o("I-set",  {}, &set.set_reg.Iset0,un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.set_params.IdNom),
-              o("I-fors", {}, &set.set_reg.Ifors,un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.set_params.IdNom),
-              o("I-dry",  {}, &set.set_reg.Idry, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 0.1f*set.set_params.IdNom),
               o("Alpha-0",{}, &set.set_reg.A0,   un::Deg, cd::Alpha,  p0, vt::sshort, nm::Ed1V, 90, 120)}),
           o(Mn.COS_PHI[l],{
               o("KpCos", {}, &set.set_reg.KpCos, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
@@ -116,12 +113,17 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o(Mn.Q_POWER[l],{
               o("KpQ",   {}, &set.set_reg.KpQ, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiQ",   {}, &set.set_reg.KiQ, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),}),
-      o(Mn.LIMITS[l]),
+      o(Mn.PUSK[l], {
+          o("I Fors", {}, &set.set_pusk.IFors, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2*set.set_params.IdNom),
+          o("T Fors", {}, &set.set_pusk.TFors, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 10),
+          o("T Pusk", {}, &set.set_pusk.TPusk, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
+          o("Iset-0", {}, &set.set_pusk.Iset0, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.set_params.IdNom),}),      
       o(Mn.PARAMS[l], {
-          o("Id Nom", {}, &set.set_params.IdNom, un::Amp,  cd::one, p0, vt::ushort, nm::Ed1V, 200,  400),
-          o("Ud Nom", {}, &set.set_params.UdNom, un::Volt, cd::one, p0, vt::ushort, nm::Ed1V,  48,  230),
-          o("IS Nom", {}, &set.set_params.IdNom, un::Amp,  cd::one, p0, vt::ushort, nm::Ed1V,   0, 1000),
-          o("US Nom", {}, &set.set_params.UdNom, un::Volt, cd::one, p0, vt::ushort, nm::Ed1V, 400, 6300),}),
+          o("Id Nom", {}, &set.set_params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V, 200,  400),
+          o("Ud Nom", {}, &set.set_params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V,  48,  230),
+          o("IS Nom", {}, &set.set_params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V,   0, 1000),
+          o("US Nom", {}, &set.set_params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V, 400, 6300),
+          o("I-dry",  {}, &set.set_params.Idry,  un::Amp,  cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.set_params.IdNom/4),}),
       o(Mn.FAULTS[l], {
           o("Id Max", {}, &set.set_faults.IdMax, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.set_params.IdNom),
           o("Id Min", {}, &set.set_faults.IdMin, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.set_params.IdNom),}),

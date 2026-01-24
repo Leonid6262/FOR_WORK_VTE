@@ -32,7 +32,7 @@ void CDryingMode::StartDrain(){
   pSys_manager->set_bsWorkDry(State::ON);
   rSIFU.set_alpha(rSIFU.s_const.AMax);
   rSIFU.main_bridge_pulses_On();
-  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_reg.Idry);
+  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_params.Idry);
   rSIFU.rReg_manager.setCurrent(State::ON);
 }
 

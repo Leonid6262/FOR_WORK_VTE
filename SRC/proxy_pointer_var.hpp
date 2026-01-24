@@ -46,6 +46,7 @@ namespace NProxyVar {
     static constexpr const char* bits = "bits";
     static constexpr const char*    d = "d";
     static constexpr const char*    b = "b";
+    static constexpr const char*  sec = "sec";
   };
 }
 
