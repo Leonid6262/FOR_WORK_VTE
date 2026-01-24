@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "system_LPC177x.h"
 
-const unsigned char CSIFU::pulses[] = {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30};       // Индекс 0 не используется
+const unsigned char CSIFU::pulses[] =      {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30};  // Индекс 0 не используется
 const unsigned char CSIFU::pulse_w_one[] = {0x00, 0x21, 0x00, 0x06, 0x00, 0x18, 0x00};  // Индекс 0 не используется
 const signed short CSIFU::offsets[] = {
   0,

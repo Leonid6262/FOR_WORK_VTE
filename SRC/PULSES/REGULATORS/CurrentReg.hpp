@@ -13,14 +13,14 @@ public:
 
  void step(bool, CSIFU*);
  void set_Iset(unsigned short);
- bool start_r = false;
+ bool bStart_reg = false;
   
 private:
  CADC_STORAGE& pAdc;
  CEEPSettings& rSet;
  
- void start(CSIFU*);
- void stop(CSIFU*);
+ void start_reg(CSIFU*);
+ void stop_reg(CSIFU*);
  
  float u_i;
  signed short u_min;

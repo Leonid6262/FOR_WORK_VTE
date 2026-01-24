@@ -2,32 +2,36 @@
 
 CCurrentReg::CCurrentReg(CEEPSettings& rSet) : pAdc(CADC_STORAGE::getInstance()), rSet(rSet) {}
 
-void CCurrentReg::start(CSIFU* pSIFU) {
+void CCurrentReg::start_reg(CSIFU* pSIFU) {
   auto set = rSet.getSettings();
   u_i = set.set_reg.A0 - pSIFU->get_alpha();
   u_min = set.set_reg.A0 - pSIFU->s_const.AMax;
   u_max = set.set_reg.A0 - pSIFU->s_const.AMin;
-  start_r = true;
+  bStart_reg = true;
 }
 
-void CCurrentReg::stop(CSIFU* pSIFU) {
+void CCurrentReg::stop_reg(CSIFU* pSIFU) {
   pSIFU->set_alpha(pSIFU->s_const.AMax);
-  start_r = false;
+  bStart_reg = false;
 }
 
 void CCurrentReg::set_Iset(unsigned short Iset) {
   this->Iset = Iset;
 }
 
-void CCurrentReg::step(bool mode, CSIFU* pSIFU) { 
+void CCurrentReg::step(bool Permission, CSIFU* pSIFU) { 
  
-  if(!mode) { if(start_r) { stop(pSIFU); } return;}
-  if(!start_r) start(pSIFU);
+  if(!Permission) { 
+    if(bStart_reg) { 
+      stop_reg(pSIFU); 
+    } 
+    return;
+  }
+  if(!bStart_reg) start_reg(pSIFU);
   
   auto set = rSet.getSettings();
   
   signed short Imeas = *pAdc.getEPointer(CADC_STORAGE::ROTOR_CURRENT);
-  //signed short Iset = set.set_reg.Iset0;
  
   float e = static_cast<float>(Iset - Imeas);
   
