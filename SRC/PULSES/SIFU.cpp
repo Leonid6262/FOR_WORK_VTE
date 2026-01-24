@@ -18,7 +18,7 @@ CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFaul
 : rPulsCalc(rPulsCalc), rReg_manager(rReg_manager), rFault_p(rFault_p), rSettings(rSettings){}
 
 void CSIFU::rising_puls() {
-  N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;
+  N_Pulse = (N_Pulse % s_const.N_PULSES) + 1; // Текущий номер импульса (1...6)
   
   // Старт ИУ рабочего моста
   if (main_bridge) {
@@ -36,7 +36,7 @@ void CSIFU::rising_puls() {
     LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
     LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
     // ----
-    LPC_IOCON->P1_2 = IOCON_P_PWM; 
+    LPC_IOCON->P1_2 = IOCON_P_PWM; // P1_2 -> PWM
     LPC_PWM0->TCR = COUNTER_START; // Запускаем      
   }
   // Старт ИУ  форсировочного моста
@@ -55,58 +55,72 @@ void CSIFU::rising_puls() {
     LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
     LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
     // ----
-    LPC_IOCON->P1_3 = IOCON_P_PWM; 
+    LPC_IOCON->P1_3 = IOCON_P_PWM; // P1_3 -> PWM
     LPC_PWM0->TCR = COUNTER_START; // Запускаем
   }
   
-  control_sync();  // Мониторинг события захвата синхроимпульса
+  rPulsCalc.conv_and_calc();            // Измерения и вычисления.
+  if (forcing_bridge || main_bridge) {
+    rFault_p.check();                   // Контроль аварийных ситуаций
+    rReg_manager.applyModeRules();      // Контроль правил комбинации регуляторов
+    rReg_manager.stepAll();             // Регулирование
+  }
+  
+  control_sync();  // Мониторинг события захвата CR1 синхроимпульсом
   
   signed int cur_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
   
+  signed int res; // служебная переменная
+  
   switch (Operating_mode) {
-  case EOperating_mode::NO_SYNC: {
-    signed int res = static_cast<signed int>(LPC_TIM3->MR0) + s_const._60gr;
-    LPC_TIM3->MR0 = static_cast<unsigned int>(res);
-    curSyncStat = static_cast<unsigned char>(State::OFF);
-  }  // Старт следующего через 60 градусов
-  break;
-  case EOperating_mode::RESYNC: {
-    Operating_mode = EOperating_mode::NORMAL;  // Синхронизация с 1-го в Alpha_max
+  
+  // СИФУ не синхронизировано, ИУ следуют через 60 градусов 
+  case EOperating_mode::NO_SYNC:
+    res = static_cast<signed int>(LPC_TIM3->MR0) + s_const._60gr;    // Вычисление следующего значения MR0
+    LPC_TIM3->MR0 = static_cast<unsigned int>(res);                  // Установка следующего значения MR0
+    curSyncStat = static_cast<unsigned char>(State::OFF);            // Статус синхронизации
+    break;
+    
+  // СИФУ синхронизировано. ИУ следуют через 60 градусов + dAlpha
+  case EOperating_mode::NORMAL:
+    Alpha_setpoint = limits_val(&Alpha_setpoint, s_const.AMin, s_const.AMax);   // Ограничения величины альфа
+    LPC_TIM3->MR0 = timing_calc();                                              // Вычисление и установка следующего значения MR0
+    curSyncStat = static_cast<unsigned char>(State::ON);                        // Статус синхронизации
+    break;
+    
+  // Вход в синхронизированный режим. Начало с 1-го ИУ. Начальный угол Alpha_current = Amax  
+  case EOperating_mode::RESYNC:
+    Operating_mode = EOperating_mode::NORMAL;  
     Alpha_setpoint = s_const.AMax;
     Alpha_current = s_const.AMax;
-    // 1-2-3-4-sync-5->6-1-2-3-4-sync-5->6-1-2....
-    // Здесь и далее, кастования слагаемых приведены для наглядности,
-    // без магии циклической арифметики таймера по модулю 2^32
-    signed int res = static_cast<signed int>(v_sync.CURRENT_SYNC) + static_cast<signed int>(Alpha_current) +
-      static_cast<signed int>(v_sync.cur_power_shift);
-    LPC_TIM3->MR0 = static_cast<unsigned int>(res);
-    N_Pulse = 6;
-    curSyncStat = static_cast<unsigned char>(State::OFF);
-  } break;
+    // 5-6-1-2-sync-3->6-1-2-3-4-sync-5->6-1-2.... <-- пример последовательности
+    
+    res =                                               // Вычисление значения MR0 для 1-го ИУ в Amax
+      static_cast<signed int>(v_sync.CURRENT_SYNC) +    // Значение CR1. Момент прихода синхроимпульса
+      static_cast<signed int>(Alpha_current) +          // Alpha_current = Amax
+      static_cast<signed int>(v_sync.cur_power_shift);  // Смещение относительно силового питания
+
+    LPC_TIM3->MR0 = static_cast<unsigned int>(res);             // Установка значения MR0 для 1-го ИУ
+    curSyncStat = static_cast<unsigned char>(State::OFF);       // Статус синхронизации
+    N_Pulse = 6;                                                // 6-й устанавливаем текущим    
+    break;
+    
+  // СИФУ синхронизировано. Режим фазировка с Alpha_current = 0
   case EOperating_mode::PHASING:
-    // Ограничения величины сдвига
+    // Ограничения величины сдвига синхронизации
     v_sync.task_power_shift = limits_val(&v_sync.task_power_shift, s_const.MinPshift, s_const.MaxPshift);
-    // Ограничения приращения сдвига
+    // Ограничения приращения сдвига синхронизации
     limits_dval(&v_sync.task_power_shift, &v_sync.cur_power_shift, s_const.dAlpha);
-    Alpha_setpoint = s_const._0gr;
-    LPC_TIM3->MR0 = timing_calc();  // Задание тайминга для следующего импульса
-    curSyncStat = static_cast<unsigned char>(State::ON);
+    
+    Alpha_setpoint = s_const._0gr;                              // Задание Alpha ноль градусов
+    LPC_TIM3->MR0 = timing_calc();                              // Вычисление и установка следующего значения MR0
+    curSyncStat = static_cast<unsigned char>(State::ON);        // Статус синхронизации
     break;
-  case EOperating_mode::NORMAL:
-    // Ограничения величины альфа
-    Alpha_setpoint = limits_val(&Alpha_setpoint, s_const.AMin, s_const.AMax);
-    LPC_TIM3->MR0 = timing_calc();  // Задание тайминга для следующего импульса
-    curSyncStat = static_cast<unsigned char>(State::ON);
-    break;
+
   }
   
-  signed int res = cur_MR0 + SIFUConst::PULSE_WIDTH;
-  //
-  //
-  // Ограничение длительности импульса при движении Alpha в сторону Alpha Min при длинных импульсах
-  //
-  //
-  LPC_TIM3->MR1 = static_cast<unsigned int>(res);  // Задание окончания текущего
+  res = cur_MR0 + SIFUConst::PULSE_WIDTH;               // Вычисление значения MR1 (окончание импульса)
+  LPC_TIM3->MR1 = static_cast<unsigned int>(res);       // Задание окончания текущего
   
   if(phase_stop) {
     rReg_manager.setCurrent(State::OFF);
@@ -119,68 +133,53 @@ void CSIFU::rising_puls() {
       main_bridge = false;
     }   
   }
-  
-  rPulsCalc.conv_and_calc();            // Измерения, вычисления и т.п.
-  
-  if (forcing_bridge || main_bridge) {
-    rFault_p.check();                   // Контроль аварийных ситуаций
-    rReg_manager.applyModeRules();      // Контроль правил комбинации регуляторов
-    rReg_manager.stepAll();             // Регулирование
-  }
-  
+
 }
 
+// Вычисление следующего значения MR0 (фронт следующего ИУ)
 unsigned int CSIFU::timing_calc() {
-  // Ограничения приращения альфа
+  // Ограничения приращения альфа (обновляется Alpha_current с учётом максимального приращения)
   signed short d_Alpha = limits_dval(&Alpha_setpoint, &Alpha_current, s_const.dAlpha);
+  signed int ret;
+
   if (v_sync.SYNC_EVENT) {
-    // Коррекция по синхронизации
-    v_sync.SYNC_EVENT = false;
-    signed int ret = static_cast<signed int>(v_sync.CURRENT_SYNC) + static_cast<signed int>(Alpha_current) +
-      static_cast<signed int>(offsets[N_Pulse]) + static_cast<signed int>(v_sync.cur_power_shift);
-    return static_cast<unsigned int>(ret);
-    // return (v_sync.CURRENT_SYNC + (A_Cur_tick + offsets[N_Pulse]) + v_sync.cur_power_shift);
+     v_sync.SYNC_EVENT = false;
+     
+    // Событие синхронизации было, корректируем выдачу
+    // следующего ИУ с учётом текущего Alpha
+    ret = 
+      static_cast<signed int>(v_sync.CURRENT_SYNC) +    // Значение CR1. Момент прихода синхроимпульса.
+      static_cast<signed int>(Alpha_current) +          // Текущий угол управления.
+      static_cast<signed int>(offsets[N_Pulse]) +       // Кррекция по номеру ИУ "увидевшего" событие захвата
+      static_cast<signed int>(v_sync.cur_power_shift);  // Смещение относительно силового питания
+ 
   } else {
-    // Продолжение последовательности
-    signed int ret = static_cast<signed int>(LPC_TIM3->MR0) + static_cast<signed int>(s_const._60gr) +
-      static_cast<signed int>(d_Alpha);
     
-    return static_cast<unsigned int>(ret);
-    // return LPC_TIM3->MR0 + s_const._60gr + d_Alpha;
+    // События синхронизации не было,
+    // продолжаем последовательность ИУ. 60гр + dAlpha
+    ret = 
+      static_cast<signed int>(LPC_TIM3->MR0) + 
+      static_cast<signed int>(s_const._60gr) +
+      static_cast<signed int>(d_Alpha);
+ 
   }
+  return static_cast<unsigned int>(ret);
 }
 
-// Ограничение значения
-signed short CSIFU::limits_val(signed short* input, signed short min, signed short max) {
-  if (*input > max) return max;
-  if (*input < min) return min;
-  return *input;
-}
-// Ограничение приращения
-signed short CSIFU::limits_dval(signed short* input, signed short* output, signed short max) {
-  signed short d = *input - *output;
-  if (abs(d) < max)
-    *output = *input;
-  else {
-    d = (d > 0 ? max : -max);
-    *output += d;
-  }
-  return d;
-}
-
+// Окончание ИУ
 void CSIFU::faling_puls() {
   
-  LPC_IOCON->P1_2 = IOCON_P_PORT;  // P1_2 - Port
+  LPC_IOCON->P1_2 = IOCON_P_PORT;  // P1_2 -> Port
   LPC_GPIO1->CLR = 1UL << P1_2;
-  LPC_IOCON->P1_3 = IOCON_P_PORT;  // P1_3 - Port
+  LPC_IOCON->P1_3 = IOCON_P_PORT;  // P1_3 -> Port
   LPC_GPIO1->CLR = 1UL << P1_3;
   
-  LPC_GPIO3->SET = OFF_PULSES;
-  
-  LPC_SC->PCONP &= ~CLKPWR_PCONP_PCPWM0; // Выкл PWM
+  LPC_GPIO3->SET = OFF_PULSES;           // Выкл. импульсы  
+  LPC_SC->PCONP &= ~CLKPWR_PCONP_PCPWM0; // Выкл. PWM
   
 }
 
+// Определение события прихода синхроимпульса
 void CSIFU::control_sync() {
   
   v_sync.cur_capture = LPC_TIM3->CR1;   // Копируем текущее значение защёлки
@@ -247,6 +246,24 @@ void CSIFU::control_sync() {
       }
     }
   }
+}
+
+// Ограничение значения
+signed short CSIFU::limits_val(signed short* input, signed short min, signed short max) {
+  if (*input > max) return max;
+  if (*input < min) return min;
+  return *input;
+}
+// Ограничение приращения
+signed short CSIFU::limits_dval(signed short* input, signed short* output, signed short max) {
+  signed short d = *input - *output;
+  if (abs(d) < max)
+    *output = *input;
+  else {
+    d = (d > 0 ? max : -max);
+    *output += d;
+  }
+  return d;
 }
 
 void CSIFU::set_alpha(signed short alpha) { Alpha_setpoint = alpha; }
