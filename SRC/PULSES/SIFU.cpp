@@ -2,8 +2,9 @@
 #include <algorithm>
 #include "system_LPC177x.h"
 
-const unsigned char CSIFU::pulses[] =      {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30};  // Индекс 0 не используется
-const unsigned char CSIFU::pulse_w_one[] = {0x00, 0x21, 0x00, 0x06, 0x00, 0x18, 0x00};  // Индекс 0 не используется
+const unsigned char CSIFU::pulsesAllP[] = {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30}; // Индекс 0 не используется
+const unsigned char CSIFU::pulsesWone[] = {0x00, 0x21, 0x00, 0x06, 0x00, 0x18, 0x00}; // Индекс 0 не используется
+
 const signed short CSIFU::offsets[] = {
   0,
   SIFUConst::_60gr,    // Диапазон 0...60        (sync "видит" 1-й: ->2-3-4-5-6-sync-1->2-3-4...)
@@ -20,10 +21,14 @@ CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFaul
 void CSIFU::rising_puls() {
   N_Pulse = (N_Pulse % s_const.N_PULSES) + 1; // Текущий номер импульса (1...6)
   
-  // Старт ИУ рабочего моста
+  // Фронт ИУ рабочего моста
   if (main_bridge) {
-    LPC_GPIO3->CLR = pulses[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
-    
+    if(!wone_reg){
+      LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
+    } else{
+      LPC_GPIO3->CLR = pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
+    }
+
     LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
     
     LPC_PWM0->PR = PWM_div_0 - 1;
@@ -39,9 +44,9 @@ void CSIFU::rising_puls() {
     LPC_IOCON->P1_2 = IOCON_P_PWM; // P1_2 -> PWM
     LPC_PWM0->TCR = COUNTER_START; // Запускаем      
   }
-  // Старт ИУ  форсировочного моста
+  // Фронт ИУ  форсировочного моста
   if (forcing_bridge) {
-    LPC_GPIO3->CLR = pulses[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
+    LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
     
     LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
     
@@ -116,8 +121,9 @@ void CSIFU::rising_puls() {
   }
   
   res = cur_MR0 + SIFUConst::PULSE_WIDTH;               // Вычисление момента выключения ИУ
-  LPC_TIM3->MR1 = static_cast<unsigned int>(res);       // Задание значения MR1
+  LPC_TIM3->MR1 = static_cast<unsigned int>(res);       // Задание значения MR1  
   
+  void off_wone_reg();                                  // Контроль отключения режима "Через один"
   void off_pulses_control();                            // Контроль фазы выключения ИУ
 
 }
@@ -152,7 +158,7 @@ unsigned int CSIFU::timing_calc() {
   return static_cast<unsigned int>(ret);
 }
 
-// Выключения при окончании ИУ
+// Выключения портов и PWM при окончании ИУ
 void CSIFU::faling_puls() {
   
   LPC_IOCON->P1_2 = IOCON_P_PORT;  // P1_2 -> Port
@@ -269,9 +275,22 @@ void CSIFU::forcing_bridge_pulses_On() {
   main_bridge = false;
   forcing_bridge = true;
 }
+
 void CSIFU::main_bridge_pulses_On() {
   forcing_bridge = false;
   main_bridge = true;
+}
+
+void CSIFU::execute_mode_Wone(){
+  n_pulses_wone = s_const.N_PULSES_WONE;
+  wone_reg = true;
+}
+
+void CSIFU::off_wone_reg() {  
+  if(!wone_reg) return;  
+  if(--n_pulses_wone <= 0) {
+    wone_reg = false;
+  }
 }
 
 void CSIFU::all_bridge_pulses_Off() {
@@ -320,20 +339,11 @@ float* CSIFU::get_Sync_Frequency() { return &v_sync.SYNC_FREQUENCY; }
 unsigned char* CSIFU::getSyncStat() { return &curSyncStat; } 
 
 void CSIFU::init_and_start(CProxyPointerVar& PPV) {
-  forcing_bridge = false;
-  main_bridge = false;
   
-  N_Pulse = 1;
   v_sync.d_power_shift = rSettings.getSettings().set_sifu.d_power_shift;
   v_sync.task_power_shift = rSettings.getSettings().set_sifu.power_shift;
   v_sync.cur_power_shift = v_sync.task_power_shift;
-  v_sync.SYNC_EVENT = false;
-  v_sync.no_sync_pulses = 0;
-  v_sync.sync_pulses = 0;
-  Alpha_setpoint = s_const.AMax;
-  Alpha_current = s_const.AMax;
-  Operating_mode = EOperating_mode::NO_SYNC;
-  
+ 
   // Регистрация Alpha в реестре указателей
   PPV.registerVar (NProxyVar::ProxyVarID::AlphaCur, 
                    &Alpha_current, 

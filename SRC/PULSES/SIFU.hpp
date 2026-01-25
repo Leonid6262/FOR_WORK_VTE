@@ -21,8 +21,9 @@ class CSIFU {
   void forcing_bridge_pulses_On();  // Подать импульсы на форсировочный мост
   void main_bridge_pulses_On();     // Подать импульсы на основной мост
   void all_bridge_pulses_Off();     // Снять импульсы с обоих мостов
-  void start_phasing_mode();  // Установить режим фазировки
-  void stop_phasing_mode();   // Снять режим фазировки
+  void start_phasing_mode();        // Установить режим фазировки
+  void stop_phasing_mode();         // Снять режим фазировки
+  void execute_mode_Wone();         // Выполнить режим "Через один"  
 
   void set_a_shift(signed short);   // Установка точного сдвига синхронизации
   void set_d_shift(unsigned char);  // Установка дискретного сдвига синхронизации
@@ -64,25 +65,30 @@ class CSIFU {
     static constexpr unsigned int N_PULSES = 6;
     static constexpr unsigned int N_PULSES_STOP = 50;
     
+    static constexpr signed char N_PULSES_WONE = 6;
+    
   } s_const;
   
-   unsigned char N_Pulse;
+   unsigned char N_Pulse = 1;
 
  private:
-  static const unsigned char pulses[];
-  static const unsigned char pulse_w_one[];
+  static const unsigned char pulsesAllP[];
+  static const unsigned char pulsesWone[];
   static const signed short offsets[];
 
-  bool forcing_bridge;
-  bool main_bridge;
+  bool forcing_bridge = false;
+  bool main_bridge = false;
+  bool wone_reg = false;
   State phase_stop = State::OFF;
   signed short n_pulses_stop = 0;
+  signed short n_pulses_wone = 0;
 
-  signed short Alpha_setpoint;
-  signed short Alpha_current;
+  signed short Alpha_setpoint = s_const.AMax;
+  signed short Alpha_current = s_const.AMax;
   
   void off_pulses_control();        // Контроль фазы ртключения ИУ
   void control_fault_and_reg();     // Контроль аварий и регулирование
+  void off_wone_reg();              // Контроль отключения режима "Через один"
   
   void control_sync();
   unsigned int timing_calc();
@@ -91,7 +97,7 @@ class CSIFU {
 
   enum class EOperating_mode { NO_SYNC, RESYNC, NORMAL, PHASING };
 
-  EOperating_mode Operating_mode;  // Текущий режим работы СИФУ
+  EOperating_mode Operating_mode = EOperating_mode::NO_SYNC;  // Текущий режим работы СИФУ
   unsigned char curSyncStat;
 
   struct SyncState  // Структура переменных касающихся синхронизации
@@ -101,13 +107,13 @@ class CSIFU {
     signed short cur_power_shift;  // Точный сдвиг синхронизации.
     signed short task_power_shift;
 
-    bool SYNC_EVENT;            // Флаг события захвата
+    bool SYNC_EVENT = false;    // Флаг события захвата
     unsigned int CURRENT_SYNC;  // Актуальные данные захвата
 
-    unsigned int cur_capture;       // Текущие данные захвата таймера
-    unsigned int prev_capture;      // Предыдущие данные захвата таймера
-    unsigned short no_sync_pulses;  // Количество пульсов отсутствия события захвата
-    unsigned short sync_pulses;     // Количество пульсов с событиями захвата
+    unsigned int cur_capture;           // Текущие данные захвата таймера
+    unsigned int prev_capture;          // Предыдущие данные захвата таймера
+    unsigned short no_sync_pulses = 0;  // Количество пульсов отсутствия события захвата
+    unsigned short sync_pulses = 0;     // Количество пульсов с событиями захвата
 
     float SYNC_FREQUENCY;  // Измеренная частота
 

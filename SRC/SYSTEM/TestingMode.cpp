@@ -3,7 +3,7 @@
 
 CTestingMode::CTestingMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet) : 
   rDinStr(rDinStr), cur_status(State::OFF), rSIFU(rSIFU), rSet(rSet) {} 
-    
+
 void CTestingMode::test(bool Permission) {
   
   if(!Permission) {
@@ -31,6 +31,7 @@ void CTestingMode::test(bool Permission) {
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
     rSIFU.rReg_manager.setCurrent(State::ON);
     phases_test = EPhasesTest::Forcing;
+    PK_STATUS = StatusRet::SUCCESS;
     prev_TC0 = LPC_TIM0->TC;
     break;  
   case EPhasesTest::Forcing:
@@ -39,6 +40,10 @@ void CTestingMode::test(bool Permission) {
       rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
       rSIFU.main_bridge_pulses_On();
       phases_test = EPhasesTest::BridgeChange;
+      if(!rDinStr.CU_from_testing()) {
+        SWarning::setMessage(EWarningId::PK_NOT_OPEN);
+        PK_STATUS = StatusRet::ERROR;
+      }
       prev_TC0 = LPC_TIM0->TC;
     }
     break;
@@ -52,17 +57,27 @@ void CTestingMode::test(bool Permission) {
     break;
   case EPhasesTest::RelayPause:
     dTrs = LPC_TIM0->TC - prev_TC0;
-    if (dTrs >= RELAY_PAUSE_OFF) { 
+    if (dTrs >= RELAY_PAUSE_OFF) {
+      rSIFU.execute_mode_Wone();
       phases_test = EPhasesTest::ClosingKey;
       prev_TC0 = LPC_TIM0->TC;
     }
     break;
   case EPhasesTest::ClosingKey:
+    dTrs = LPC_TIM0->TC - prev_TC0;
+    if (dTrs >= CLOSING_KEY) { 
+      phases_test = EPhasesTest::Regulation;
+      if(rDinStr.CU_from_testing()) {
+        SWarning::setMessage(EWarningId::PK_NOT_CLOSE);
+        PK_STATUS = StatusRet::ERROR;
+      }
+      prev_TC0 = LPC_TIM0->TC;
+    }
     break;
   case EPhasesTest::Regulation:
     break; 
   }
-
+  
 }
 
 void CTestingMode::StopTest(){
