@@ -20,9 +20,24 @@ private:
   CSystemManager* pSys_manager;
   
   State cur_status;
+  unsigned int prev_TC0;
+  unsigned int dTrs;
+  
+  static constexpr unsigned int BRIDGE_CHANGAE  = 1000000; // 0,1 сек
+  static constexpr unsigned int RELAY_PAUSE_OFF = 5000000; // 0,5 сек
+  static constexpr unsigned int CLOSING_KEY     = 500000;  // 0,05 сек
+
+  enum class EPhasesTest : unsigned short {
+    StartMode,
+    Forcing,
+    BridgeChange,
+    RelayPause,    
+    ClosingKey,
+    Regulation
+  };
+  
+  EPhasesTest phases_test;
     
-  void StartTest();
   void StopTest();
- 
  
 };
