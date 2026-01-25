@@ -151,9 +151,8 @@ void CMessageDisplay::Key_Handler(EKey_code key) {
     break;
   case EKey_code::NONE:
   default: {
-    static unsigned int prev_TC0 = LPC_TIM0->TC;
     unsigned int dTrs = LPC_TIM0->TC - prev_TC0;
-    if (dTrs >= 20000000) {  // 2sec
+    if (dTrs >= MESSAGE_PERIOD_TICKS) { 
       prev_TC0 = LPC_TIM0->TC;
       if (first_call) {
         unsigned char led_off[] = {static_cast<unsigned char>(ELED::LED_OFF), '\r'};

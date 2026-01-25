@@ -20,7 +20,8 @@ private:
   CSystemManager* pSys_manager;
   
   State cur_status;
-    
+  
+  void OnEx();  
   void StartDrain();
   void StopDrain();
 

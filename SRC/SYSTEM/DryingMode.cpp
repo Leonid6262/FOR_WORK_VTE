@@ -13,8 +13,15 @@ void CDryingMode::dry(bool Permission) {
     return; 
   }
   
-  if(rDinStr.Reg_Drying() && cur_status == State::OFF) { StartDrain(); } 
-  if(!rDinStr.Reg_Drying() && cur_status == State::ON) { StopDrain();  }
+  if(rDinStr.Reg_Drying() && cur_status == State::OFF) { 
+    pSys_manager->set_bsWorkDry(State::ON);
+    StartDrain(); 
+  } 
+  
+  if(!rDinStr.Reg_Drying() && cur_status == State::ON) { 
+    pSys_manager->set_bsWorkDry(State::OFF);
+    StopDrain();  
+  }
   
   switch (cur_status) {
   case State::ON:
@@ -28,8 +35,19 @@ void CDryingMode::dry(bool Permission) {
 }   
 
 void CDryingMode::StartDrain(){
+
+  
+  
+  
+  
+  
+  rDinStr.Relay_Ex_Applied(State::ON);
+  
+  OnEx();
   cur_status = State::ON;
-  pSys_manager->set_bsWorkDry(State::ON);
+}
+
+void CDryingMode::OnEx() { 
   rSIFU.set_alpha(rSIFU.s_const.AMax);
   rSIFU.main_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Idry_0);
@@ -37,11 +55,11 @@ void CDryingMode::StartDrain(){
 }
 
 void CDryingMode::StopDrain(){
-  cur_status = State::OFF;
-  pSys_manager->set_bsWorkDry(State::OFF);
+  rDinStr.Relay_Ex_Applied(State::OFF);
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
   rSIFU.all_bridge_pulses_Off();
+  cur_status = State::OFF;
 }
 
 void CDryingMode::setSysManager(CSystemManager* pSys_manager) {

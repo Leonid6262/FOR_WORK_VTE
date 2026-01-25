@@ -18,8 +18,10 @@ void CTerminalManager::dispatch() {
 
 void CTerminalManager::switchToMenu() { 
   mode = ETerminalMode::Menu_mode; 
+  menuNavigation.prev_TC0 = LPC_TIM0->TC - CMenuNavigation::DISPLAY_PERIOD_TICKS;
   menuNavigation.first_render();
 }
-void CTerminalManager::switchToMessages() { 
+void CTerminalManager::switchToMessages() {
+  messageDisplay.prev_TC0 = LPC_TIM0->TC - CMessageDisplay::MESSAGE_PERIOD_TICKS;
   mode = ETerminalMode::Mess_mode; 
 }

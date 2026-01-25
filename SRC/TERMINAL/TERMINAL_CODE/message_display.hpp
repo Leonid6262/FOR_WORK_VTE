@@ -15,6 +15,9 @@ public:
   void get_key();
   void set_pTerminal(CTerminalManager*);
   
+  unsigned int prev_TC0;
+  static constexpr unsigned int MESSAGE_PERIOD_TICKS = 20000000; // 2 сек
+  
 private:
   CTerminalUartDriver& uartDrv;  
   CSystemManager& rSysMgr;

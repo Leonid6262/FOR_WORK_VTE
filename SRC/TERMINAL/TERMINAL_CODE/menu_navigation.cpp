@@ -118,7 +118,7 @@ void CMenuNavigation::render_node(ETitleType title_type) {
   }
 }
 
-void CMenuNavigation::first_render(){
+void CMenuNavigation::first_render(){  
   render_menu();
 }
 
@@ -269,7 +269,7 @@ void CMenuNavigation::render_2var(ETitleType title_type) {
 
 void CMenuNavigation::Key_Handler(EKey_code key) {
   unsigned short listIndex = screenPosition + cursorLine;
-  const auto& node = (*currentList)[listIndex];  // ← берём текущий узел
+  const auto& node = (*currentList)[listIndex];  // берём текущий узел
   
   switch (key) {
   case EKey_code::DOWN:
@@ -310,13 +310,12 @@ void CMenuNavigation::Key_Handler(EKey_code key) {
     
   case EKey_code::NONE:
   default: {
-    static unsigned int prev_TC0 = LPC_TIM0->TC;
     unsigned int dTrs = LPC_TIM0->TC - prev_TC0;
     
     static ETitleType currentTitle = ETitleType::TitleName;
     static unsigned int elapsed_ms = 0;
     
-    if (dTrs >= 2000000) {  // 200 мс
+    if (dTrs >= DISPLAY_PERIOD_TICKS) {
       
       prev_TC0 = LPC_TIM0->TC;
       elapsed_ms += dTrs / 10000; // пересчёт в мс      

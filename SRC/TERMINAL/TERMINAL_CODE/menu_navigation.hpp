@@ -17,6 +17,9 @@ public:
   void set_pTerminal(CTerminalManager*);
   void first_render();
   
+  unsigned int prev_TC0;
+  static constexpr unsigned int DISPLAY_PERIOD_TICKS = 2000000; // 200 мс
+  
   // Типы узлов
   enum class ENodeMode {
     NONE,
