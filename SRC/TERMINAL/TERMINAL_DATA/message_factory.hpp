@@ -20,8 +20,8 @@ enum class ECategory { NOT_READY, READY, WORK, FAULT, WARNING, COUNT }; // Сп�
 
 // ======================= NOT_READY =======================
 enum class ENotReadyId { 
-  ADJ_MODE, NOT_SYNC, Q1_is_OFF, SENS_CR_FAULT, SENS_CS_FAULT, 
-  SENS_VR_FAULT, BC_HVS_FAUL, DRYING_ON, TESTING_ON, COUNT 
+  ADJ_MODE, NOT_SYNC, Q1_OFF, SENS_CR_FAULT, SENS_CS_FAULT, 
+  SENS_VR_FAULT, BC_HVS_ERR, DRYING_ON, TESTING_ON, HVS_ON, COUNT 
 };
 struct SNotReady : CategoryActive<ENotReadyId>{
   
@@ -36,6 +36,7 @@ struct SNotReady : CategoryActive<ENotReadyId>{
     {"Неиспр-ны БК ВВ",  "BC HVS FAULT",    "Несправнi БК ВВ"},
     {"Включена Сушка",   "Drying is On",    "Увiмк. Сушiння"},
     {"Включ. Опроб-ние", "Testing is On",   "Увiмк. Опроб-ння"},
+    {"Включен ВВ",       "HVS is On",       "Увiмкнен ВВ"},
   };
   
   

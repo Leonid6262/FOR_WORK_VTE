@@ -9,7 +9,14 @@ enum class StatusRet
 enum class State 
 { 
   OFF = 0, 
-  ON = 1 
+  ON = 1,
+};
+
+enum class StatusHVS 
+{ 
+  OFF = 0, 
+  ON = 1,
+  ERR_BC = 2
 };
 
 enum class Mode 

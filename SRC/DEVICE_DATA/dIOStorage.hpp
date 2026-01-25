@@ -131,6 +131,18 @@ class CDIN_STORAGE {
       break;
     }
   }
+  
+ inline StatusHVS HVS_Status() {
+    bool NOcontact = Bl_HVS_NO();  
+    bool NCcontact = Bl_HVS_NC();  
+    if ( NOcontact && !NCcontact ) { 
+      return StatusHVS::ON; 
+    } else if ( !NOcontact && NCcontact ) { 
+      return StatusHVS::OFF; 
+    } else { 
+      return StatusHVS::ERR_BC; 
+    }
+  }
 
  private:
   static constexpr unsigned short B_ULED = 9;        // Бит U-LED
