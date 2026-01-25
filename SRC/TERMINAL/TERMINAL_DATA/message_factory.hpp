@@ -21,7 +21,8 @@ enum class ECategory { NOT_READY, READY, WORK, FAULT, WARNING, COUNT }; // Сп�
 // ======================= NOT_READY =======================
 enum class ENotReadyId { 
   ADJ_MODE, NOT_SYNC, Q1_OFF, SENS_CR_FAULT, SENS_CS_FAULT, 
-  SENS_VR_FAULT, BC_HVS_ERR, DRYING_ON, TESTING_ON, HVS_ON, COUNT 
+  SENS_VR_FAULT, BC_HVS_ERR, DRYING_ON, TESTING_ON, HVS_ON, 
+  PK_FAULT, COUNT 
 };
 struct SNotReady : CategoryActive<ENotReadyId>{
   
@@ -37,10 +38,9 @@ struct SNotReady : CategoryActive<ENotReadyId>{
     {"Включена Сушка",   "Drying is On",    "Увiмк. Сушiння"},
     {"Включ. Опроб-ние", "Testing is On",   "Увiмк. Опроб-ння"},
     {"Включен ВВ",       "HVS is On",       "Увiмкнен ВВ"},
+    {"Неисправен ПК",    "PK is faulty",    "Несправний ПК"},  
   };
-  
-  
-  
+   
   static constexpr auto _checkMsg = (checkMsgSize<ENotReadyId>(MSG), 0);
 };
 
@@ -72,7 +72,7 @@ struct SWork : CategoryActive<EWorkId> {
 };
 
 // ======================= FAULT =======================
-enum class EFaultId { ID_MAX_SOFT, ID_MAX_HARD, ID_MIN, NOT_SYNC, Q1_TRIPPED, COUNT };
+enum class EFaultId { ID_MAX_SOFT, ID_MAX_HARD, ID_MIN, NOT_SYNC, Q1_TRIPPED, PK_FAULT, COUNT };
 struct SFault : CategoryActive<EFaultId> {
    
   static constexpr const char* NAME[G_CONST::Nlang] = { "АВАРИЯ:", "FAULT:", "АВАРIЯ:" };
@@ -82,9 +82,8 @@ struct SFault : CategoryActive<EFaultId> {
     {"Id min",        "Id min",            "Id min"},
     {"Нет синх-ции",  "Not Sync",          "Нема Sync"},
     {"Отключился Q1", "Q1 has tripped",    "Вимкнувся Q1"},
+    {"Неисправен ПК", "PK is faulty",      "Несправний ПК"},
   };
-  
-
 
   static constexpr auto _checkMsg = (checkMsgSize<EFaultId>(MSG), 0);  
 };

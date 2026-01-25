@@ -14,13 +14,14 @@ void CTestingMode::test(bool Permission) {
   }
   
   if(rDinStr.Stator_Key() && cur_status == State::OFF) { 
-    pSys_manager->set_bsWorkTest(State::ON);
     cur_status = State::ON;
+    pSys_manager->set_bsWorkTest(State::ON);
     phases_test = EPhasesTest::StartMode; 
     SWork::setMessage(EWorkId::TESTING);
   } 
   
   if(!rDinStr.Stator_Key() && cur_status == State::ON) { 
+    cur_status = State::OFF;
     StopTest();  
   }
   
@@ -75,6 +76,13 @@ void CTestingMode::test(bool Permission) {
     }
     break;
   case EPhasesTest::Regulation:
+    if(PK_STATUS == StatusRet::ERROR) {
+      rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
+      rSIFU.rReg_manager.setCurrent(State::OFF);
+      rSIFU.all_bridge_pulses_Off();
+    }
+    
+    
     break; 
   }
   
@@ -82,7 +90,6 @@ void CTestingMode::test(bool Permission) {
 
 void CTestingMode::StopTest(){
   SWork::clrMessage(EWorkId::TESTING);
-  cur_status = State::OFF;
   pSys_manager->set_bsWorkTest(State::OFF);
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);

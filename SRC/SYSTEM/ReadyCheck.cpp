@@ -22,10 +22,8 @@ void CReadyCheck::check(bool Permission) {
   check(Ready, abs(*rAdcStr.getEPointer(sadc::STATOR_CURRENT)) > dMax,  ENotReadyId::SENS_CS_FAULT);
   check(Ready, !(*pSys_manager->rSIFU.getSyncStat()),                   ENotReadyId::NOT_SYNC);
   check(Ready, rDinStr.HVS_Status() == StatusHVS::ERR_BC,               ENotReadyId::BC_HVS_ERR);
-  /*  
-     Остальные условия готовности 
-  */
-  
+  check(Ready, rDinStr.CU_from_testing(),                               ENotReadyId::PK_FAULT);
+
   if(Ready == R::NOT_READY || prevKeyDrying) { check(Ready, rDinStr.Reg_Drying(),                  ENotReadyId::DRYING_ON); }
   if(Ready == R::NOT_READY || prevKeyTesting){ check(Ready, rDinStr.Stator_Key(),                  ENotReadyId::TESTING_ON);}
   if(Ready == R::NOT_READY || prevStatusHVS) { check(Ready, rDinStr.HVS_Status() == StatusHVS::ON, ENotReadyId::HVS_ON);    }
