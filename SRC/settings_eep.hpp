@@ -67,34 +67,38 @@ class CEEPSettings {
       signed short A0;
       float KpCos;
       float KiCos;
-      float Cos_set;
       float KpQ;
       float KiQ;
-      float Qset;
     } set_reg;
     struct {                                               // 13 Уставки СИФУ
-      signed short power_shift;                            /* Точный сдвиг силового напряжения */
-      unsigned char d_power_shift;                         /* Дискретный сдвиг силового напряжения 60гр */
+      signed short power_shift;                                 /* Точный сдвиг силового напряжения */
+      unsigned char d_power_shift;                              /* Дискретный сдвиг силового напряжения 60гр */
     } set_sifu;
     struct {                                               // 14 Уставки Аварийные
-      unsigned short IdMax;                                  /* IdMax */
-      unsigned short IdMin;                                  /* IdMin */
+      unsigned short IdMax;                                     /* IdMax */
+      unsigned short IdMin;                                     /* IdMin */
     } set_faults;
     struct {                                               // 15 Параметры. Ном. значения
-      unsigned short IdNom;                                  /* IdNom */
-      unsigned short UdNom;                                  /* UdNom */
-      unsigned short ISNom;                                  /* ISNom */
-      unsigned short USNom;                                  /* USNom */ 
-      unsigned short Idry;                                   /* Ток Сушки */ 
-    } set_params;  
+      unsigned short IdNom;                                     /* IdNom */
+      unsigned short UdNom;                                     /* UdNom */
+      unsigned short ISNom;                                     /* ISNom */
+      unsigned short USNom;                                     /* USNom */ 
+    } params;  
     struct {                                               // 16 Уставки пуска
-      unsigned short IFors;                                  /* Величина форсировки */
-      unsigned short TFors;                                  /* Длительность форсировки */
-      unsigned short TPusk;                                  /* Максимальное время пуска */
-      unsigned short Iset0;                                  /* Задание после форсировки */      
+      unsigned short IFors;                                     /* Величина форсировки */
+      unsigned short TFors;                                     /* Длительность форсировки */
+      unsigned short TPusk;                                     /* Максимальное время пуска */ 
+      unsigned short ISPusk;                                    /* Пусковой ток статора */
+      float SPusk;                                              /* Пусковое скольжение */      
     } set_pusk; 
-    unsigned char ssid[G_CONST::SSID_PS_L];                // 17 Имя сети
-    unsigned char password[G_CONST::SSID_PS_L];            // 18 Пароль
+    struct {                                               // 17 Рабочие начальные значения
+      unsigned short Iset_0;                                     /* Ток после форсировки в режиме РТ */      
+      unsigned short Idry_0;                                     /* Ток Сушки */  
+      float Qset_0;                                              /* Задание Q при включении Q reg*/
+      float Cos_0;                                               /* Задание Cos при включении Cos reg*/
+    } work_set;     
+    unsigned char ssid[G_CONST::SSID_PS_L];                // 18 Имя сети
+    unsigned char password[G_CONST::SSID_PS_L];            // 19 Пароль
     // Добавляя новые уставки сюда, не забывайте обновлять defaultSettings ниже!!!
   };
   //  Статические константные уставки по умолчанию (во Flash) ---
@@ -117,10 +121,8 @@ class CEEPSettings {
       .A0 = static_cast<signed short>(120.0f/cd::Alpha),
       .KpCos = 1.0f,
       .KiCos = 0.001f,
-      .Cos_set = 1.0,
       .KpQ = 1.0f,
       .KiQ = 0.001f,
-      .Qset = 0
     },
     .set_sifu = {
       .power_shift = 0,
@@ -130,19 +132,25 @@ class CEEPSettings {
       .IdMax = 0,
       .IdMin = 0,
     },
-    .set_params = {
+    .params = {
       .IdNom = 315,
       .UdNom = 75,
       .ISNom = 100,
       .USNom = 400,
-      .Idry = 10,
     },
     .set_pusk = {
       .IFors = 470,
       .TFors = 3,
       .TPusk = 10,
-      .Iset0 = 150,
-    },          
+      .ISPusk = 1000,
+      .SPusk = 0,
+    },
+    .work_set = {
+      .Iset_0 = 150,
+      .Idry_0 = 10,
+      .Qset_0 = 0,
+      .Cos_0 = 1.0,
+    },            
     .ssid = "NetName",
     .password = "Password"
   };

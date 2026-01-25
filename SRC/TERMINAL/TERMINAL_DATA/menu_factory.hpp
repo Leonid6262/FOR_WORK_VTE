@@ -31,6 +31,7 @@ static const struct {
     const char* COS_PHI[G_CONST::Nlang]        = {"COS PHI",         "COS PHI",          "COS PHI"};
     const char* Q_POWER[G_CONST::Nlang]        = {"Q МОЩНОСТИ",      "Q POWER",          "Q ПОТУЖНОСТI"};
     const char* PUSK[G_CONST::Nlang]           = {"ПУСК",            "PUSK",             "ПУСК"};
+    const char* WORK[G_CONST::Nlang]           = {"РАБОЧИЕ",         "WORK",             "РОБОЧI"};    
     const char* PARAMS[G_CONST::Nlang]         = {"ПАРАМЕТРЫ",       "PARAMETERS",       "ПАРАМЕТРИ"};    
     const char* FAULTS[G_CONST::Nlang]         = {"АВАРИЙНЫЕ",       "FAULTS",           "АВАРIЙНI"};
     const char* ADC_SHIFT[G_CONST::Nlang]      = {"СМЕЩЕНИЯ АЦП",    "ADC SHIFT",        "ЗСУВ АЦП"};
@@ -91,12 +92,12 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o::Dual("I-Rotor",  pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::cdr.Id, p0, vt::sshort,
                     "I-set",  &rSysMgr.rAdj_mode.IsetAdj,            un::Amp, cd::cdr.Id, p0, vt::sshort, nm::IE2V, 0, 200),}),
       o("I-CYCLES",{
-          o("Iset cyc1",{},   &rSysMgr.rAdj_mode.IsetCyc_1,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.set_params.IdNom),
-          o("Iset cyc2",{},   &rSysMgr.rAdj_mode.IsetCyc_2,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.set_params.IdNom),
-          o("Npulses",{},     &rSysMgr.rAdj_mode.NpulsCyc,   "",      cd::one,    p0, vt::ushort, nm::Ed1V, 1, 1000),
-          o("I-Cycles",{},    &rSysMgr.rAdj_mode.reqADJmode, "",      cd::one,    p0, vt::eb_4,   nm::Ed1V),
-          o("KpCr",   {},     &set.set_reg.KpCr,             "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
-          o("KiCr",   {},     &set.set_reg.KiCr,             "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
+          o("Iset cyc1",{},   &rSysMgr.rAdj_mode.IsetCyc_1,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.params.IdNom),
+          o("Iset cyc2",{},   &rSysMgr.rAdj_mode.IsetCyc_2,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.params.IdNom),
+          o("Npulses",  {},   &rSysMgr.rAdj_mode.NpulsCyc,   "",      cd::one,    p0, vt::ushort, nm::Ed1V, 1, 1000),
+          o("I-Cycles", {},   &rSysMgr.rAdj_mode.reqADJmode, "",      cd::one,    p0, vt::eb_4,   nm::Ed1V),
+          o("KpCr",     {},   &set.set_reg.KpCr,             "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
+          o("KiCr",     {},   &set.set_reg.KiCr,             "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
       o("PHASING",{
           o("Phasing mode", {}, &rSysMgr.rAdj_mode.reqADJmode,"",     cd::one,  p0,vt::eb_5,  nm::Ed1V),
           o("60deg shift",  {}, &set.set_sifu.d_power_shift,  "",     cd::one,  p0,vt::ushort,nm::Ed1V, 0, (sfc.N_PULSES-1)),
@@ -114,19 +115,24 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
               o("KpQ",   {}, &set.set_reg.KpQ, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiQ",   {}, &set.set_reg.KiQ, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),}),
       o(Mn.PUSK[l], {
-          o("I Fors", {}, &set.set_pusk.IFors, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2*set.set_params.IdNom),
+          o("I Fors", {}, &set.set_pusk.IFors, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2*set.params.IdNom),
           o("T Fors", {}, &set.set_pusk.TFors, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 10),
           o("T Pusk", {}, &set.set_pusk.TPusk, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
-          o("Iset-0", {}, &set.set_pusk.Iset0, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.set_params.IdNom),}),      
+          o("IS Pusk",{}, &set.set_pusk.ISPusk,un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
+          o("S Pusk", {}, &set.set_pusk.SPusk, "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
       o(Mn.PARAMS[l], {
-          o("Id Nom", {}, &set.set_params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V, 200,  400),
-          o("Ud Nom", {}, &set.set_params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V,  48,  230),
-          o("IS Nom", {}, &set.set_params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V,   0, 1000),
-          o("US Nom", {}, &set.set_params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V, 400, 6300),
-          o("I-dry",  {}, &set.set_params.Idry,  un::Amp,  cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.set_params.IdNom/4),}),
+          o("Id Nom", {}, &set.params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V, 200,  400),
+          o("Ud Nom", {}, &set.params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V,  48,  230),
+          o("IS Nom", {}, &set.params.ISNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V,   0, 1000),
+          o("US Nom", {}, &set.params.USNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V, 400, 6300),}),
+      o(Mn.WORK[l], {
+          o("Iset-0", {}, &set.work_set.Iset_0, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.params.IdNom),
+          o("Idry-0", {}, &set.work_set.Idry_0, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.params.IdNom/4),
+          o("Qset-0", {}, &set.work_set.Qset_0, un::kVA, cd::cdr.Q,  p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom*set.params.USNom*0.001f),      
+          o("Cos-0",  {}, &set.work_set.Cos_0,  "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
       o(Mn.FAULTS[l], {
-          o("Id Max", {}, &set.set_faults.IdMax, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.set_params.IdNom),
-          o("Id Min", {}, &set.set_faults.IdMin, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.set_params.IdNom),}),
+          o("Id Max", {}, &set.set_faults.IdMax, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.params.IdNom),
+          o("Id Min", {}, &set.set_faults.IdMin, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.params.IdNom),}),
       o(Mn.ADC_SHIFT[l],{
           o::Dual("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT),   un::d, cd::one, p0, vt::sshort,
                     "shift", &set.shift_adc[  sadc::ROTOR_CURRENT],   un::d, cd::one, p0, vt::sshort, nm::IE2V, -2047, 2047),

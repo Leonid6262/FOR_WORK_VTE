@@ -36,7 +36,7 @@ void CTestingMode::StartTest(){
   rSIFU.rReg_manager.setCurrent(State::ON);
   
   rSIFU.main_bridge_pulses_On();
-  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.Iset0);
+  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
   
   //rSIFU.set_mode_w_one();
   
