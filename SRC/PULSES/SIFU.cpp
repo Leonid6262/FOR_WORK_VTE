@@ -45,7 +45,7 @@ void CSIFU::rising_puls() {
     LPC_PWM0->TCR = COUNTER_START; // Запускаем      
   }
   // Фронт ИУ  форсировочного моста
-  if (forcing_bridge) {
+  else if (forcing_bridge) {
     LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
     
     LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
@@ -272,13 +272,13 @@ void CSIFU::control_fault_and_reg() {
 }
 
 void CSIFU::forcing_bridge_pulses_On() {
-  main_bridge = false;
   forcing_bridge = true;
+  main_bridge = false;
 }
 
 void CSIFU::main_bridge_pulses_On() {
-  forcing_bridge = false;
   main_bridge = true;
+  forcing_bridge = false;
 }
 
 void CSIFU::execute_mode_Wone(){
