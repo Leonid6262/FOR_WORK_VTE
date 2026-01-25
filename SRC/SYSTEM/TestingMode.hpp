@@ -10,6 +10,13 @@ class CTestingMode {
 public:
   CTestingMode(CDIN_STORAGE&, CSIFU&, CEEPSettings&);
   
+  void StartMode();
+  void Forcing();
+  void BridgeChange();
+  void RelayPause();    
+  void ClosingKey();
+  void Regulation();
+  
   void setSysManager(CSystemManager*);
   void test(bool);
   
@@ -38,7 +45,8 @@ private:
   };
   
   EPhasesTest phases_test;
-    
+  
+  void StopReg();  
   void StopTest();
  
 };
