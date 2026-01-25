@@ -9,7 +9,8 @@ void CDryingMode::dry(bool Permission) {
   if(!Permission) {
     cur_status = State::OFF; 
     pSys_manager->set_bsWorkDry(State::OFF);
-    SWork::clrMessage(EWorkId::DRYING); 
+    SWork::clrMessage(EWorkId::DRYING);
+    prev_TC0 = LPC_TIM0->TC - RELAY_PAUSE_OFF;
     return; 
   }
   
@@ -34,26 +35,20 @@ void CDryingMode::dry(bool Permission) {
   
 }   
 
+// Включаем реле "Возбуждение подано" и через 0,5сек подаём возбуждение
 void CDryingMode::StartDrain(){
-
-  
-  
-  
-  
-  
   rDinStr.Relay_Ex_Applied(State::ON);
-  
-  OnEx();
-  cur_status = State::ON;
+  unsigned int dTrs = LPC_TIM0->TC - prev_TC0;
+  if (dTrs >= RELAY_PAUSE_OFF) { 
+    rSIFU.set_alpha(rSIFU.s_const.AMax);
+    rSIFU.main_bridge_pulses_On();
+    rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Idry_0);
+    rSIFU.rReg_manager.setCurrent(State::ON);
+    cur_status = State::ON;
+  }
 }
 
-void CDryingMode::OnEx() { 
-  rSIFU.set_alpha(rSIFU.s_const.AMax);
-  rSIFU.main_bridge_pulses_On();
-  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Idry_0);
-  rSIFU.rReg_manager.setCurrent(State::ON);
-}
-
+// Выключаем реле "Возбуждение подано" и гасим возбуждение
 void CDryingMode::StopDrain(){
   rDinStr.Relay_Ex_Applied(State::OFF);
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);

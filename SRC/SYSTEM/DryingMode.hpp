@@ -20,8 +20,9 @@ private:
   CSystemManager* pSys_manager;
   
   State cur_status;
-  
-  void OnEx();  
+  unsigned int prev_TC0;
+  static constexpr unsigned int RELAY_PAUSE_OFF = 5000000; // 0,5 сек
+    
   void StartDrain();
   void StopDrain();
 
