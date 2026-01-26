@@ -15,10 +15,10 @@ CREM_OSC::CREM_OSC(CDMAcontroller& rContDMA, CPULSCALC& rPulsCalc, CADC_STORAGE&
   set_init = {
     // Указатели на отображаемые переменные (до 10-ти переменных).
     {
-      adc_instans.getEPointer(CADC_STORAGE::ROTOR_CURRENT),    // Ток ротора
-      reinterpret_cast<signed short*>(rPulsCalc.getPointer_ISTATORA_RMS()),                         // Полный ток статора
-      reinterpret_cast<signed short*>(rPulsCalc.getPointer_USTATORA_RMS()),                         // Напряжение статора
-      adc_instans.getEPointer(CADC_STORAGE::ROTOR_VOLTAGE)     // Напряжение ротора
+      adc_instans.getEPointer(CADC_STORAGE::ROTOR_CURRENT),                     // Ток ротора
+      reinterpret_cast<signed short*>(rPulsCalc.getPointer_ISTATORA_RMS()),     // Полный ток статора
+      reinterpret_cast<signed short*>(rPulsCalc.getPointer_USTATORA_RMS()),     // Напряжение статора
+      adc_instans.getEPointer(CADC_STORAGE::ROTOR_VOLTAGE)                      // Напряжение ротора
     },
     {
       "IROT", "ISTAT", "USTAT", "U_ROT" // Имена треков (как будут подписаны треки в ПО ПК)

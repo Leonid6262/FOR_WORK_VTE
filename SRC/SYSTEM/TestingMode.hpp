@@ -33,6 +33,9 @@ private:
   unsigned int prev_TC0_Reg;
   unsigned int dTrsReg;
   StatusRet PK_STATUS; 
+  
+  unsigned short dIset; 
+  static constexpr float dTset = 0.2f; // 0.2  сек
     
   static constexpr unsigned int _to_sec         = 10000000;
   static constexpr unsigned int BRIDGE_CHANGAE  = 1000000; // 0,1 сек

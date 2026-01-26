@@ -2,7 +2,9 @@
 #include "_SystemManager.hpp"
 
 CTestingMode::CTestingMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet) : 
-  rDinStr(rDinStr), cur_status(State::OFF), rSIFU(rSIFU), rSet(rSet) {} 
+  rDinStr(rDinStr), cur_status(State::OFF), rSIFU(rSIFU), rSet(rSet) { 
+  dIset = static_cast<unsigned short>((rSet.getSettings().work_set.dIset * dTset) + 0.5f); 
+} 
 
 void CTestingMode::test(bool Permission) {
   
@@ -110,20 +112,21 @@ void CTestingMode::Regulation() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= rSet.getSettings().set_pusk.TPusk *_to_sec) {
     //StopTest();
+    //return;
   }
   
   dTrsReg = LPC_TIM0->TC - prev_TC0_Reg;
-  if (dTrsReg >= 2000000 ) {
+  if (dTrsReg >= dTset * _to_sec ) {
     prev_TC0_Reg = LPC_TIM0->TC;
     
     unsigned short Iset = rSet.getSettings().work_set.Iset_0;
     
-    if(rDinStr.Setting_More()) { Iset++; }
-    
-    if(rDinStr.Setting_Less()) { Iset--; }
+    if(rDinStr.Setting_More()) { Iset += dIset; }   
+    if(rDinStr.Setting_Less()) { Iset -= dIset; }
     
     if(Iset > rSet.getSettings().work_set.IsetMax) { Iset = rSet.getSettings().work_set.IsetMax; }
     if(Iset < rSet.getSettings().work_set.IsetMin) { Iset = rSet.getSettings().work_set.IsetMin; }
+    
     rSet.getSettings().work_set.Iset_0 = Iset;
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(Iset);
   }

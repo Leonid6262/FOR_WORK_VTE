@@ -36,17 +36,18 @@ namespace NProxyVar {
     LENGTH
   };  
   struct Unit {
-    static constexpr const char*  Amp = "A";
-    static constexpr const char*   Hz = "Hz";
-    static constexpr const char* Volt = "V";
-    static constexpr const char*   kW = "kW";
-    static constexpr const char* kVAR = "kVAR";
-    static constexpr const char*  kVA = "kVA";
-    static constexpr const char*  Deg = "deg";
-    static constexpr const char* bits = "bits";
-    static constexpr const char*    d = "d";
-    static constexpr const char*    b = "b";
-    static constexpr const char*  sec = "sec";
+    static constexpr const char*   Amp = "A";
+    static constexpr const char*    Hz = "Hz";
+    static constexpr const char*  Volt = "V";
+    static constexpr const char*    kW = "kW";
+    static constexpr const char*  kVAR = "kVAR";
+    static constexpr const char*   kVA = "kVA";
+    static constexpr const char*   Deg = "deg";
+    static constexpr const char*  bits = "bits";
+    static constexpr const char*     d = "d";
+    static constexpr const char*     b = "b";
+    static constexpr const char*   sec = "sec";
+    static constexpr const char*   ApS = "A/s";
   };
 }
 
