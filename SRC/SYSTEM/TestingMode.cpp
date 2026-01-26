@@ -33,7 +33,7 @@ void CTestingMode::test(bool Permission) {
   switch (phases_test) {
   case EPhasesTest::StartMode:    StartPhase();   break;  
   case EPhasesTest::Forcing:      Forcing();      break;
-  case EPhasesTest::GoToMain:     GoToMain();     break;
+  case EPhasesTest::RelayExOn:    RelayExOn();    break;
   case EPhasesTest::RelayPause:   RelayPause();   break;
   case EPhasesTest::ClosingKey:   ClosingKey();   break;
   case EPhasesTest::ControlKey:   ControlKey();   break;  
@@ -57,7 +57,7 @@ void CTestingMode::Forcing() {
   if (dTrsPhase >= rSet.getSettings().set_pusk.TFors *_to_sec) { 
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
     rSIFU.main_bridge_pulses_On();
-    phases_test = EPhasesTest::GoToMain;
+    phases_test = EPhasesTest::RelayExOn;
     if(!rDinStr.CU_from_testing()) {
       //SWarning::setMessage(EWarningId::PK_NOT_OPEN);
       //PK_STATUS = StatusRet::ERROR;
@@ -66,7 +66,7 @@ void CTestingMode::Forcing() {
   }  
 }
 
-void CTestingMode::GoToMain() {
+void CTestingMode::RelayExOn() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= BRIDGE_CHANGAE) {
     rDinStr.Relay_Ex_Applied(State::ON);

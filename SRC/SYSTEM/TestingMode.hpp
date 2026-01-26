@@ -12,7 +12,7 @@ public:
   
   void StartPhase();
   void Forcing();
-  void GoToMain();
+  void RelayExOn();
   void RelayPause();    
   void ClosingKey();
   void ControlKey();
@@ -45,7 +45,7 @@ private:
   enum class EPhasesTest : unsigned short {
     StartMode,
     Forcing,
-    GoToMain,
+    RelayExOn,
     RelayPause,    
     ClosingKey,
     ControlKey,
