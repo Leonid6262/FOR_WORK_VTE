@@ -123,8 +123,8 @@ void CSIFU::rising_puls() {
   res = cur_MR0 + SIFUConst::PULSE_WIDTH;               // Вычисление момента выключения ИУ
   LPC_TIM3->MR1 = static_cast<unsigned int>(res);       // Задание значения MR1  
   
-  void off_wone_reg();                                  // Контроль отключения режима "Через один"
-  void off_pulses_control();                            // Контроль фазы выключения ИУ
+  off_wone_reg();                                       // Контроль отключения режима "Через один"
+  off_pulses_control();                                 // Контроль фазы выключения ИУ
 
 }
 

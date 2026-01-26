@@ -21,8 +21,8 @@ enum class ECategory { NOT_READY, READY, WORK, FAULT, WARNING, COUNT }; // Сп�
 // ======================= NOT_READY =======================
 enum class ENotReadyId { 
   ADJ_MODE, NOT_SYNC, Q1_OFF, SENS_CR_FAULT, SENS_CS_FAULT, 
-  SENS_VR_FAULT, BC_HVS_ERR, DRYING_ON, TESTING_ON, HVS_ON, 
-  PK_FAULT, COUNT 
+  SENS_VR_FAULT, BC_HVS_ERR, DRYING_ON, HVS_ON, PK_FAULT, 
+  COUNT 
 };
 struct SNotReady : CategoryActive<ENotReadyId>{
   
@@ -36,7 +36,6 @@ struct SNotReady : CategoryActive<ENotReadyId>{
     {"Неисправен ДНР",   "SVR FAULT",       "Несправний ДНР"},
     {"Неиспр-ны БК ВВ",  "BC HVS FAULT",    "Несправнi БК ВВ"},
     {"Включена Сушка",   "Drying is On",    "Увiмк. Сушiння"},
-    {"Включ. Опроб-ние", "Testing is On",   "Увiмк. Опроб-ння"},
     {"Включен ВВ",       "HVS is On",       "Увiмкнен ВВ"},
     {"Неисправен ПК",    "PK is faulty",    "Несправний ПК"},  
   };
@@ -57,7 +56,7 @@ struct SReady : CategoryActive<EReadyId>{
   static constexpr auto _checkMsg = (checkMsgSize<EReadyId>(MSG), 0);
 };
 // ======================= WORK =======================
-enum class EWorkId { CURRENT_REG, COS_REG, Q_POWER_REG, DRYING, TESTING, COUNT };
+enum class EWorkId { CURRENT_REG, COS_REG, Q_POWER_REG, DRYING, TESTING, TESTING_OK, COUNT };
 struct SWork : CategoryActive<EWorkId> {
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "РАБОТА:", "WORK:", "РОБОТА:" };
@@ -67,6 +66,7 @@ struct SWork : CategoryActive<EWorkId> {
     {"Регулятор Q",         "Q Power Reg",          "Регулятор Q"},
     {"Сушка",               "Drying",               "Сушiння"},
     {"Опробование",         "Testing",              "Опробування"},
+    {"Опробование Ok!",     "Testing Ok!",          "Опробування Ok!"},
   };
   static constexpr auto _checkMsg = (checkMsgSize<EWorkId>(MSG), 0);  
 };

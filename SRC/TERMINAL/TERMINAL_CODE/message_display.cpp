@@ -131,6 +131,12 @@ void CMessageDisplay::get_key() {
 
 void CMessageDisplay::Key_Handler(EKey_code key) {
   switch (key) {
+  case EKey_code::START:
+    rSysMgr.set_bsWorkTest(State::ON);
+    break;
+  case EKey_code::STOP:
+    rSysMgr.set_bsWorkTest(State::OFF);
+    break;
   case EKey_code::ESCAPE:
     first_call = true;
     pTerminal_manager->switchToMenu(); // переключаемся в меню

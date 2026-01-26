@@ -13,114 +13,132 @@ void CTestingMode::test(bool Permission) {
     return; 
   }
   
-  if(rDinStr.Stator_Key() && cur_status == State::OFF) { 
+  if(pSys_manager->USystemStatus.sWorkTest && cur_status == State::OFF) { 
     cur_status = State::ON;
-    pSys_manager->set_bsWorkTest(State::ON);
     phases_test = EPhasesTest::StartMode; 
     SWork::setMessage(EWorkId::TESTING);
+    return;
   } 
   
-  if(!rDinStr.Stator_Key() && cur_status == State::ON) { 
+  if(!pSys_manager->USystemStatus.sWorkTest && cur_status == State::ON) { 
     cur_status = State::OFF;
-    StopTest();  
+    StopTest();
+    return;
   }
   
+  if(cur_status == State::OFF) return;
+  
   switch (phases_test) {
-  case EPhasesTest::StartMode:
-    StartMode();
-    break;  
-  case EPhasesTest::Forcing:
-    Forcing();
-    break;
-  case EPhasesTest::BridgeChange:
-    BridgeChange();
-    break;
-  case EPhasesTest::RelayPause:
-    RelayPause();
-    break;
-  case EPhasesTest::ClosingKey:
-    ClosingKey();
-    break;
-  case EPhasesTest::Regulation:
-    if(PK_STATUS == StatusRet::ERROR) {
-      StopReg();
-      break; 
-    }
-    Regulation();    
-    break; 
+  case EPhasesTest::StartMode:    StartPhase();   break;  
+  case EPhasesTest::Forcing:      Forcing();      break;
+  case EPhasesTest::GoToMain:     GoToMain();     break;
+  case EPhasesTest::RelayPause:   RelayPause();   break;
+  case EPhasesTest::ClosingKey:   ClosingKey();   break;
+  case EPhasesTest::ControlKey:   ControlKey();   break;  
+  case EPhasesTest::Regulation:   Regulation();   break; 
   }
   
 }
 
-void CTestingMode::StartMode() {
+void CTestingMode::StartPhase() {
   rSIFU.set_alpha(rSIFU.s_const.AMax);
   rSIFU.forcing_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);
   phases_test = EPhasesTest::Forcing;
   PK_STATUS = StatusRet::SUCCESS;
-  prev_TC0 = LPC_TIM0->TC;  
+  prev_TC0_Phase = LPC_TIM0->TC;  
 }
 
 void CTestingMode::Forcing() {
-  dTrs = LPC_TIM0->TC - prev_TC0;
-  if (dTrs >= rSet.getSettings().set_pusk.TFors * 10000000) { 
+  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  if (dTrsPhase >= rSet.getSettings().set_pusk.TFors *_to_sec) { 
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
     rSIFU.main_bridge_pulses_On();
-    phases_test = EPhasesTest::BridgeChange;
+    phases_test = EPhasesTest::GoToMain;
     if(!rDinStr.CU_from_testing()) {
-      SWarning::setMessage(EWarningId::PK_NOT_OPEN);
-      PK_STATUS = StatusRet::ERROR;
+      //SWarning::setMessage(EWarningId::PK_NOT_OPEN);
+      //PK_STATUS = StatusRet::ERROR;
     }
-    prev_TC0 = LPC_TIM0->TC;
+    prev_TC0_Phase = LPC_TIM0->TC;
   }  
 }
 
-void CTestingMode::BridgeChange() {
-  dTrs = LPC_TIM0->TC - prev_TC0;
-  if (dTrs >= BRIDGE_CHANGAE) {
+void CTestingMode::GoToMain() {
+  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  if (dTrsPhase >= BRIDGE_CHANGAE) {
     rDinStr.Relay_Ex_Applied(State::ON);
     phases_test = EPhasesTest::RelayPause;
-    prev_TC0 = LPC_TIM0->TC;
+    prev_TC0_Phase = LPC_TIM0->TC;
   }  
 }
 
 void CTestingMode::RelayPause() {
-  dTrs = LPC_TIM0->TC - prev_TC0;
-  if (dTrs >= RELAY_PAUSE_OFF) {
+  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  if (dTrsPhase >= RELAY_PAUSE_OFF) {
     rSIFU.execute_mode_Wone();
     phases_test = EPhasesTest::ClosingKey;
-    prev_TC0 = LPC_TIM0->TC;
+    prev_TC0_Phase = LPC_TIM0->TC;
   }
 }
 
 void CTestingMode::ClosingKey() {
-  dTrs = LPC_TIM0->TC - prev_TC0;
-  if (dTrs >= CLOSING_KEY) { 
-    phases_test = EPhasesTest::Regulation;
+  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  if (dTrsPhase >= CLOSING_KEY) { 
+    phases_test = EPhasesTest::ControlKey;
     if(rDinStr.CU_from_testing()) {
-      SWarning::setMessage(EWarningId::PK_NOT_CLOSE);
-      PK_STATUS = StatusRet::ERROR;
+      //SWarning::setMessage(EWarningId::PK_NOT_CLOSE);
+      //PK_STATUS = StatusRet::ERROR;
     }
-    prev_TC0 = LPC_TIM0->TC;
+    prev_TC0_Phase = LPC_TIM0->TC;
   }  
 }
 
+void CTestingMode::ControlKey() {
+  if(PK_STATUS == StatusRet::ERROR) {
+    StopTest();
+  } else {
+    phases_test = EPhasesTest::Regulation;
+    SWork::clrMessage(EWorkId::TESTING);
+    SWork::setMessage(EWorkId::TESTING_OK);
+    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Reg = LPC_TIM0->TC;
+  }
+}
+
 void CTestingMode::Regulation() {
+  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  if (dTrsPhase >= rSet.getSettings().set_pusk.TPusk *_to_sec) {
+    //StopTest();
+  }
+  
+  dTrsReg = LPC_TIM0->TC - prev_TC0_Reg;
+  if (dTrsReg >= 2000000 ) {
+    prev_TC0_Reg = LPC_TIM0->TC;
+    
+    unsigned short Iset = rSet.getSettings().work_set.Iset_0;
+    
+    if(rDinStr.Setting_More()) { Iset++; }
+    
+    if(rDinStr.Setting_Less()) { Iset--; }
+    
+    if(Iset > rSet.getSettings().work_set.IsetMax) { Iset = rSet.getSettings().work_set.IsetMax; }
+    if(Iset < rSet.getSettings().work_set.IsetMin) { Iset = rSet.getSettings().work_set.IsetMin; }
+    rSet.getSettings().work_set.Iset_0 = Iset;
+    rSIFU.rReg_manager.rCurrent_reg.set_Iset(Iset);
+  }
   
 }
 
 void CTestingMode::StopTest(){
   SWork::clrMessage(EWorkId::TESTING);
+  SWork::clrMessage(EWorkId::TESTING_OK);
   pSys_manager->set_bsWorkTest(State::OFF);
-  StopReg();
-}
-
-void CTestingMode::StopReg() {
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
   rSIFU.all_bridge_pulses_Off();
 }
+
 
 void CTestingMode::setSysManager(CSystemManager* pSys_manager) {
   this->pSys_manager = pSys_manager;

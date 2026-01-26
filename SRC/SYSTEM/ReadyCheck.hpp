@@ -36,7 +36,6 @@ private:
   }
   
   bool prevKeyDrying = true;
-  bool prevKeyTesting = true;
   bool prevStatusHVS = true;
   
 };

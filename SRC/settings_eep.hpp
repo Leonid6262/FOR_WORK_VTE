@@ -23,12 +23,16 @@ namespace cd {
   constexpr float one     = 1.0f;
   constexpr float Alpha   = 180.0f / 10000;     // 180deg / 10000 tick timers
 
-  /* Параметрические (runtime) */  
   // Коэффициенты передачи (дискрет на номинальное значение)
   constexpr unsigned short ADC_DISCR_ID = 1000;
   constexpr unsigned short ADC_DISCR_UD = 1500;
   constexpr unsigned short ADC_DISCR_IS = 1000;
   constexpr unsigned short ADC_DISCR_US = 2000;
+  
+  constexpr float IdNomDef = 315.0f; // Дефолтное значение IdNom
+  constexpr float UdNomDef = 75.0f;  // Дефолтное значение UdNom
+  
+  /* Параметрические (runtime) */  
   // Коэффициенты отображения
   struct DisplayCoeffs { 
     float Id; 
@@ -92,8 +96,12 @@ class CEEPSettings {
       float SPusk;                                              /* Пусковое скольжение */      
     } set_pusk; 
     struct {                                               // 17 Рабочие начальные значения
-      unsigned short Iset_0;                                     /* Ток после форсировки в режиме РТ */      
-      unsigned short Idry_0;                                     /* Ток Сушки */  
+      unsigned short Iset_0;                                     /* Ток после форсировки в режиме РТ */  
+      unsigned short IsetMax;                                    /* Макс. Задание тока */  
+      unsigned short IsetMin;                                    /* Мин. Задание тока */  
+      unsigned short Idry_0;                                     /* Ток Сушки */ 
+      unsigned short dIset;                                      /* Приращение задания тока*/ 
+      unsigned short dIset2;
       float Qset_0;                                              /* Задание Q при включении Q reg*/
       float Cos_0;                                               /* Задание Cos при включении Cos reg*/
     } work_set;     
@@ -133,21 +141,24 @@ class CEEPSettings {
       .IdMin = 0,
     },
     .params = {
-      .IdNom = 315,
-      .UdNom = 75,
+      .IdNom = static_cast<unsigned short>(cd::IdNomDef),
+      .UdNom = static_cast<unsigned short>(cd::UdNomDef),
       .ISNom = 100,
       .USNom = 400,
     },
     .set_pusk = {
-      .IFors = 470,
+      .IFors = static_cast<unsigned short>((((cd::IdNomDef * 1.5f) * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
       .TFors = 3,
-      .TPusk = 10,
+      .TPusk = 20,
       .ISPusk = 1000,
       .SPusk = 0,
     },
     .work_set = {
-      .Iset_0 = 150,
-      .Idry_0 = 10,
+      .Iset_0  = static_cast<unsigned short>((((cd::IdNomDef / 2)  * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
+      .IsetMax = static_cast<unsigned short>(((cd::IdNomDef        * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
+      .IsetMin = static_cast<unsigned short>((((cd::IdNomDef / 3)  * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
+      .Idry_0  = static_cast<unsigned short>((((cd::IdNomDef / 10) * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
+      .dIset   = static_cast<unsigned short>(((1.0f                * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f), 
       .Qset_0 = 0,
       .Cos_0 = 1.0,
     },            

@@ -44,7 +44,9 @@ private:
   enum class EKey_code { 
     NONE = 0x00, 
     ESCAPE = 0x1B, 
-    FnEsc = 0x79
+    FnEsc = 0x79,
+    START = 0x70,
+    STOP  = 0x2A
   };
   
   static constexpr signed char data_time = -1;

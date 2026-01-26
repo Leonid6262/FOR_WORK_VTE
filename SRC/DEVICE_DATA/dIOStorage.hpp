@@ -18,7 +18,7 @@ class CDIN_STORAGE {
   
   //--- Входы контроллера byte-0 SPI ---
   inline bool Heating()         {return UData_din_f[static_cast<char>(EIBNumber::CPU_SPI)].b0;} // Подогрев
-  inline bool Stator_Key()      {return UData_din_f[static_cast<char>(EIBNumber::CPU_SPI)].b1;} // Статорный выкл.
+  inline bool ControlPusk()     {return UData_din_f[static_cast<char>(EIBNumber::CPU_SPI)].b1;} // Статорный выкл. в "К.Пуск"
   inline bool DinControllerB2() {return UData_din_f[static_cast<char>(EIBNumber::CPU_SPI)].b2;}
   inline bool DinControllerB3() {return UData_din_f[static_cast<char>(EIBNumber::CPU_SPI)].b3;}
   inline bool IN1()             {return UData_din_f[static_cast<char>(EIBNumber::CPU_SPI)].b4;} // Опция IN1

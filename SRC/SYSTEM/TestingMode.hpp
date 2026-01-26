@@ -10,11 +10,12 @@ class CTestingMode {
 public:
   CTestingMode(CDIN_STORAGE&, CSIFU&, CEEPSettings&);
   
-  void StartMode();
+  void StartPhase();
   void Forcing();
-  void BridgeChange();
+  void GoToMain();
   void RelayPause();    
   void ClosingKey();
+  void ControlKey();
   void Regulation();
   
   void setSysManager(CSystemManager*);
@@ -27,10 +28,13 @@ private:
   CSystemManager* pSys_manager;
   
   State cur_status;
-  unsigned int prev_TC0;
-  unsigned int dTrs;
+  unsigned int prev_TC0_Phase;
+  unsigned int dTrsPhase;
+  unsigned int prev_TC0_Reg;
+  unsigned int dTrsReg;
   StatusRet PK_STATUS; 
     
+  static constexpr unsigned int _to_sec         = 10000000;
   static constexpr unsigned int BRIDGE_CHANGAE  = 1000000; // 0,1 сек
   static constexpr unsigned int RELAY_PAUSE_OFF = 5000000; // 0,5 сек
   static constexpr unsigned int CLOSING_KEY     = 500000;  // 0,05 сек
@@ -38,15 +42,15 @@ private:
   enum class EPhasesTest : unsigned short {
     StartMode,
     Forcing,
-    BridgeChange,
+    GoToMain,
     RelayPause,    
     ClosingKey,
+    ControlKey,
     Regulation
   };
   
   EPhasesTest phases_test;
   
-  void StopReg();  
   void StopTest();
  
 };
