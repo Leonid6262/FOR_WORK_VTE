@@ -33,7 +33,8 @@ void CReadyCheck::check(bool Permission) {
   // Разрешения возможных режимов
   if(Ready == R::READY){
     pSys_manager->set_bsReady(State::ON);
-    rDinStr.Lamp_REDY(State::ON);    
+    rDinStr.Lamp_REDY(State::ON);
+    rDinStr.Relay_Premission(State::ON);
     SReady::setMessage(EReadyId::DRYING);
     SReady::setMessage(EReadyId::PUSK);
     SReady::setMessage(EReadyId::TESTING); 
@@ -42,7 +43,8 @@ void CReadyCheck::check(bool Permission) {
   // Запрет возможных режимов
   if(Ready == R::NOT_READY){
     pSys_manager->set_bsReady(State::OFF);
-    rDinStr.Lamp_REDY(State::OFF);    
+    rDinStr.Lamp_REDY(State::OFF);   
+    rDinStr.Relay_Premission(State::OFF);
     SReady::clrMessage(EReadyId::DRYING);
     SReady::clrMessage(EReadyId::PUSK);
     SReady::clrMessage(EReadyId::TESTING);

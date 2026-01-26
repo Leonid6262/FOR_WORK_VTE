@@ -35,9 +35,11 @@ void CDryingMode::dry(bool Permission) {
   
 }   
 
-// Включаем реле "Возбуждение подано" и через 0,5сек подаём возбуждение
+// Включаем реле "Возбуждение подано", выключаем реле "Разрешение Пуска"
+//и через 0,5сек подаём возбуждение
 void CDryingMode::StartDrain(){
   rDinStr.Relay_Ex_Applied(State::ON);
+  rDinStr.Relay_Premission(State::OFF);
   unsigned int dTrs = LPC_TIM0->TC - prev_TC0;
   if (dTrs >= RELAY_PAUSE_OFF) { 
     rSIFU.set_alpha(rSIFU.s_const.AMax);

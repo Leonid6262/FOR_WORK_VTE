@@ -17,6 +17,7 @@ void CTestingMode::test(bool Permission) {
   
   if(pSys_manager->USystemStatus.sWorkTest && cur_status == State::OFF) { 
     cur_status = State::ON;
+    rDinStr.Relay_Premission(State::OFF);
     phases_test = EPhasesTest::StartMode; 
     SWork::setMessage(EWorkId::TESTING);
     return;
