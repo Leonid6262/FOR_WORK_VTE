@@ -1,5 +1,7 @@
 #pragma once
 
+//#define CM3 
+
 #include "LPC407x_8x_177x_8x.h"
 #include "system_LPC177x.h"
 #include "dIOStorage.hpp"
@@ -68,8 +70,12 @@ public:
     LPC_IOCON->P4_30 = D_MODE_PULLUP | 0x1;  // EMC.CS0
     LPC_IOCON->P4_31 = D_MODE_PULLUP | 0x1;  // EMC.CS1
     
-    //---------------   Конфигурация адресного пространства RAM   -------------------------
-    LPC_EMC->StaticConfig0 = 0x81;      // 1 - 16 bits
+    //---------------   Конфигурация адресного пространства RAM   ------------------------- 
+#ifdef CM3
+    LPC_EMC->StaticConfig0 = 0x01; // 8 bits
+#else
+    LPC_EMC->StaticConfig0 = 0x81; // 16 bits
+#endif
     LPC_EMC->StaticWaitWen0 = 0x00;     // Задержка разрешения записи. 0 - задержка в один цикл EMCCLK
     LPC_EMC->StaticWaitOen0 = 0x01;     // Задержка включения выхода. 0 - нет задержки
     LPC_EMC->StaticWaitRd0 = 0x03;      // Задержка чтения. 0 - задержка в один цикл EMCCLK
