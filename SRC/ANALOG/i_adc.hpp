@@ -1,10 +1,12 @@
 #pragma once
 
 #include "bool_name.hpp"
+#include "AdcStorage.hpp"
 
 class CIADC{ 
   
 private:
+  CADC_STORAGE& adstr;
   
   static constexpr unsigned short CH_P5 = 0;           // +5V
   static constexpr unsigned short CH_N5 = 1;           // -5V 
@@ -26,7 +28,7 @@ private:
  
 public:
   
-  CIADC();
+  CIADC(CADC_STORAGE&);
   
   float P5_cur;
   float N5_cur;

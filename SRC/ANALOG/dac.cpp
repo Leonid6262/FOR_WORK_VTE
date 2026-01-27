@@ -39,13 +39,13 @@ CDAC_PWM::CDAC_PWM(EPWM_DAC DN, CEEPSettings& rSet) : rSet(rSet){
 }
 
 void CDAC0::conv(signed short data) { // dac0_min_val...dac0_max_val -> -5V...+5V
-  if ((data + CEEPSettings::getInstance().getSettings().shift_dac0) > DAC0_MAX_VAL) {
+  if ((data + rSet.getSettings().shift_dac0) > DAC0_MAX_VAL) {
     data = DAC0_MAX_VAL - rSet.getSettings().shift_dac0;
   }
-  if ((data + CEEPSettings::getInstance().getSettings().shift_dac0) < DAC0_MIN_VAL) {
-    data = DAC0_MIN_VAL + CEEPSettings::getInstance().getSettings().shift_dac0;
+  if ((data + rSet.getSettings().shift_dac0) < DAC0_MIN_VAL) {
+    data = DAC0_MIN_VAL + rSet.getSettings().shift_dac0;
   }
-  LPC_DAC->CNR = (DAC0_MAX_VAL - (data + CEEPSettings::getInstance().getSettings().shift_dac0)) << START_BITS_VALUE;
+  LPC_DAC->CNR = (DAC0_MAX_VAL - (data + rSet.getSettings().shift_dac0)) << START_BITS_VALUE;
 }
 
 void CDAC_PWM::conv(unsigned short data) { // dac1_min_val...dac1_max_val -> 0V...+3V

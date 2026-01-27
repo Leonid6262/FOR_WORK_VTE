@@ -14,7 +14,7 @@ using ESPI = CSET_SPI::ESPIInstance;
 CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                 // For the control class
 CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance()); }  // DAC0. For system test
  
-CIADC CFactory::createIADC()          { return CIADC(); }                                   // Внутренее ADC.
+CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance()); }        // Внутренее ADC.
 StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }        // Загрузка уставок
 CDin_cpu CFactory::createDINcpu()     { return CDin_cpu(); }                                // Дискретные входы контроллера
 CSPI_ports CFactory::createSPIports() { return CSPI_ports(CSET_SPI::config(ESPI::SPI_0)); } // R/W  dIO доступные по SPI
@@ -40,7 +40,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static auto reg_manager = CFactory::createRegManager();
   
   // --- СИФУ и его окружение ---
-  static CADC adc(CSET_SPI::config(ESPI::SPI_1));
+  static CADC adc(CSET_SPI::config(ESPI::SPI_1), CADC_STORAGE::getInstance());
   static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance());
   static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos); 
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), ESET::getInstance());                      
