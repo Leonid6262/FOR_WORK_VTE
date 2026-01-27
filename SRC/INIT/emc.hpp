@@ -2,21 +2,20 @@
 
 //#define CM3 
 
-#include "LPC407x_8x_177x_8x.h"
 #include "system_LPC177x.h"
 #include "dIOStorage.hpp"
 
-namespace EXT_RAM_ADR {
-  constexpr unsigned char* RAM_BEGIN   = reinterpret_cast<unsigned char*>(0x80000000);
-  constexpr unsigned char* RAM_END     = reinterpret_cast<unsigned char*>(0x800FFFFF);
-  constexpr unsigned char* ADR_TEST_55 = reinterpret_cast<unsigned char*>(0x80055555);
-  constexpr unsigned char* ADR_TEST_AA = reinterpret_cast<unsigned char*>(0x800AAAAA);  
-}
-
 class CSET_EMC {
-public:
+  
+public:  
   static void initAndCheck() {
+    
     constexpr unsigned int D_MODE_PULLUP = 0x02 << 3;
+    
+    constexpr unsigned char* RAM_BEGIN   = reinterpret_cast<unsigned char*>(0x80000000);
+    constexpr unsigned char* RAM_END     = reinterpret_cast<unsigned char*>(0x800FFFFF);
+    constexpr unsigned char* ADR_TEST_55 = reinterpret_cast<unsigned char*>(0x80055555);
+    constexpr unsigned char* ADR_TEST_AA = reinterpret_cast<unsigned char*>(0x800AAAAA);  
     
     LPC_SC->PCONP |= CLKPWR_PCONP_PCEMC;
     LPC_SC->EMCDLYCTL = 0x00001010;
@@ -94,7 +93,7 @@ public:
     dir = 0;
     dat1 = 0;
     // Пишем змейку
-    for (adr_ram = EXT_RAM_ADR::RAM_BEGIN; adr_ram < (EXT_RAM_ADR::RAM_END + 1); adr_ram++) {
+    for (adr_ram = RAM_BEGIN; adr_ram < (RAM_END + 1); adr_ram++) {
       *adr_ram = dat1;
       if (dir == 0) {
         if (dat1 < 255) {
@@ -114,18 +113,18 @@ public:
     dat1 = 0;
     dat2 = 0;
     // Читаем змейку
-    for (adr_ram = EXT_RAM_ADR::RAM_BEGIN; adr_ram < (EXT_RAM_ADR::RAM_END + 1); adr_ram++) {
+    for (adr_ram = RAM_BEGIN; adr_ram < (RAM_END + 1); adr_ram++) {
       dat2 = *adr_ram;
       if (dat1 != dat2) {
         // Циклический тест, если была ошибка
         adr_ram = 0;
         while (true) {
-          adr_ram = EXT_RAM_ADR::ADR_TEST_55;
+          adr_ram = ADR_TEST_55;
           *adr_ram = 0x55;
           dat1 = *adr_ram;
           *adr_ram = 0xAA;
           dat2 = *adr_ram;
-          adr_ram = EXT_RAM_ADR::ADR_TEST_AA;
+          adr_ram = ADR_TEST_AA;
           *adr_ram = 0x55;
           dat1 = *adr_ram;
           *adr_ram = 0xAA;
