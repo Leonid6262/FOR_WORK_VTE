@@ -157,7 +157,7 @@ class CEEPSettings {
       .IsetMax = static_cast<unsigned short>(((cd::IdNomDef        * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
       .IsetMin = static_cast<unsigned short>((((cd::IdNomDef / 3)  * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
       .Idry_0  = static_cast<unsigned short>((((cd::IdNomDef / 10) * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
-      .dIset   = static_cast<unsigned short>((((cd::IdNomDef / 10) * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f), 
+      .dIset   = static_cast<unsigned short>((((cd::IdNomDef / 10) * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),  
       .Qset_0 = 0,
       .Cos_0 = 1.0,
     },            
