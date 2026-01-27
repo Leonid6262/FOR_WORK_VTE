@@ -75,7 +75,6 @@ public:
                          float max = +99999.0f);
   };
   
-  
 private:
   CTerminalUartDriver& uartDrv;
   CTerminalManager* pTerminal_manager;

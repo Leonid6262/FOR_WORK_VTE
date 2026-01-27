@@ -31,6 +31,7 @@ CMenuNavigation::CMenuNavigation(CTerminalUartDriver& uartDrv, CSystemManager& r
   //MENU.shrink_to_fit();
   currentList = &MENU;
   //render_menu(); // первая отрисовка, если в менеджере задано старт терминала с режима меню
+    
 }
 
 // Конструктор узла
