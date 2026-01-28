@@ -18,7 +18,16 @@ const signed short CSIFU::offsets[] = {
 CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p, CEEPSettings& rSettings) 
 : rPulsCalc(rPulsCalc), rReg_manager(rReg_manager), rFault_p(rFault_p), rSettings(rSettings){}
 
+
+unsigned int cur_t;
+unsigned int dt1;
+unsigned int dt2;
+unsigned int dt3;
+unsigned int dt4;
+
 void CSIFU::rising_puls() {
+  
+cur_t = LPC_TIM0->TC;
 
   N_Pulse = (N_Pulse % s_const.N_PULSES) + 1; // Текущий номер импульса (1...6)
   
@@ -65,8 +74,15 @@ void CSIFU::rising_puls() {
     LPC_PWM0->TCR = COUNTER_START; // Запускаем
   }
   
+dt1 = LPC_TIM0->TC - cur_t;
+  
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.
+  
+dt2 = LPC_TIM0->TC - cur_t;
+
   control_fault_and_reg();              // Контроль аварий и регулирование
+  
+dt3 = LPC_TIM0->TC - cur_t;  
  
   control_sync();  // Мониторинг события захвата CR1 синхроимпульсом
   
@@ -126,6 +142,8 @@ void CSIFU::rising_puls() {
   
   off_wone_reg();                                       // Контроль отключения режима "Через один"
   off_pulses_control();                                 // Контроль фазы выключения ИУ
+  
+dt4 = LPC_TIM0->TC - cur_t;
 
 }
 
