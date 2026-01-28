@@ -19,6 +19,7 @@ CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFaul
 : rPulsCalc(rPulsCalc), rReg_manager(rReg_manager), rFault_p(rFault_p), rSettings(rSettings){}
 
 void CSIFU::rising_puls() {
+
   N_Pulse = (N_Pulse % s_const.N_PULSES) + 1; // Текущий номер импульса (1...6)
   
   // Фронт ИУ рабочего моста

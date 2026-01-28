@@ -44,6 +44,7 @@ class CSIFU {
     static constexpr signed short _0gr = 0;
     static constexpr signed short _5gr = 278;
     static constexpr signed short _10gr = 555;
+    static constexpr signed short _15gr = 833;
     static constexpr signed short _30gr = 1667;
     static constexpr signed short _60gr = 3333;
     static constexpr signed short _90gr = 5000;
@@ -60,7 +61,7 @@ class CSIFU {
     
     static constexpr signed short AMax = _150gr;
     static constexpr signed short AMin = _30gr;
-    static constexpr signed short dAlpha = _10gr;
+    static constexpr signed short dAlpha = _15gr;
     
     static constexpr unsigned int N_PULSES = 6;
     static constexpr unsigned int N_PULSES_STOP = 50;
