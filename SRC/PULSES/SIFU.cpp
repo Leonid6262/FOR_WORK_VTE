@@ -2,9 +2,6 @@
 #include <algorithm>
 #include "system_LPC177x.h"
 
-const unsigned char CSIFU::pulsesAllP[] = {0x00, 0x21, 0x03, 0x06, 0x0C, 0x18, 0x30}; // Индекс 0 не используется
-const unsigned char CSIFU::pulsesWone[] = {0x00, 0x21, 0x00, 0x06, 0x00, 0x18, 0x00}; // Индекс 0 не используется
-
 const signed short CSIFU::offsets[] = {
   0,
   SIFUConst::_60gr,    // Диапазон 0...60        (sync "видит" 1-й: ->2-3-4-5-6-sync-1->2-3-4...)
@@ -14,10 +11,6 @@ const signed short CSIFU::offsets[] = {
   -SIFUConst::_60gr,   // Диапазон 120...180     (sync "видит" 5-й: ->6-1-2-3-4-sync-5->6-1-2...)
   SIFUConst::_0gr      // Диапазон 60...120      (sync "видит" 6-й: ->1-2-3-4-5-sync-6->1-2-3...)
 };  // Индекс 0 не используется
-
-CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p, CEEPSettings& rSettings) 
-: rPulsCalc(rPulsCalc), rReg_manager(rReg_manager), rFault_p(rFault_p), rSettings(rSettings){}
-
 
 unsigned int cur_t;
 unsigned int dt1;
@@ -34,9 +27,9 @@ cur_t = LPC_TIM0->TC;
   // Фронт ИУ рабочего моста
   if (main_bridge) {
     if(!wone_reg){
-      LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
+      LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
     } else{
-      LPC_GPIO3->CLR = pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
+      LPC_GPIO3->CLR = pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
     }
 
     LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
@@ -56,7 +49,7 @@ cur_t = LPC_TIM0->TC;
   }
   // Фронт ИУ  форсировочного моста
   else if (forcing_bridge) {
-    LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1] << FIRS_PULS_PORT;
+    LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
     
     LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
     
@@ -356,6 +349,9 @@ void CSIFU::set_d_shift(unsigned char d_shift) {
 float* CSIFU::get_Sync_Frequency() { return &v_sync.SYNC_FREQUENCY; }
 
 unsigned char* CSIFU::getSyncStat() { return &curSyncStat; } 
+
+CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p, CEEPSettings& rSettings) 
+: rPulsCalc(rPulsCalc), rReg_manager(rReg_manager), rFault_p(rFault_p), rSettings(rSettings){}
 
 void CSIFU::init_and_start(CProxyPointerVar& PPV) {
   

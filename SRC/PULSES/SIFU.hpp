@@ -72,9 +72,25 @@ class CSIFU {
   
    unsigned char N_Pulse = 1;
 
- private:
-  static const unsigned char pulsesAllP[];
-  static const unsigned char pulsesWone[];
+private:
+  static constexpr unsigned int FIRST_PULS_PORT = 16;               // 1-й импульс в порту
+  static constexpr unsigned int OFF_PULSES = 0x3F<<FIRST_PULS_PORT; // Все импульсы   
+  static constexpr unsigned int pulsesAllP[] = { 
+    0x00, 
+    0x21 << FIRST_PULS_PORT, 
+    0x03 << FIRST_PULS_PORT, 
+    0x06 << FIRST_PULS_PORT, 
+    0x0C << FIRST_PULS_PORT, 
+    0x18 << FIRST_PULS_PORT,
+    0x30 << FIRST_PULS_PORT 
+  }; 
+  static constexpr unsigned int pulsesWone[] = {
+    0x00, 
+    pulsesAllP[1], 0x00, 
+    pulsesAllP[3], 0x00, 
+    pulsesAllP[5], 0x00
+  };  
+  
   static const signed short offsets[];
 
   bool forcing_bridge = false;
@@ -132,9 +148,7 @@ class CSIFU {
   static constexpr unsigned int P1_2 = 0x02;          // Port1:2
   static constexpr unsigned int P1_3 = 0x03;          // Port1:3
 
-  static constexpr unsigned int PWM_WIDTH = 10;           // us
-  static constexpr unsigned int OFF_PULSES = 0x003F0000;  // Импульсы в порту
-  static constexpr unsigned int FIRS_PULS_PORT = 16;      // 1-й импульс в порту
+  static constexpr unsigned int PWM_WIDTH = 10;                    // us
 
   static constexpr unsigned int PCR_PWMENA1 = 0x200;
   static constexpr unsigned int PCR_PWMENA2 = 0x400;
