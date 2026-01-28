@@ -27,7 +27,7 @@ CMenuNavigation::CMenuNavigation(CTerminalUartDriver& uartDrv, CSystemManager& r
   d.delta_timer_ms = 0;
   
   // Создание дерева узлов меню
-  MENU = MENU_Factory(CADC_STORAGE::getInstance(), CEEPSettings::getInstance(), rSysMgr);
+  MENU = MENU_Factory(CADC_STORAGE::getInstance(), CEEPSettings::getInstance(), rSysMgr, rRTC);
   //MENU.shrink_to_fit();
   currentList = &MENU;
   //render_menu(); // первая отрисовка, если в менеджере задано старт терминала с режима меню
@@ -119,7 +119,8 @@ void CMenuNavigation::render_node(ETitleType title_type) {
   }
 }
 
-void CMenuNavigation::first_render(){  
+void CMenuNavigation::first_render(){
+  rRTC.update_now();
   render_menu();
 }
 
@@ -317,6 +318,11 @@ void CMenuNavigation::Key_Handler(EKey_code key) {
     static unsigned int elapsed_ms = 0;
     
     if (dTrs >= DISPLAY_PERIOD_TICKS) {
+      
+      if(rRTC.set_date_time) {
+        rRTC.set_date_time = false; 
+        rRTC.setDateTime(rRTC.DateTimeForSet);
+      }
       
       prev_TC0 = LPC_TIM0->TC;
       elapsed_ms += dTrs / 10000; // пересчёт в мс      
@@ -682,6 +688,12 @@ void CMenuNavigation::editValue(MenuNode& node, signed short dir) {
       raw_copy = candidate;
     }   
     *pRaw = raw_copy;
+    break;
+  }  
+  case NProxyVar::EVarType::vbool: {
+    bool* pRaw = static_cast<bool*>(node.pVariable);
+    if(dir == -1) *pRaw = false;
+    else *pRaw = true;   
     break;
   }
   default:

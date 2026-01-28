@@ -8,12 +8,12 @@ public:
   CRTC();
   
   struct SDateTime {
-    unsigned char  year;
-    unsigned char  month;
-    unsigned char  day;
-    unsigned char  hour;
-    unsigned char  minute;
-    unsigned char  second;
+    unsigned short  year;
+    unsigned short  month;
+    unsigned short  day;
+    unsigned short  hour;
+    unsigned short  minute;
+    unsigned short  second;
   };
    
   SDateTime DateTimeForSet;
@@ -22,6 +22,8 @@ public:
   const SDateTime& get_now() const;     // Доступ к актуальным данным  
   void setDateTime(const SDateTime&);   // Установка даты и времени
   void setDefault();                    // Установка дефолтных значений
+  
+  bool set_date_time = false;
   
 private: 
   

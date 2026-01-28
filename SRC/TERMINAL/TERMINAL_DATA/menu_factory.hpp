@@ -55,7 +55,9 @@ static const struct {
   vt - тип переменной
   nm - тип узла
 */
-inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings& rSet, CSystemManager& rSysMgr) {
+inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings& rSet, 
+                                               CSystemManager& rSysMgr, CRTC& rRTC) {
+                                                   
   auto& set = rSet.getSettings();
   
   using namespace menu_alias;
@@ -183,8 +185,15 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("Month:",       {}, &set.SNboard_month, "", cd::one, p0, vt::ushort, nm::Ed1V, 1, 12),
           o("Year:",        {}, &set.SNboard_year,  "", cd::one, p0, vt::ushort, nm::Ed1V, 20, 99),}),
       o(Mn.LANGUAGE[l],{
-          o("Language:",    {}, &set.Language,"", cd::one, p0, vt::ushort, nm::Ed1V, 1, G_CONST::Nlang),}),}),
-  o(Mn.CLOCK_SETUP[l]),
+          o("Language:",    {}, &set.Language,"", cd::one, p0, vt::ushort, nm::Ed1V, 1, G_CONST::Nlang),}),}),  
+  o(Mn.CLOCK_SETUP[l],{
+      o("Year:",        {}, &rRTC.DateTimeForSet.year,  "", cd::one, p0, vt::ushort, nm::Ed1V, 26, 99),
+      o("Month:",       {}, &rRTC.DateTimeForSet.month, "", cd::one, p0, vt::ushort, nm::Ed1V,  1, 12),
+      o("Day:",         {}, &rRTC.DateTimeForSet.day,   "", cd::one, p0, vt::ushort, nm::Ed1V,  1, 31),
+      o("Hour:",        {}, &rRTC.DateTimeForSet.hour,  "", cd::one, p0, vt::ushort, nm::Ed1V,  0, 23),
+      o("Minute:",      {}, &rRTC.DateTimeForSet.minute,"", cd::one, p0, vt::ushort, nm::Ed1V,  0, 60),
+      o("SET",          {}, &rRTC.set_date_time,        "", cd::one, p0, vt::vbool,  nm::Ed1V,  0, 1),      
+  }),
   o(Mn.INFO[l],{
       o("Description:", {}, static_cast<void*>(const_cast<char*>(BuildInfo::Description)), "", cd::one, p0,vt::text, nm::In1V),
       o("Git Version:", {}, static_cast<void*>(const_cast<char*>(BuildInfo::Version)),     "", cd::one, p0,vt::text, nm::In1V),

@@ -21,7 +21,7 @@ public:
     LPC_EMC->Config = 0x00000000;
     
     constexpr unsigned int D_MODE_PULLUP = 0x02 << 3;
-    
+
     // Настройка выводов данных EMC.D0..D15 
     for (int i = 0; i < 16; i++) { 
       *(&LPC_IOCON->P3_0 + i) = D_MODE_PULLUP | 0x1; 

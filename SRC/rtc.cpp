@@ -6,6 +6,7 @@ CRTC::CRTC() {
     setDefault();                  // Установка дефолтных значений если была остановка
     LPC_RTC->RTC_AUX |= RTC_OSCF;  // генератора или прочитанные значения не корректные
   }
+  DateTimeForSet = {0,0,0,0,0,0};
 }
 
 bool CRTC::isDateTimeValid() {
@@ -17,7 +18,7 @@ bool CRTC::isDateTimeValid() {
   unsigned char hour = static_cast<unsigned char>((t >> 16) & 0x1F);  // HOUR
   unsigned char min = static_cast<unsigned char>((t >> 8) & 0x3F);    // MIN
   unsigned char sec = static_cast<unsigned char>(t & 0x3F);           // SEC
-
+  
   return (sec <= 59) && (min <= 59) && (hour <= 23) && (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
 }
 
@@ -31,6 +32,14 @@ void CRTC::update_now() {
   date_now.hour = static_cast<unsigned char>((t >> 16) & 0x1F);   // HOUR
   date_now.minute = static_cast<unsigned char>((t >> 8) & 0x3F);  // MIN
   date_now.second = static_cast<unsigned char>(t & 0x3F);         // SEC
+  
+  DateTimeForSet.year = date_now.year;
+  DateTimeForSet.month = date_now.month;
+  DateTimeForSet.day = date_now.day;
+  DateTimeForSet.hour = date_now.hour;
+  DateTimeForSet.minute = date_now.minute;
+  DateTimeForSet.second = 0;  
+
 }
 
 const CRTC::SDateTime& CRTC::get_now() const { return date_now; }

@@ -14,7 +14,7 @@ define symbol __ICFEDIT_region_EXTRAM_start__ = 0x80000000;
 define symbol __ICFEDIT_region_EXTRAM_end__   = 0x800FFFFF;
 
 /*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__ = 0x2000;
+define symbol __ICFEDIT_size_cstack__ = 0x4000;
 define symbol __ICFEDIT_size_dma__    = 0x1000;
 define symbol __ICFEDIT_size_heap__   = 0x8000;
 /**** End of ICF editor section. ###ICF###*/
