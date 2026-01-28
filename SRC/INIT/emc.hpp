@@ -22,45 +22,15 @@ public:
     LPC_EMC->Control = 0x00000001;
     LPC_EMC->Config = 0x00000000;
     
-    //--------------   Конфигурирование портов   ------------------------
-    LPC_IOCON->P3_0 = D_MODE_PULLUP | 0x1;   // EMC.D0
-    LPC_IOCON->P3_1 = D_MODE_PULLUP | 0x1;   // EMC.D1
-    LPC_IOCON->P3_2 = D_MODE_PULLUP | 0x1;   // EMC.D2
-    LPC_IOCON->P3_3 = D_MODE_PULLUP | 0x1;   // EMC.D3
-    LPC_IOCON->P3_4 = D_MODE_PULLUP | 0x1;   // EMC.D4
-    LPC_IOCON->P3_5 = D_MODE_PULLUP | 0x1;   // EMC.D5
-    LPC_IOCON->P3_6 = D_MODE_PULLUP | 0x1;   // EMC.D6
-    LPC_IOCON->P3_7 = D_MODE_PULLUP | 0x1;   // EMC.D7
-    LPC_IOCON->P3_8 = D_MODE_PULLUP | 0x1;   // EMC.D8
-    LPC_IOCON->P3_9 = D_MODE_PULLUP | 0x1;   // EMC.D9
-    LPC_IOCON->P3_10 = D_MODE_PULLUP | 0x1;  // EMC.D10
-    LPC_IOCON->P3_11 = D_MODE_PULLUP | 0x1;  // EMC.D11
-    LPC_IOCON->P3_12 = D_MODE_PULLUP | 0x1;  // EMC.D12
-    LPC_IOCON->P3_13 = D_MODE_PULLUP | 0x1;  // EMC.D13
-    LPC_IOCON->P3_14 = D_MODE_PULLUP | 0x1;  // EMC.D14
-    LPC_IOCON->P3_15 = D_MODE_PULLUP | 0x1;  // EMC.D15
-    
-    LPC_IOCON->P4_0 = D_MODE_PULLUP | 0x1;   // EMC.A0
-    LPC_IOCON->P4_1 = D_MODE_PULLUP | 0x1;   // EMC.A1
-    LPC_IOCON->P4_2 = D_MODE_PULLUP | 0x1;   // EMC.A2
-    LPC_IOCON->P4_3 = D_MODE_PULLUP | 0x1;   // EMC.A3
-    LPC_IOCON->P4_4 = D_MODE_PULLUP | 0x1;   // EMC.A4
-    LPC_IOCON->P4_5 = D_MODE_PULLUP | 0x1;   // EMC.A5
-    LPC_IOCON->P4_6 = D_MODE_PULLUP | 0x1;   // EMC.A6
-    LPC_IOCON->P4_7 = D_MODE_PULLUP | 0x1;   // EMC.A7
-    LPC_IOCON->P4_8 = D_MODE_PULLUP | 0x1;   // EMC.A8
-    LPC_IOCON->P4_9 = D_MODE_PULLUP | 0x1;   // EMC.A9
-    LPC_IOCON->P4_10 = D_MODE_PULLUP | 0x1;  // EMC.A10
-    LPC_IOCON->P4_11 = D_MODE_PULLUP | 0x1;  // EMC.A11
-    LPC_IOCON->P4_12 = D_MODE_PULLUP | 0x1;  // EMC.A12
-    LPC_IOCON->P4_13 = D_MODE_PULLUP | 0x1;  // EMC.A13
-    LPC_IOCON->P4_14 = D_MODE_PULLUP | 0x1;  // EMC.A14
-    LPC_IOCON->P4_15 = D_MODE_PULLUP | 0x1;  // EMC.A15
-    LPC_IOCON->P4_16 = D_MODE_PULLUP | 0x1;  // EMC.A16
-    LPC_IOCON->P4_17 = D_MODE_PULLUP | 0x1;  // EMC.A17
-    LPC_IOCON->P4_18 = D_MODE_PULLUP | 0x1;  // EMC.A18
-    LPC_IOCON->P4_19 = D_MODE_PULLUP | 0x1;  // EMC.A19
-    
+    // Настройка выводов данных EMC.D0..D15 
+    for (int i = 0; i < 16; i++) { 
+      *(&LPC_IOCON->P3_0 + i) = D_MODE_PULLUP | 0x1; 
+    }
+    // Настройка выводов адреса EMC.A0..A19 
+    for (int i = 0; i < 20; i++) { 
+      *(&LPC_IOCON->P4_0 + i) = D_MODE_PULLUP | 0x1; 
+    }
+
     LPC_IOCON->P4_24 = D_MODE_PULLUP | 0x1;  // EMC.OE
     LPC_IOCON->P4_25 = D_MODE_PULLUP | 0x1;  // EMC.WR
     LPC_IOCON->P4_26 = D_MODE_PULLUP | 0x1;  // EMC.BLS0
