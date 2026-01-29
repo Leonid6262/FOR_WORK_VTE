@@ -26,9 +26,9 @@ void CSIFU::rising_puls() {
     return;
     
   case PulsPhase::_13DEG:
+  default: 
     CDIN_STORAGE::UserLedOn();
     puls_phase = PulsPhase::RISING;
-    break;
   }
   
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.

@@ -1,29 +1,23 @@
 #pragma once
 
 #include "SIFU.hpp"
-#include "adc.hpp"
 
-/*
-  Синглтон-прокси для доступа к TIMER_IRQHandler()
-*/
+/* Синглтон-прокси для доступа к TIMER_IRQHandler() */
 
-class CProxyHandlerTIMER 
-{
-public:
+class CProxyHandlerTIMER {
   
-  static CProxyHandlerTIMER& getInstance(); 
-
+public:  
   CSIFU* pPuls;
- 
+  static CProxyHandlerTIMER& getInstance(); 
   void set_pointers(CSIFU*);
   
-  const unsigned int IRQ_MR0  = 0x01;
-  const unsigned int IRQ_MR1  = 0x02;
+  static constexpr unsigned int IRQ_MR0 = 0x01;
+  static constexpr unsigned int IRQ_MR1 = 0x02;
   
 private:
-
-    CProxyHandlerTIMER(); 
+    CProxyHandlerTIMER() = default; 
     CProxyHandlerTIMER(const CProxyHandlerTIMER&) = delete;
-    CProxyHandlerTIMER& operator=(const CProxyHandlerTIMER&) = delete; 
-    
+    CProxyHandlerTIMER& operator=(const CProxyHandlerTIMER&) = delete;    
 };
+
+
