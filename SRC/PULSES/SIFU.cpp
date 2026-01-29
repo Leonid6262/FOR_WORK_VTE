@@ -4,80 +4,72 @@
 
 void CSIFU::rising_puls() {
   
-  switch (meter_phase) {
-  case MeterPhase::RISING:
-    meter_phase = MeterPhase::_13DEG;
+  switch (puls_phase) {
+  case PulsPhase::RISING:
+    puls_phase = PulsPhase::_13DEG;
     
-    N_Pulse = (N_Pulse % s_const.N_PULSES) + 1; // Текущий номер импульса (1...6)
-    
+    // Текущий номер импульса (1...6)
+    N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;    
     // Фронт ИУ рабочего моста
-    if (main_bridge) {
-      if(!wone_reg) {
-        LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
-      } else{
-        LPC_GPIO3->CLR = pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
-      }
+    if (main_bridge) { 
       StartMainBridgePWM0();
     }
     // Фронт ИУ  форсировочного моста
-    else if (forcing_bridge) {
-      LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];   
+    else if (forcing_bridge) {   
       StartForsingBridgePWM0();
     }
-          
+    // Задание момента выключения ИУ
     RISING_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
-    LPC_TIM3->MR1 = static_cast<unsigned int>(RISING_MR0 + SIFUConst::PULSE_WIDTH);  // Задание момента выключения ИУ 
-    
+    LPC_TIM3->MR1 = static_cast<unsigned int>(RISING_MR0 + SIFUConst::PULSE_WIDTH);   
+    // Следующий заход через 13 градусов
     LPC_TIM3->MR0 = static_cast<unsigned int>(RISING_MR0 + s_const._13gr);
     return;
     
-  case MeterPhase::_13DEG:
+  case PulsPhase::_13DEG:
     CDIN_STORAGE::UserLedOn();
-    meter_phase = MeterPhase::RISING;
+    puls_phase = PulsPhase::RISING;
     break;
   }
   
-
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.
   control_fault_and_reg();              // Контроль аварий и регулирование
   control_sync();                       // Мониторинг события захвата CR1 синхроимпульсом
-   
-  signed int res; // служебная переменная
-  
+    
   switch (Operating_mode) {
-  
-  // СИФУ не синхронизировано, ИУ следуют через 60 градусов 
+    
+  // ---СИФУ не синхронизировано, ИУ следуют через 60 градусов--- 
   case EOperating_mode::NO_SYNC:
-    res = RISING_MR0 + s_const._60gr;    // Вычисление следующего значения MR0
-    LPC_TIM3->MR0 = static_cast<unsigned int>(res);                  // Установка следующего значения MR0
-    curSyncStat = static_cast<unsigned char>(State::OFF);            // Статус синхронизации
+    LPC_TIM3->MR0 = static_cast<unsigned int>(RISING_MR0 + s_const._60gr);      // Установка следующего значения MR0
+    curSyncStat = static_cast<unsigned char>(State::OFF);                       // Статус синхронизации
     break;
     
-  // СИФУ синхронизировано. ИУ следуют через 60 градусов + dAlpha
+  // ---СИФУ синхронизировано. ИУ следуют через 60 градусов + dAlpha---
   case EOperating_mode::NORMAL:
     Alpha_setpoint = limits_val(&Alpha_setpoint, s_const.AMin, s_const.AMax);   // Ограничения величины альфа
     LPC_TIM3->MR0 = timing_calc();                                              // Вычисление и установка следующего значения MR0
     curSyncStat = static_cast<unsigned char>(State::ON);                        // Статус синхронизации
     break;
     
-  // Вход в синхронизированный режим. Начало с 1-го ИУ. Начальный угол Alpha_current = Amax  
+  // ---Вход в синхронизированный режим. Начало с 1-го ИУ. Начальный угол Alpha_current = Amax---  
   case EOperating_mode::RESYNC:
-    Operating_mode = EOperating_mode::NORMAL;  
-    Alpha_setpoint = s_const.AMax;
-    Alpha_current = s_const.AMax;
-    // ...5-6-1-2-sync-3->6-1-2-3-4-sync-5->6-1-2... <-- пример последовательности
-    
-    res =                                               // Вычисление значения MR0 для 1-го ИУ в Amax
-      static_cast<signed int>(v_sync.CURRENT_SYNC) +    // Значение CR1. Момент прихода синхроимпульса
-      static_cast<signed int>(Alpha_current) +          // Alpha_current = Amax
-      static_cast<signed int>(v_sync.cur_power_shift);  // Смещение относительно силового питания
-
-    LPC_TIM3->MR0 = static_cast<unsigned int>(res);             // Установка значения MR0 для 1-го ИУ
-    curSyncStat = static_cast<unsigned char>(State::OFF);       // Статус синхронизации
-    N_Pulse = 6;                                                // 6-й устанавливаем текущим    
+    {
+      Operating_mode = EOperating_mode::NORMAL;  
+      Alpha_setpoint = s_const.AMax;
+      Alpha_current = s_const.AMax;
+      // ...5-6-1-2-sync-3->6-1-2-3-4-sync-5->6-1-2... <-- пример последовательности
+      
+      signed int res =                                    // Вычисление значения MR0 для 1-го ИУ в Amax
+        static_cast<signed int>(v_sync.CURRENT_SYNC) +    // Значение CR1. Момент прихода синхроимпульса
+        static_cast<signed int>(Alpha_current) +          // Alpha_current = Amax
+        static_cast<signed int>(v_sync.cur_power_shift);  // Смещение относительно силового питания
+      
+      LPC_TIM3->MR0 = static_cast<unsigned int>(res);             // Установка значения MR0 для 1-го ИУ
+      curSyncStat = static_cast<unsigned char>(State::OFF);       // Статус синхронизации
+      N_Pulse = 6;                                                // 6-й устанавливаем текущим    
+    }
     break;
     
-  // СИФУ синхронизировано. Режим фазировка с Alpha_current = 0
+  // ---СИФУ синхронизировано. Режим фазировка с Alpha_current = 0---
   case EOperating_mode::PHASING:
     // Ограничения величины сдвига синхронизации
     v_sync.task_power_shift = limits_val(&v_sync.task_power_shift, s_const.MinPshift, s_const.MaxPshift);
@@ -88,10 +80,10 @@ void CSIFU::rising_puls() {
     LPC_TIM3->MR0 = timing_calc();                              // Вычисление и установка следующего значения MR0
     curSyncStat = static_cast<unsigned char>(State::ON);        // Статус синхронизации
     break;
-
+    
   } 
   
-  off_wone_reg();                                       // Контроль отключения режима "Через один"
+  off_wone_reg();       // Контроль отключения режима "Через один"
   off_pulses_control();                                 // Контроль фазы выключения ИУ
   
   rRemOsc.send_data();  // Передача отображаемых данных в ESP32

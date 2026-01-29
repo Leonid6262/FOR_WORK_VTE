@@ -106,6 +106,13 @@ private:
   };  // Индекс 0 не используется
 
   inline void StartMainBridgePWM0() {
+    
+    if(!wone_reg) {
+      LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
+    } else{
+      LPC_GPIO3->CLR = pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
+    }    
+    
     LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0;
     
     LPC_PWM0->PR  = PWM_div_0 - 1;
@@ -126,6 +133,9 @@ private:
   }
   
   inline void StartForsingBridgePWM0() {
+    
+    LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
+    
     LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
     
     LPC_PWM0->PR = PWM_div_0 - 1;
@@ -147,7 +157,7 @@ private:
   bool main_bridge = false;
   bool wone_reg = false;
   State phase_stop = State::OFF;
-  MeterPhase meter_phase = MeterPhase::RISING;
+  PulsPhase puls_phase = PulsPhase::RISING;
   signed int RISING_MR0;
   signed short n_pulses_stop = 0;
   signed short n_pulses_wone = 0;
