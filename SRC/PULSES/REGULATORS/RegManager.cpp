@@ -27,6 +27,6 @@ void CRegManager::applyModeRules() {
 
 void CRegManager::stepAll() { 
   rCos_reg.step(URegMode.CosPhi, pSIFU);
-  rQ_reg.step(URegMode.QPower, pSIFU); 
+  rQ_reg.step(URegMode.QPower, pSIFU);
   rCurrent_reg.step(URegMode.Current, pSIFU); 
 }

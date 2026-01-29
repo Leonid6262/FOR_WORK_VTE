@@ -1,7 +1,8 @@
 #include "Adjustment.hpp"
 #include "_SystemManager.hpp"
   
-CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU, CEEPSettings& rSettings) : rSIFU(rSIFU), rSettings(rSettings) {} 
+CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU, CEEPSettings& rSettings) : 
+  rSIFU(rSIFU), rSettings(rSettings), prevModeAdj(State::OFF) {} 
 
 void CAdjustmentMode::parsing_request(bool Permission) {
   
@@ -14,13 +15,24 @@ void CAdjustmentMode::parsing_request(bool Permission) {
     return;
   } 
   
-  // 2. Проверка штатного отключения любого режима 
+  // 2. Если наладку выключили - всё выключаем
+  if(!(pSys_manager->USystemStatus.sAdjustment) && (prevModeAdj == State::ON)) { 
+    prevModeAdj = State::OFF;
+    reqADJmode = 0;
+    applyChanges(EAdjBits::PulsesF | EAdjBits::PulsesM | EAdjBits::CurrCycle | EAdjBits::Phase, 0);
+    return; 
+  }else if(pSys_manager->USystemStatus.sAdjustment && prevModeAdj == State::OFF){
+    prevModeAdj = State::ON;
+  }
+  
+  
+  // 3. Проверка штатного отключения любого режима 
   unsigned short prev_active   = prevBits;                      // что было реально включено
   unsigned short req_active    = reqADJmode;                    // что пользователь хочет сейчас
   unsigned short disabled_mask = prev_active & ~req_active;     // что пользователь штатно снял
   
   if (disabled_mask != 0) {  // Если снят любой из режимов - отключаем все остальные
-    unsigned short normalized = 0;//AdjMode;
+    unsigned short normalized = 0;
     applyChanges(prevBits, normalized);
     prevBits = normalized;
     reqADJmode   = normalized;
@@ -28,7 +40,7 @@ void CAdjustmentMode::parsing_request(bool Permission) {
     return;
   }
   
-  // 3. Проверка соответствия с таблицей правил
+  // 4. Проверка соответствия с таблицей правил
   unsigned short req_functions = reqADJmode;
   for (unsigned short bit : check_bits) {
     if (req_functions & bit) {
@@ -54,7 +66,7 @@ void CAdjustmentMode::parsing_request(bool Permission) {
     }
   }
   
-  // 4. Применение изменений проверенных на соответствии таблицы правил
+  // 5. Применение изменений проверенных на соответствии таблицы правил
   unsigned short changed = req_functions ^ prevBits;
   applyChanges(changed, req_functions);
   prevBits = req_functions;
@@ -63,7 +75,7 @@ void CAdjustmentMode::parsing_request(bool Permission) {
   ex_mode(cur_mode);
 }
 
-// Включение/Отключение наладочнвх режимов
+// ---Включение/Отключение наладочных режимов---
 void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normalized) {  
   
   if (changed & PulsesF) {
@@ -122,6 +134,7 @@ void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normal
   
 }
 
+// ---Выполнение наладочных режимов---
 void CAdjustmentMode::ex_mode(EModeAdj ex_mode){
   switch (ex_mode){
   case EModeAdj::ForcingPulses:

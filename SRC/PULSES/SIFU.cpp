@@ -1,27 +1,7 @@
 #include "SIFU.hpp"
-#include <algorithm>
-#include "system_LPC177x.h"
-
-const signed short CSIFU::offsets[] = {
-  0,
-  SIFUConst::_60gr,    // Диапазон 0...60        (sync "видит" 1-й: ->2-3-4-5-6-sync-1->2-3-4...)
-  SIFUConst::_120gr,   // Диапазон -60...0       (sync "видит" 2-й: ->3-4-5-6-1-sync-2->3-4-5...)
-  SIFUConst::_180gr,   // Диапазон -120...-60    (sync "видит" 3-й: ->4-5-6-1-2-sync-3->4-5-6...) - чисто теоретически
-  -SIFUConst::_120gr,  // Диапазон 180...240     (sync "видит" 4-й: ->5-6-1-2-3-sync-4->5-6-1...) - чисто теоретически
-  -SIFUConst::_60gr,   // Диапазон 120...180     (sync "видит" 5-й: ->6-1-2-3-4-sync-5->6-1-2...)
-  SIFUConst::_0gr      // Диапазон 60...120      (sync "видит" 6-й: ->1-2-3-4-5-sync-6->1-2-3...)
-};  // Индекс 0 не используется
-
-unsigned int cur_t;
-unsigned int dt1;
-unsigned int dt2;
-unsigned int dt3;
-unsigned int dt4;
 
 void CSIFU::rising_puls() {
   
-cur_t = LPC_TIM0->TC;
-
   N_Pulse = (N_Pulse % s_const.N_PULSES) + 1; // Текущий номер импульса (1...6)
   
   // Фронт ИУ рабочего моста
@@ -45,7 +25,8 @@ cur_t = LPC_TIM0->TC;
     LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
     // ----
     LPC_IOCON->P1_2 = IOCON_P_PWM; // P1_2 -> PWM
-    LPC_PWM0->TCR = COUNTER_START; // Запускаем      
+    LPC_PWM0->TCR = COUNTER_START; // Запускаем   
+    
   }
   // Фронт ИУ  форсировочного моста
   else if (forcing_bridge) {
@@ -65,19 +46,12 @@ cur_t = LPC_TIM0->TC;
     // ----
     LPC_IOCON->P1_3 = IOCON_P_PWM; // P1_3 -> PWM
     LPC_PWM0->TCR = COUNTER_START; // Запускаем
+    
   }
   
-dt1 = LPC_TIM0->TC - cur_t;
-  
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.
-  
-dt2 = LPC_TIM0->TC - cur_t;
-
   control_fault_and_reg();              // Контроль аварий и регулирование
-  
-dt3 = LPC_TIM0->TC - cur_t;  
- 
-  control_sync();  // Мониторинг события захвата CR1 синхроимпульсом
+  control_sync();                       // Мониторинг события захвата CR1 синхроимпульсом
   
   signed int cur_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
   
@@ -135,8 +109,6 @@ dt3 = LPC_TIM0->TC - cur_t;
   
   off_wone_reg();                                       // Контроль отключения режима "Через один"
   off_pulses_control();                                 // Контроль фазы выключения ИУ
-  
-dt4 = LPC_TIM0->TC - cur_t;
 
 }
 

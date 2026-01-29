@@ -52,7 +52,7 @@ class CSIFU {
     static constexpr signed short _150gr = 8333;
     static constexpr signed short _180gr = 10000;
     
-    static constexpr signed int PULSE_WIDTH = 1515;  // us
+    static constexpr signed int PULSE_WIDTH = 2515;  // us
     
     static constexpr float TIC_SEC = 1000000.0;
     
@@ -61,7 +61,7 @@ class CSIFU {
     
     static constexpr signed short AMax = _150gr;
     static constexpr signed short AMin = _30gr;
-    static constexpr signed short dAlpha = _15gr;
+    static constexpr signed short dAlpha = _30gr;
     
     static constexpr unsigned int N_PULSES = 6;
     static constexpr unsigned int N_PULSES_STOP = 50;
@@ -74,7 +74,8 @@ class CSIFU {
 
 private:
   static constexpr unsigned int FIRST_PULS_PORT = 16;               // 1-й импульс в порту
-  static constexpr unsigned int OFF_PULSES = 0x3F<<FIRST_PULS_PORT; // Все импульсы   
+  static constexpr unsigned int OFF_PULSES = 0x3F<<FIRST_PULS_PORT; // Все импульсы 
+  
   static constexpr unsigned int pulsesAllP[] = { 
     0x00, 
     0x21 << FIRST_PULS_PORT, 
@@ -84,14 +85,24 @@ private:
     0x18 << FIRST_PULS_PORT,
     0x30 << FIRST_PULS_PORT 
   }; 
+  
   static constexpr unsigned int pulsesWone[] = {
     0x00, 
     pulsesAllP[1], 0x00, 
     pulsesAllP[3], 0x00, 
     pulsesAllP[5], 0x00
-  };  
+  };    
   
-  static const signed short offsets[];
+  static constexpr signed short offsets[] = {
+   0x00,
+   SIFUConst::_60gr,    // Диапазон 0...60        (sync "видит" 1-й: ->2-3-4-5-6-sync-1->2-3-4...)
+   SIFUConst::_120gr,   // Диапазон -60...0       (sync "видит" 2-й: ->3-4-5-6-1-sync-2->3-4-5...)
+   SIFUConst::_180gr,   // Диапазон -120...-60    (sync "видит" 3-й: ->4-5-6-1-2-sync-3->4-5-6...) - чисто теоретически
+  -SIFUConst::_120gr,   // Диапазон 180...240     (sync "видит" 4-й: ->5-6-1-2-3-sync-4->5-6-1...) - чисто теоретически
+  -SIFUConst::_60gr,    // Диапазон 120...180     (sync "видит" 5-й: ->6-1-2-3-4-sync-5->6-1-2...)
+   SIFUConst::_0gr      // Диапазон 60...120      (sync "видит" 6-й: ->1-2-3-4-5-sync-6->1-2-3...)
+  };  // Индекс 0 не используется
+
 
   bool forcing_bridge = false;
   bool main_bridge = false;

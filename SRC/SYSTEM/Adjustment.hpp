@@ -90,6 +90,8 @@ private:
   unsigned short pulse_counter = 0; 
   unsigned char last_pulse = 0;
   
+  State prevModeAdj = State::OFF;
+  
   void stepCycle();
   
 };
