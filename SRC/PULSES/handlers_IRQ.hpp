@@ -14,9 +14,8 @@ public:
   static CProxyHandlerTIMER& getInstance(); 
 
   CSIFU* pPuls;
-  CREM_OSC* pRem_osc;
  
-  void set_pointers(CSIFU*, CREM_OSC*);
+  void set_pointers(CSIFU*);
   
   const unsigned int IRQ_MR0  = 0x01;
   const unsigned int IRQ_MR1  = 0x02;

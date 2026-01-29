@@ -1,4 +1,5 @@
 #include "SIFU.hpp"
+#include "pause_us.hpp"
 
 void CSIFU::rising_puls() {
   
@@ -6,62 +7,33 @@ void CSIFU::rising_puls() {
   
   // Фронт ИУ рабочего моста
   if (main_bridge) {
-    if(!wone_reg){
+    if(!wone_reg) {
       LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
     } else{
       LPC_GPIO3->CLR = pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
     }
-
-    LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
-    
-    LPC_PWM0->PR = PWM_div_0 - 1;
-    LPC_PWM0->MCR = MR0R; // Reset TC on MR0
-    LPC_PWM0->MR0 = PWM_WIDTH * 2;
-    LPC_PWM0->MR1 = PWM_WIDTH;
-    LPC_PWM0->LER = LER_012; 
-    LPC_PWM0->PCR |= PCR_PWMENA1;
-    // Важно
-    LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
-    LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
-    // ----
-    LPC_IOCON->P1_2 = IOCON_P_PWM; // P1_2 -> PWM
-    LPC_PWM0->TCR = COUNTER_START; // Запускаем   
-    
+    StartMainBridgePWM0();
   }
   // Фронт ИУ  форсировочного моста
   else if (forcing_bridge) {
-    LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
-    
-    LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
-    
-    LPC_PWM0->PR = PWM_div_0 - 1;
-    LPC_PWM0->MCR = MR0R; // Reset TC on MR0
-    LPC_PWM0->MR0 = PWM_WIDTH * 2;
-    LPC_PWM0->MR2 = PWM_WIDTH;
-    LPC_PWM0->LER = LER_012; 
-    LPC_PWM0->PCR |= PCR_PWMENA2;
-    // Важно
-    LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
-    LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
-    // ----
-    LPC_IOCON->P1_3 = IOCON_P_PWM; // P1_3 -> PWM
-    LPC_PWM0->TCR = COUNTER_START; // Запускаем
-    
+    LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];   
+    StartForsingBridgePWM0();
   }
+  
+  RISING_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
+  LPC_TIM3->MR1 = static_cast<unsigned int>(RISING_MR0 + SIFUConst::PULSE_WIDTH);  // Задание момента выключения ИУ 
   
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.
   control_fault_and_reg();              // Контроль аварий и регулирование
   control_sync();                       // Мониторинг события захвата CR1 синхроимпульсом
-  
-  signed int cur_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
-  
+   
   signed int res; // служебная переменная
   
   switch (Operating_mode) {
   
   // СИФУ не синхронизировано, ИУ следуют через 60 градусов 
   case EOperating_mode::NO_SYNC:
-    res = static_cast<signed int>(LPC_TIM3->MR0) + s_const._60gr;    // Вычисление следующего значения MR0
+    res = RISING_MR0 + s_const._60gr;    // Вычисление следующего значения MR0
     LPC_TIM3->MR0 = static_cast<unsigned int>(res);                  // Установка следующего значения MR0
     curSyncStat = static_cast<unsigned char>(State::OFF);            // Статус синхронизации
     break;
@@ -102,13 +74,12 @@ void CSIFU::rising_puls() {
     curSyncStat = static_cast<unsigned char>(State::ON);        // Статус синхронизации
     break;
 
-  }
-  
-  res = cur_MR0 + SIFUConst::PULSE_WIDTH;               // Вычисление момента выключения ИУ
-  LPC_TIM3->MR1 = static_cast<unsigned int>(res);       // Задание значения MR1  
+  } 
   
   off_wone_reg();                                       // Контроль отключения режима "Через один"
   off_pulses_control();                                 // Контроль фазы выключения ИУ
+  
+  rRemOsc.send_data();  // Передача отображаемых данных в ESP32
 
 }
 
@@ -134,7 +105,7 @@ unsigned int CSIFU::timing_calc() {
     // События синхронизации не было,
     // продолжаем последовательность ИУ. 60гр + dAlpha
     ret = 
-      static_cast<signed int>(LPC_TIM3->MR0) + 
+      RISING_MR0 + 
       static_cast<signed int>(s_const._60gr) +
       static_cast<signed int>(d_Alpha);
  
@@ -322,8 +293,8 @@ float* CSIFU::get_Sync_Frequency() { return &v_sync.SYNC_FREQUENCY; }
 
 unsigned char* CSIFU::getSyncStat() { return &curSyncStat; } 
 
-CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p, CEEPSettings& rSettings) 
-: rPulsCalc(rPulsCalc), rReg_manager(rReg_manager), rFault_p(rFault_p), rSettings(rSettings){}
+CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p, CEEPSettings& rSettings, CREM_OSC& rRemOsc) 
+: rPulsCalc(rPulsCalc), rReg_manager(rReg_manager), rFault_p(rFault_p), rSettings(rSettings), rRemOsc(rRemOsc) {}
 
 void CSIFU::init_and_start(CProxyPointerVar& PPV) {
   

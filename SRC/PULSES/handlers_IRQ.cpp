@@ -12,9 +12,8 @@ CProxyHandlerTIMER& CProxyHandlerTIMER::getInstance() {
   return instance;
 }
 
-void CProxyHandlerTIMER::set_pointers(CSIFU* pPuls, CREM_OSC* pRem_osc) {
+void CProxyHandlerTIMER::set_pointers(CSIFU* pPuls) {
   this->pPuls = pPuls;
-  this->pRem_osc = pRem_osc;
 }
 
 extern "C" {
@@ -28,8 +27,7 @@ extern "C" {
     if (IRQ & rProxy.IRQ_MR0)  // Прерывание по Compare с MR0 (P->1)
     {
       LPC_TIM3->IR |= rProxy.IRQ_MR0;
-      rProxy.pPuls->rising_puls();   // Фронт ИУ
-      rProxy.pRem_osc->send_data();  // Передача отображаемых данных в ESP32
+      rProxy.pPuls->rising_puls();   // Фронт ИУ     
     }
     // Faling puls
     if (IRQ & rProxy.IRQ_MR1)  // Прерывание по Compare с MR1 (P->0)

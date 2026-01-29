@@ -12,11 +12,12 @@ class CRegManager;
 
 class CSIFU {
  public:
-  CSIFU(CPULSCALC&, CRegManager&, CFaultCtrlP&, CEEPSettings&);
+  CSIFU(CPULSCALC&, CRegManager&, CFaultCtrlP&, CEEPSettings&, CREM_OSC&);
 
   CPULSCALC& rPulsCalc;
   CRegManager& rReg_manager;
   CFaultCtrlP& rFault_p;
+  CREM_OSC& rRemOsc;
 
   void forcing_bridge_pulses_On();  // Подать импульсы на форсировочный мост
   void main_bridge_pulses_On();     // Подать импульсы на основной мост
@@ -44,6 +45,7 @@ class CSIFU {
     static constexpr signed short _0gr = 0;
     static constexpr signed short _5gr = 278;
     static constexpr signed short _10gr = 555;
+    static constexpr signed short _13gr = 722;
     static constexpr signed short _15gr = 833;
     static constexpr signed short _30gr = 1667;
     static constexpr signed short _60gr = 3333;
@@ -52,7 +54,7 @@ class CSIFU {
     static constexpr signed short _150gr = 8333;
     static constexpr signed short _180gr = 10000;
     
-    static constexpr signed int PULSE_WIDTH = 2515;  // us
+    static constexpr signed int PULSE_WIDTH = 1515;  // us
     
     static constexpr float TIC_SEC = 1000000.0;
     
@@ -61,7 +63,7 @@ class CSIFU {
     
     static constexpr signed short AMax = _150gr;
     static constexpr signed short AMin = _30gr;
-    static constexpr signed short dAlpha = _30gr;
+    static constexpr signed short dAlpha = _15gr;
     
     static constexpr unsigned int N_PULSES = 6;
     static constexpr unsigned int N_PULSES_STOP = 50;
@@ -103,11 +105,50 @@ private:
    SIFUConst::_0gr      // Диапазон 60...120      (sync "видит" 6-й: ->1-2-3-4-5-sync-6->1-2-3...)
   };  // Индекс 0 не используется
 
-
+  inline void StartMainBridgePWM0() {
+    LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0;
+    
+    LPC_PWM0->PR  = PWM_div_0 - 1;
+    LPC_PWM0->MCR = MR0R; // Reset TC on MR0
+    LPC_PWM0->MR0 = PWM_WIDTH * 2;
+    LPC_PWM0->MR1 = PWM_WIDTH;
+    LPC_PWM0->LER = LER_012;
+    LPC_PWM0->PCR |= PCR_PWMENA1;
+    
+    // Важно
+    LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
+    LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
+    
+    // Настройка вывода
+    LPC_IOCON->P1_2 = IOCON_P_PWM; // P1_2 -> PWM
+    
+    LPC_PWM0->TCR = COUNTER_START; // Запуск
+  }
+  
+  inline void StartForsingBridgePWM0() {
+    LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
+    
+    LPC_PWM0->PR = PWM_div_0 - 1;
+    LPC_PWM0->MCR = MR0R; // Reset TC on MR0
+    LPC_PWM0->MR0 = PWM_WIDTH * 2;
+    LPC_PWM0->MR2 = PWM_WIDTH;
+    LPC_PWM0->LER = LER_012; 
+    LPC_PWM0->PCR |= PCR_PWMENA2;
+    // Важно
+    LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
+    LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
+    // ----
+    LPC_IOCON->P1_3 = IOCON_P_PWM; // P1_3 -> PWM
+    LPC_PWM0->TCR = COUNTER_START; // Запускаем
+  }
+  
+  
   bool forcing_bridge = false;
   bool main_bridge = false;
   bool wone_reg = false;
   State phase_stop = State::OFF;
+  MeterPhase meter_phase = MeterPhase::RISING;
+  signed int RISING_MR0;
   signed short n_pulses_stop = 0;
   signed short n_pulses_wone = 0;
 
