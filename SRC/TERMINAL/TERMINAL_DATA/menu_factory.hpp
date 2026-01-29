@@ -74,7 +74,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
       o(Mn.CURRENT_DATA[l],{          
           o::Dual("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp,  cd::cdr.Id, p0, vt::sshort,
                   "U-Rotor", pAdc.getEPointer(sadc::ROTOR_VOLTAGE), un::Volt, cd::cdr.Ud, p0, vt::sshort, nm::In2V),          
-          o::Dual("Sync",    sifu.getSyncStat(),                    un::b,    cd::one,    p0, vt::eb_0,
+          o::Dual("Sync",    sifu.get_pSyncStat(),                  "",       cd::one,    p0, vt::vbool,
                   "Fsync",   sifu.get_Sync_Frequency(),             un::Hz,   cd::one,    p1, vt::vfloat, nm::In2V),
           o::Dual("P5",      pAdc.getIPointer(sadc::SUPPLY_P5),     un::Volt, cd::one,    p1, vt::vfloat,
                   "N5",      pAdc.getIPointer(sadc::SUPPLY_N5),     un::Volt, cd::one,    p1, vt::vfloat, nm::In2V),}),

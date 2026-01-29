@@ -1,5 +1,4 @@
 #include "SIFU.hpp"
-
 #include "dIOStorage.hpp"
 
 void CSIFU::rising_puls() {
@@ -9,7 +8,8 @@ void CSIFU::rising_puls() {
     puls_phase = PulsPhase::_13DEG;
     
     // Текущий номер импульса (1...6)
-    N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;    
+    N_Pulse = (N_Pulse % s_const.N_PULSES) + 1;  
+    
     // Фронт ИУ рабочего моста
     if (main_bridge) { 
       StartMainBridgePWM0();
@@ -18,6 +18,7 @@ void CSIFU::rising_puls() {
     else if (forcing_bridge) {   
       StartForsingBridgePWM0();
     }
+    
     // Задание момента выключения ИУ
     RISING_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
     LPC_TIM3->MR1 = static_cast<unsigned int>(RISING_MR0 + SIFUConst::PULSE_WIDTH);   
@@ -27,9 +28,10 @@ void CSIFU::rising_puls() {
     
   case PulsPhase::_13DEG:
   default: 
-    CDIN_STORAGE::UserLedOn();
     puls_phase = PulsPhase::RISING;
   }
+  
+  CDIN_STORAGE::UserLedOn();
   
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.
   control_fault_and_reg();              // Контроль аварий и регулирование
@@ -40,14 +42,14 @@ void CSIFU::rising_puls() {
   // ---СИФУ не синхронизировано, ИУ следуют через 60 градусов--- 
   case EOperating_mode::NO_SYNC:
     LPC_TIM3->MR0 = static_cast<unsigned int>(RISING_MR0 + s_const._60gr);      // Установка следующего значения MR0
-    curSyncStat = static_cast<unsigned char>(State::OFF);                       // Статус синхронизации
+    SyncStat = static_cast<bool>(State::OFF);                                    // Статус синхронизации
     break;
     
   // ---СИФУ синхронизировано. ИУ следуют через 60 градусов + dAlpha---
   case EOperating_mode::NORMAL:
     Alpha_setpoint = limits_val(&Alpha_setpoint, s_const.AMin, s_const.AMax);   // Ограничения величины альфа
-    LPC_TIM3->MR0 = timing_calc();                                              // Вычисление и установка следующего значения MR0
-    curSyncStat = static_cast<unsigned char>(State::ON);                        // Статус синхронизации
+    LPC_TIM3->MR0 = timing_calc();                                              // Вычисление и установка следующего значения MR0                      
+    SyncStat = static_cast<bool>(State::ON);                                    // Статус синхронизации
     break;
     
   // ---Вход в синхронизированный режим. Начало с 1-го ИУ. Начальный угол Alpha_current = Amax---  
@@ -64,7 +66,7 @@ void CSIFU::rising_puls() {
         static_cast<signed int>(v_sync.cur_power_shift);  // Смещение относительно силового питания
       
       LPC_TIM3->MR0 = static_cast<unsigned int>(res);             // Установка значения MR0 для 1-го ИУ
-      curSyncStat = static_cast<unsigned char>(State::OFF);       // Статус синхронизации
+      SyncStat = static_cast<bool>(State::ON);                    // Статус синхронизации
       N_Pulse = 6;                                                // 6-й устанавливаем текущим    
     }
     break;
@@ -78,7 +80,7 @@ void CSIFU::rising_puls() {
     
     Alpha_setpoint = s_const._0gr;                              // Задание Alpha ноль градусов
     LPC_TIM3->MR0 = timing_calc();                              // Вычисление и установка следующего значения MR0
-    curSyncStat = static_cast<unsigned char>(State::ON);        // Статус синхронизации
+    SyncStat = static_cast<bool>(State::ON);                    // Статус синхронизации
     break;
     
   } 
@@ -297,9 +299,8 @@ void CSIFU::set_d_shift(unsigned char d_shift) {
   }
 }
 
-float* CSIFU::get_Sync_Frequency() { return &v_sync.SYNC_FREQUENCY; }
-
-unsigned char* CSIFU::getSyncStat() { return &curSyncStat; } 
+float* CSIFU::get_Sync_Frequency() { return &v_sync.SYNC_FREQUENCY; } 
+bool* CSIFU::get_pSyncStat() { return &SyncStat; } 
 
 CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p, CEEPSettings& rSettings, CREM_OSC& rRemOsc) 
 : rPulsCalc(rPulsCalc), rReg_manager(rReg_manager), rFault_p(rFault_p), rSettings(rSettings), rRemOsc(rRemOsc) {}

@@ -20,7 +20,7 @@ void CReadyCheck::check(bool Permission) {
   check(Ready, abs(*rAdcStr.getEPointer(sadc::ROTOR_CURRENT))  > dMax,  ENotReadyId::SENS_CR_FAULT);
   check(Ready, abs(*rAdcStr.getEPointer(sadc::ROTOR_VOLTAGE))  > dMax,  ENotReadyId::SENS_VR_FAULT);
   check(Ready, abs(*rAdcStr.getEPointer(sadc::STATOR_CURRENT)) > dMax,  ENotReadyId::SENS_CS_FAULT);
-  check(Ready, !(*pSys_manager->rSIFU.getSyncStat()),                   ENotReadyId::NOT_SYNC);
+  check(Ready, !(*pSys_manager->rSIFU.get_pSyncStat()),                 ENotReadyId::NOT_SYNC);
   check(Ready, rDinStr.HVS_Status() == StatusHVS::ERR_BC,               ENotReadyId::BC_HVS_ERR);
   check(Ready, rDinStr.CU_from_testing(),                               ENotReadyId::PK_FAULT);
 

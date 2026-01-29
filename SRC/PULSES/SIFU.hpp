@@ -30,9 +30,10 @@ class CSIFU {
   void set_d_shift(unsigned char);  // Установка дискретного сдвига синхронизации
   void set_alpha(signed short);     // Установка Alpha
   signed short get_alpha();         // Чтение Alpha
-  unsigned char* getSyncStat();     // Чтение текущего статуса синхронизации
+  bool* get_pSyncStat();            // Чтение текущего статуса синхронизации
   float* get_Sync_Frequency();      // Возвращает частоту синхронизации
   signed short* getPointerAlpha();
+   
 
   void init_and_start(CProxyPointerVar&);  // Инициализация
   void rising_puls();     // Фронт импульса
@@ -177,7 +178,8 @@ private:
   enum class EOperating_mode { NO_SYNC, RESYNC, NORMAL, PHASING };
 
   EOperating_mode Operating_mode = EOperating_mode::NO_SYNC;  // Текущий режим работы СИФУ
-  unsigned char curSyncStat;
+  
+  bool SyncStat;
 
   struct SyncState  // Структура переменных касающихся синхронизации
   {
