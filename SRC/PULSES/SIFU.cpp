@@ -1,28 +1,43 @@
 #include "SIFU.hpp"
-#include "pause_us.hpp"
+
+#include "dIOStorage.hpp"
 
 void CSIFU::rising_puls() {
   
-  N_Pulse = (N_Pulse % s_const.N_PULSES) + 1; // Текущий номер импульса (1...6)
-  
-  // Фронт ИУ рабочего моста
-  if (main_bridge) {
-    if(!wone_reg) {
-      LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
-    } else{
-      LPC_GPIO3->CLR = pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
+  switch (meter_phase) {
+  case MeterPhase::RISING:
+    meter_phase = MeterPhase::_13DEG;
+    
+    N_Pulse = (N_Pulse % s_const.N_PULSES) + 1; // Текущий номер импульса (1...6)
+    
+    // Фронт ИУ рабочего моста
+    if (main_bridge) {
+      if(!wone_reg) {
+        LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
+      } else{
+        LPC_GPIO3->CLR = pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
+      }
+      StartMainBridgePWM0();
     }
-    StartMainBridgePWM0();
-  }
-  // Фронт ИУ  форсировочного моста
-  else if (forcing_bridge) {
-    LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];   
-    StartForsingBridgePWM0();
+    // Фронт ИУ  форсировочного моста
+    else if (forcing_bridge) {
+      LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];   
+      StartForsingBridgePWM0();
+    }
+          
+    RISING_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
+    LPC_TIM3->MR1 = static_cast<unsigned int>(RISING_MR0 + SIFUConst::PULSE_WIDTH);  // Задание момента выключения ИУ 
+    
+    LPC_TIM3->MR0 = static_cast<unsigned int>(RISING_MR0 + s_const._13gr);
+    return;
+    
+  case MeterPhase::_13DEG:
+    CDIN_STORAGE::UserLedOn();
+    meter_phase = MeterPhase::RISING;
+    break;
   }
   
-  RISING_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
-  LPC_TIM3->MR1 = static_cast<unsigned int>(RISING_MR0 + SIFUConst::PULSE_WIDTH);  // Задание момента выключения ИУ 
-  
+
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.
   control_fault_and_reg();              // Контроль аварий и регулирование
   control_sync();                       // Мониторинг события захвата CR1 синхроимпульсом
@@ -80,7 +95,8 @@ void CSIFU::rising_puls() {
   off_pulses_control();                                 // Контроль фазы выключения ИУ
   
   rRemOsc.send_data();  // Передача отображаемых данных в ESP32
-
+  
+  CDIN_STORAGE::UserLedOff();
 }
 
 // Вычисление следующего значения MR0 (фронт следующего ИУ)
