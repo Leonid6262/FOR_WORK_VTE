@@ -37,22 +37,24 @@ class CSIFU {
 
   void init_and_start(CProxyPointerVar&);  // Инициализация
   void rising_puls();     // Фронт импульса
-  void faling_puls();     // Спад импульса
-  
-  struct SIFUConst  // Структура констант
-  {
+  void faling_puls();     // Спад импульса 
+
+  // Структура констант
+  struct SIFUConst {
+    
     static constexpr float DT_MIN = 19608; // 51.0 Hz
     static constexpr float DT_MAX = 20408; // 49.0 Hz 
+    
     static constexpr signed short _0gr = 0;
-    static constexpr signed short _5gr = 278;
-    static constexpr signed short _10gr = 555;
-    static constexpr signed short _13gr = 722;
-    static constexpr signed short _15gr = 833;
-    static constexpr signed short _30gr = 1667;
-    static constexpr signed short _60gr = 3333;
+    static constexpr signed short _5gr =   (5 * 10000 + 90) / 180;
+    static constexpr signed short _10gr = (10 * 10000 + 90) / 180;
+    static constexpr signed short _13gr = (13 * 10000 + 90) / 180;
+    static constexpr signed short _15gr = (15 * 10000 + 90) / 180;
+    static constexpr signed short _30gr = (30 * 10000 + 90) / 180;
+    static constexpr signed short _60gr = (60 * 10000 + 90) / 180;
     static constexpr signed short _90gr = 5000;
-    static constexpr signed short _120gr = 6667;
-    static constexpr signed short _150gr = 8333;
+    static constexpr signed short _120gr = (120 * 10000 + 90) / 180;
+    static constexpr signed short _150gr = (150 * 10000 + 90) / 180;
     static constexpr signed short _180gr = 10000;
     
     static constexpr signed int PULSE_WIDTH = 1515;  // us
