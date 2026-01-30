@@ -23,11 +23,11 @@ namespace cd {
   constexpr float one     = 1.0f;
   constexpr float Alpha   = 180.0f / 10000;     // 180deg / 10000 tick timers
 
-  // Коэффициенты передачи
-  constexpr unsigned short ADC_DISCR_ID = 2047; // 4095*50A/100A <- 2xInom
-  constexpr unsigned short ADC_DISCR_UD = 819;  // 2047*48V/120V <- 2.5xUnom
-  constexpr unsigned short ADC_DISCR_IS = 482;  // (2047/1.41)*54A/162A <- 3xInom
-  constexpr unsigned short ADC_DISCR_US = 1259; // (2047/1.41)*400V/460V <- 1.15*Unom
+  // Коэффициенты передачи каналов
+  constexpr unsigned short ADC_DISCR_ID = 2047; // 4095*Inom/2*Inom           <- 2xInom    (50A/100A)
+  constexpr unsigned short ADC_DISCR_UD = 819;  // 2047*Unom/2.5*Unom         <- 2.5xUnom  (48V/120V)
+  constexpr unsigned short ADC_DISCR_IS = 482;  // (2047/1.41)*Inom/3xInom    <- 3xInom    (54A/162A)
+  constexpr unsigned short ADC_DISCR_US = 1259; // (2047/1.41)*Unom/1.15*Unom <- 1.15*Unom (400V/460V)
   
   constexpr float IdNomDef = 315.0f; // Дефолтное значение IdNom
   constexpr float UdNomDef = 75.0f;  // Дефолтное значение UdNom
@@ -182,7 +182,7 @@ class CEEPSettings {
   void EEPw(uint16_t page_offset, uint16_t page_address, void* data, EEPROM_Mode_Type mode, uint32_t count);
   
  public:
-  // Публичный метод для получения единственного экземпляра ---
+
   static CEEPSettings& getInstance();
 
   // Загрузки/сохранения уставок ---
