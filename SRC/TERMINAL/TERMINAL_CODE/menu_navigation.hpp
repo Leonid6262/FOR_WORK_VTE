@@ -120,6 +120,7 @@ private:
       unsigned short ushort_val;
       float float_val;
       char bit_in_char;
+      bool bit_bool;
     } original;                         // исходные значения
   } start_e_data;
       

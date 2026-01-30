@@ -26,8 +26,8 @@ namespace cd {
   // Коэффициенты передачи (дискрет на номинальное значение)
   constexpr unsigned short ADC_DISCR_ID = 1000;
   constexpr unsigned short ADC_DISCR_UD = 1500;
-  constexpr unsigned short ADC_DISCR_IS = 1000;
-  constexpr unsigned short ADC_DISCR_US = 2000;
+  constexpr unsigned short ADC_DISCR_IS = 1452;
+  constexpr unsigned short ADC_DISCR_US = 1262;
   
   constexpr float IdNomDef = 315.0f; // Дефолтное значение IdNom
   constexpr float UdNomDef = 75.0f;  // Дефолтное значение UdNom

@@ -8,8 +8,8 @@ class CProxyHandlerTIMER {
   
 public:  
   CSIFU* pPuls;
-  static CProxyHandlerTIMER& getInstance(); 
   void set_pointers(CSIFU*);
+  static CProxyHandlerTIMER& getInstance(); 
   
   static constexpr unsigned int IRQ_MR0 = 0x01;
   static constexpr unsigned int IRQ_MR1 = 0x02;

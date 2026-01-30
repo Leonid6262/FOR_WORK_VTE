@@ -606,7 +606,9 @@ void CMenuNavigation::enterEditMode(MenuNode& parent) {
     start_e_data.original.float_val = *static_cast<float*>(targetNode->pVariable); 
     d.f_delta_min = 1.0f / std::pow(10.0f, targetNode->precision); d.f_delta_cur = d.f_delta_min; 
     break; 
-    
+  case NProxyVar::EVarType::vbool: 
+    start_e_data.original.bit_bool = *static_cast<bool*>(targetNode->pVariable);     
+    break;   
   default: 
     if (bitIndex(targetNode->varType) >= 0) { 
       start_e_data.original.bit_in_char = *static_cast<char*>(targetNode->pVariable); 
@@ -630,6 +632,9 @@ void CMenuNavigation::exitEditMode() {
   case NProxyVar::EVarType::vfloat:
     *static_cast<float*>(start_e_data.pVar) = start_e_data.original.float_val;
     break;
+  case NProxyVar::EVarType::vbool:
+    *static_cast<bool*>(start_e_data.pVar) = start_e_data.original.bit_bool;
+    break;  
   default:
     // Если тип переменнрй бит байта 
     if (bitIndex(start_e_data.var_type) >= 0) { 

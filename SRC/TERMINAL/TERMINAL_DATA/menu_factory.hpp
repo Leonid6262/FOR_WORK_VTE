@@ -72,9 +72,11 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
     
   o(Mn.INDICATION[l],{
       o(Mn.CURRENT_DATA[l],{          
-          o::Dual("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp,  cd::cdr.Id, p0, vt::sshort,
-                  "U-Rotor", pAdc.getEPointer(sadc::ROTOR_VOLTAGE), un::Volt, cd::cdr.Ud, p0, vt::sshort, nm::In2V),          
-          o::Dual("Sync",    sifu.get_pSyncStat(),                  "",       cd::one,    p0, vt::vbool,
+          o::Dual("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT),   un::Amp,  cd::cdr.Id, p0, vt::sshort,
+                  "U-Rotor", pAdc.getEPointer(sadc::ROTOR_VOLTAGE),   un::Volt, cd::cdr.Ud, p0, vt::sshort, nm::In2V),
+          o::Dual("I-Stat",  sifu.rPulsCalc.getPointer_istator_rms(), un::Amp,  cd::cdr.IS, p0, vt::vfloat,
+                  "U-Stat",  sifu.rPulsCalc.getPointer_ustator_rms(), un::Volt, cd::cdr.US, p0, vt::vfloat, nm::In2V),          
+          o::Dual("Sync",    sifu.get_pSyncStat(),                  "Sync",   cd::one,    p0, vt::vbool,
                   "Fsync",   sifu.get_Sync_Frequency(),             un::Hz,   cd::one,    p1, vt::vfloat, nm::In2V),
           o::Dual("P5",      pAdc.getIPointer(sadc::SUPPLY_P5),     un::Volt, cd::one,    p1, vt::vfloat,
                   "N5",      pAdc.getIPointer(sadc::SUPPLY_N5),     un::Volt, cd::one,    p1, vt::vfloat, nm::In2V),}),
@@ -192,8 +194,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
       o("Day:",         {}, &rRTC.DateTimeForSet.day,   "", cd::one, p0, vt::ushort, nm::Ed1V,  1, 31),
       o("Hour:",        {}, &rRTC.DateTimeForSet.hour,  "", cd::one, p0, vt::ushort, nm::Ed1V,  0, 23),
       o("Minute:",      {}, &rRTC.DateTimeForSet.minute,"", cd::one, p0, vt::ushort, nm::Ed1V,  0, 60),
-      o("SET",          {}, &rRTC.set_date_time,        "", cd::one, p0, vt::vbool,  nm::Ed1V,  0, 1),      
-  }),
+      o("SET",          {}, &rRTC.set_date_time,        "", cd::one, p0, vt::vbool,  nm::Ed1V,  0, 1),}),
   o(Mn.INFO[l],{
       o("Description:", {}, static_cast<void*>(const_cast<char*>(BuildInfo::Description)), "", cd::one, p0,vt::text, nm::In1V),
       o("Git Version:", {}, static_cast<void*>(const_cast<char*>(BuildInfo::Version)),     "", cd::one, p0,vt::text, nm::In1V),
