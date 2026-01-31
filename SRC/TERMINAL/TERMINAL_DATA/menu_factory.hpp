@@ -118,11 +118,11 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
               o("KpQ",   {}, &set.set_reg.KpQ, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiQ",   {}, &set.set_reg.KiQ, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),}),
       o(Mn.PUSK[l], {
-          o("I Fors", {}, &set.set_pusk.IFors, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2*set.params.IdNom),
-          o("T Fors", {}, &set.set_pusk.TFors, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 10),
-          o("T Pusk", {}, &set.set_pusk.TPusk, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
-          o("IS Pusk",{}, &set.set_pusk.ISPusk,un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
-          o("S Pusk", {}, &set.set_pusk.SPusk, "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
+          o("I fors",  {}, &set.set_pusk.IFors, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2*set.params.IdNom),
+          o("T fors",  {}, &set.set_pusk.TFors, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 10),
+          o("T pusk",  {}, &set.set_pusk.TPusk, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
+          o("IS start",{}, &set.set_pusk.ISPusk,un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
+          o("s start", {}, &set.set_pusk.sPusk, "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
       o(Mn.PARAMS[l], {
           o("Id Nom", {}, &set.params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V, 200,  400),
           o("Ud Nom", {}, &set.params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V,  48,  230),

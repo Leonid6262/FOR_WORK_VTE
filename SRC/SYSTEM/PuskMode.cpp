@@ -19,7 +19,7 @@ void CPuskMode::pusk(bool Permission) {
     cur_status = State::ON;
     phases_pusk = EPhasesPusk::CheckCurrent; 
     SWork::setMessage(EWorkId::PUSK);
-    return;
+    prev_TC0_Phase = LPC_TIM0->TC;
   } 
   
   if((rDinStr.HVS_Status() == StatusHVS::OFF) && cur_status == State::ON) { 
@@ -27,6 +27,8 @@ void CPuskMode::pusk(bool Permission) {
     StopPusk();
     return;
   }
+  
+  if(cur_status == State::OFF) return;
   
   switch(phases_pusk) {
   case EPhasesPusk::CheckCurrent:    CheckCurrent(); break;
@@ -41,7 +43,13 @@ void CPuskMode::pusk(bool Permission) {
 }
 
 void CPuskMode::CheckCurrent() {
-
+  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  if(dTrsPhase < CHECK_IS) return;
+  if(*rSIFU.rPulsCalc.getPointer_istator_rms() > rSet.getSettings().set_pusk.ISPusk*0.5f) {
+    
+  } else {
+    StopPusk();
+  }
 }
 
 void CPuskMode::WaitCurrentDrop() {

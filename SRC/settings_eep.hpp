@@ -29,9 +29,11 @@ namespace cd {
   constexpr unsigned short ADC_DISCR_IS = 482;  // (2047/1.41)*Inom/3xInom    <- 3xInom    (54A/162A), cd=0.1120
   constexpr unsigned short ADC_DISCR_US = 1259; // (2047/1.41)*Unom/1.15*Unom <- 1.15*Unom (380V/437V),cd=0.3018
   
-  constexpr float IdNomDef = 50.0f; // Дефолтное значение IdNom
-  constexpr float UdNomDef = 48.0f;  // Дефолтное значение UdNom
-  
+  constexpr float IdNomDef =  50.0f;  // Дефолтное значение IdNom
+  constexpr float UdNomDef =  48.0f;  // Дефолтное значение UdNom
+  constexpr float ISNomDef =  54.0f;  // Дефолтное значение IdNom
+  constexpr float USNomDef = 380.0f;  // Дефолтное значение UdNom
+   
   /* Параметрические (runtime) */  
   // Коэффициенты отображения
   struct DisplayCoeffs { 
@@ -93,7 +95,7 @@ class CEEPSettings {
       unsigned short TFors;                                     /* Длительность форсировки */
       unsigned short TPusk;                                     /* Максимальное время пуска */ 
       unsigned short ISPusk;                                    /* Пусковой ток статора */
-      float SPusk;                                              /* Пусковое скольжение */      
+      float sPusk;                                              /* Пусковое скольжение */      
     } set_pusk; 
     struct {                                               // 17 Рабочие начальные значения
       unsigned short Iset_0;                                     /* Ток после форсировки в режиме РТ */  
@@ -142,15 +144,15 @@ class CEEPSettings {
     .params = {
       .IdNom = static_cast<unsigned short>(cd::IdNomDef),
       .UdNom = static_cast<unsigned short>(cd::UdNomDef),
-      .ISNom = 54,
-      .USNom = 380,
+      .ISNom = static_cast<unsigned short>(cd::ISNomDef),
+      .USNom = static_cast<unsigned short>(cd::USNomDef),
     },
     .set_pusk = {
       .IFors = static_cast<unsigned short>((((cd::IdNomDef * 1.5f) * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
       .TFors = 3,
       .TPusk = 20,
-      .ISPusk = 1000,
-      .SPusk = 0,
+      .ISPusk = static_cast<unsigned short>((((cd::ISNomDef)  * cd::ADC_DISCR_IS ) / cd::ISNomDef) + 0.5f),
+      .sPusk = 0.0f,
     },
     .work_set = {
       .Iset_0    = static_cast<unsigned short>((((cd::IdNomDef / 2)  * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
