@@ -57,7 +57,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static CFaultCtrlF fault_ctrl_f(CDIN_STORAGE::getInstance());
   static CTestingMode test_mode( CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CDryingMode drying_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
-  static CPuskMode pusk_mode;
+  static CPuskMode pusk_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CWorkMode work_mode;
   static CWarningMode warning_ctrl;
   

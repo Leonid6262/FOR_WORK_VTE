@@ -35,9 +35,9 @@ private:
   StatusRet PK_STATUS; 
   
   unsigned short dIset; 
-  static constexpr float dTset = 0.2f; // 0.2  сек
+  static constexpr float ChangeInterval = 0.2f; // 0.2  сек
     
-  static constexpr unsigned int _to_sec         = 10000000;
+  static constexpr unsigned int TICK_SEC        = 10000000;
   static constexpr unsigned int BRIDGE_CHANGAE  = 1000000; // 0,1 сек
   static constexpr unsigned int RELAY_PAUSE_OFF = 5000000; // 0,5 сек
   static constexpr unsigned int CLOSING_KEY     = 500000;  // 0,05 сек

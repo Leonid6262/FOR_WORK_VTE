@@ -2,8 +2,9 @@
 #include "_SystemManager.hpp"
 
 CTestingMode::CTestingMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet) : 
-  rDinStr(rDinStr), cur_status(State::OFF), rSIFU(rSIFU), rSet(rSet) { 
-  dIset = static_cast<unsigned short>((rSet.getSettings().work_set.dIset * dTset) + 0.5f); 
+  rDinStr(rDinStr), cur_status(State::OFF), rSIFU(rSIFU), rSet(rSet) {
+  // Приращение задания dIset = Iset'*dT
+  dIset = static_cast<unsigned short>((rSet.getSettings().work_set.derivIset * ChangeInterval) + 0.5f); 
 } 
 
 void CTestingMode::test(bool Permission) {
@@ -55,7 +56,7 @@ void CTestingMode::StartPhase() {
 
 void CTestingMode::Forcing() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  if (dTrsPhase >= rSet.getSettings().set_pusk.TFors *_to_sec) { 
+  if (dTrsPhase >= rSet.getSettings().set_pusk.TFors * TICK_SEC) { 
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
     rSIFU.main_bridge_pulses_On();
     phases_test = EPhasesTest::RelayExOn;
@@ -111,13 +112,13 @@ void CTestingMode::ControlKey() {
 
 void CTestingMode::Regulation() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  if (dTrsPhase >= rSet.getSettings().set_pusk.TPusk *_to_sec) {
+  if (dTrsPhase >= rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
     StopTest();
     return;
   }
   
   dTrsReg = LPC_TIM0->TC - prev_TC0_Reg;
-  if (dTrsReg >= dTset * _to_sec ) {
+  if (dTrsReg >= ChangeInterval * TICK_SEC ) {
     prev_TC0_Reg = LPC_TIM0->TC;
     
     unsigned short Iset = rSet.getSettings().work_set.Iset_0;

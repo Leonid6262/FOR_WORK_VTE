@@ -23,9 +23,9 @@ void CPULSCALC::conv_and_calc() {
     CADC_STORAGE::STATOR_VOLTAGE, 
     CADC_STORAGE::STATOR_CURRENT,
     CADC_STORAGE::ROTOR_VOLTAGE, 
-    CADC_STORAGE::EXT_SETTINGS, 
     CADC_STORAGE::LE_CURRENT,
-    CADC_STORAGE::NODE_CURRENT});
+    CADC_STORAGE::NODE_CURRENT,
+    CADC_STORAGE::EXT_SETTINGS, });
   /*
   Для сокращения записи аргументов здесь использована си нотация enum, вмесо типобезопасной enum class c++.
   CADC_STORAGE::ROTOR_CURRENT вместо static_cast<char>(CADC_STORAGE::EADC_NameCh::ROTOR_CURRENT) - считаю, разумный
