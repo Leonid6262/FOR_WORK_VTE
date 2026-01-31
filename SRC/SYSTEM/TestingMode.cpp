@@ -2,7 +2,7 @@
 #include "_SystemManager.hpp"
 
 CTestingMode::CTestingMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet) : 
-  rDinStr(rDinStr), cur_status(State::OFF), rSIFU(rSIFU), rSet(rSet) {
+  rDinStr(rDinStr), rSIFU(rSIFU), rSet(rSet), cur_status(State::OFF), pSys_manager(nullptr) {
   // Приращение задания dIset = Iset'*dT
   dIset = static_cast<unsigned short>((rSet.getSettings().work_set.derivIset * ChangeInterval) + 0.5f); 
 } 
@@ -149,4 +149,5 @@ void CTestingMode::StopTest(){
 void CTestingMode::setSysManager(CSystemManager* pSys_manager) {
   this->pSys_manager = pSys_manager;
 }
+
 
