@@ -42,7 +42,7 @@ void CSIFU::rising_puls() {
   // ---СИФУ не синхронизировано, ИУ следуют через 60 градусов--- 
   case EOperating_mode::NO_SYNC:
     LPC_TIM3->MR0 = static_cast<unsigned int>(RISING_MR0 + s_const._60gr);      // Установка следующего значения MR0
-    SyncStat = static_cast<bool>(State::OFF);                                    // Статус синхронизации
+    SyncStat = static_cast<bool>(State::OFF);                                   // Статус синхронизации
     break;
     
   // ---СИФУ синхронизировано. ИУ следуют через 60 градусов + dAlpha---
@@ -86,7 +86,7 @@ void CSIFU::rising_puls() {
   } 
   
   off_wone_reg();       // Контроль отключения режима "Через один"
-  off_pulses_control();                                 // Контроль фазы выключения ИУ
+  off_pulses_control(); // Контроль фазы выключения ИУ
   
   rRemOsc.send_data();  // Передача отображаемых данных в ESP32
   
@@ -184,12 +184,16 @@ void CSIFU::control_sync() {
         v_sync.CURRENT_SYNC = v_sync.cur_capture;
         v_sync.SYNC_FREQUENCY = s_const.TIC_SEC / static_cast<float>(dt);       
         v_sync.no_sync_pulses = 0; // сбрасываем счётчик ИУ не "увидевших" синхронизацию
-      } else {
-        // Сбой. Дельта не равна периоду сети.
-        v_sync.SYNC_FREQUENCY = 0;
-        v_sync.sync_pulses = 0;
-        // Переводим СИФУ в режим "Без синхронизации"
-        Operating_mode = EOperating_mode::NO_SYNC;
+      } else {        
+        v_sync.err_sync_pulses++;
+        if(v_sync.err_sync_pulses > 200) {
+          v_sync.err_sync_pulses = 0;
+          // Дельта не равна периоду сети.Устойчивая помеха. 
+          v_sync.SYNC_FREQUENCY = 0;
+          v_sync.sync_pulses = 0;
+          // Переводим СИФУ в режим "Без синхронизации"
+          Operating_mode = EOperating_mode::NO_SYNC;          
+        }
       }
     } else {
       // Этот импульс СИФУ синхронизацию не "увидел". Считаем ИУ

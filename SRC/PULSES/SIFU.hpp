@@ -195,8 +195,11 @@ private:
 
     unsigned int cur_capture;           // Текущие данные захвата таймера
     unsigned int prev_capture;          // Предыдущие данные захвата таймера
+    
     unsigned short no_sync_pulses = 0;  // Количество пульсов отсутствия события захвата
     unsigned short sync_pulses = 0;     // Количество пульсов с событиями захвата
+    unsigned short err_sync_pulses = 0; // Количество событий захвата с недопустимым периодом
+
 
     float SYNC_FREQUENCY;  // Измеренная частота
 
