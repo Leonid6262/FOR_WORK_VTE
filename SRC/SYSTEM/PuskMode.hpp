@@ -12,6 +12,8 @@ public:
   void setSysManager(CSystemManager*);
   void pusk(bool Permission);   // основной цикл автомата
   
+  float pusk_slip;
+  
 private:
   CDIN_STORAGE& rDinStr;
   CSIFU& rSIFU;
@@ -26,11 +28,11 @@ private:
   
   bool prev_cu;
   unsigned short cu_toggle_count;
-  float slip;
+  float cur_slip;
  
   enum class EPhasesPusk : unsigned short {
     CheckISctrlPK,
-    WaitISdrop,
+    WaitISdropOrSlip,
     Delay,
     Forcing,
     RelayExOn,
@@ -43,7 +45,7 @@ private:
   
   // Фазы пуска
   void CheckISctrlPK();
-  void WaitISdrop();
+  void WaitISdropOrSlip();
   void Delay();
   void Forcing();
   void RelayExOn();

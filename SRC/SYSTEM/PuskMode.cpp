@@ -33,14 +33,14 @@ void CPuskMode::pusk(bool Permission) {
   if(cur_status == State::OFF) return;
   
   switch(phases_pusk) {
-  case EPhasesPusk::CheckISctrlPK:   CheckISctrlPK(); break;
-  case EPhasesPusk::WaitISdrop:      WaitISdrop(); break;
-  case EPhasesPusk::Delay:           Delay(); break;
-  case EPhasesPusk::Forcing:         Forcing(); break;
-  case EPhasesPusk::RelayExOn:       RelayExOn(); break;
-  case EPhasesPusk::RelayPause:      RelayPause(); break;
-  case EPhasesPusk::ClosingKey:      ClosingKey(); break;
-  case EPhasesPusk::ControlKey:      ControlKey(); break;
+  case EPhasesPusk::CheckISctrlPK:    CheckISctrlPK(); break;
+  case EPhasesPusk::WaitISdropOrSlip: WaitISdropOrSlip(); break;
+  case EPhasesPusk::Delay:            Delay(); break;
+  case EPhasesPusk::Forcing:          Forcing(); break;
+  case EPhasesPusk::RelayExOn:        RelayExOn(); break;
+  case EPhasesPusk::RelayPause:       RelayPause(); break;
+  case EPhasesPusk::ClosingKey:       ClosingKey(); break;
+  case EPhasesPusk::ControlKey:       ControlKey(); break;
   }
 }
 
@@ -65,12 +65,14 @@ void CPuskMode::CheckISctrlPK() {
   }
   if(!pSys_manager->USystemStatus.sFault) {
     prev_cu = rDinStr.CU_from_testing();
-    phases_pusk = EPhasesPusk::WaitISdrop;
+    cur_slip = 1.0f;
+    pusk_slip = 1.0f;
+    phases_pusk = EPhasesPusk::WaitISdropOrSlip;
     prev_TC0_Phase = LPC_TIM0->TC;
   }
 }
 
-void CPuskMode::WaitISdrop() {
+void CPuskMode::WaitISdropOrSlip() {
   
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
@@ -78,28 +80,32 @@ void CPuskMode::WaitISdrop() {
     pSys_manager->rFault_ctrl.fault_stop(); 
     return;
   }  
- 
+  
   bool cur_cu = rDinStr.CU_from_testing();
   if(cur_cu != prev_cu) {
     prev_cu = cur_cu;
-
+    
     unsigned int now = LPC_TIM0->TC;
     float TSlipPhase = static_cast<float>(now - prev_cu_time);
     prev_cu_time = now;
     
-    slip = 1.0f - (HALF_NET_PERIOD / TSlipPhase);
-  
+    cur_slip = 1.0f - (HALF_NET_PERIOD / TSlipPhase);
+    
   }
- 
+  
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() <= rSet.getSettings().set_pusk.ISPusk) {
+    SWork::setMessage(EWorkId::PUSK_ON_IS);
     phases_pusk = EPhasesPusk::Delay;
     prev_TC0_Phase = LPC_TIM0->TC;
+    pusk_slip = cur_slip;
     return;
   } 
   
-  if(slip <= rSet.getSettings().set_pusk.sPusk) {
+  if(cur_slip <= rSet.getSettings().set_pusk.sPusk) {
+    SWork::setMessage(EWorkId::PUSK_ON_SLIPE);    
     phases_pusk = EPhasesPusk::Delay;
     prev_TC0_Phase = LPC_TIM0->TC;
+    pusk_slip = cur_slip;
   } 
   
 }
