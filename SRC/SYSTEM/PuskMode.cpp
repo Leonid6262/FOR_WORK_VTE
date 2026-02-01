@@ -27,20 +27,20 @@ void CPuskMode::pusk(bool Permission) {
   
   if((rDinStr.HVS_Status() == StatusHVS::OFF) && cur_status == State::ON) { 
     pSys_manager->set_bsPuskMotor(State::OFF);
+    StopPusk();
     return;
   }
   
   if(cur_status == State::OFF) return;
   
   switch(phases_pusk) {
-  case EPhasesPusk::CheckISctrlPK:    CheckISctrlPK(); break;
+  case EPhasesPusk::CheckISctrlPK:    CheckISctrlPK();    break;
   case EPhasesPusk::WaitISdropOrSlip: WaitISdropOrSlip(); break;
-  case EPhasesPusk::Delay:            Delay(); break;
-  case EPhasesPusk::Forcing:          Forcing(); break;
-  case EPhasesPusk::RelayExOn:        RelayExOn(); break;
-  case EPhasesPusk::RelayPause:       RelayPause(); break;
-  case EPhasesPusk::ClosingKey:       ClosingKey(); break;
-  case EPhasesPusk::ControlKey:       ControlKey(); break;
+  case EPhasesPusk::Delay:            Delay();            break;
+  case EPhasesPusk::Forcing:          Forcing();          break;
+  case EPhasesPusk::RelayExOn:        RelayExOn();        break;
+  case EPhasesPusk::RelayPause:       RelayPause();       break;
+  case EPhasesPusk::ClosingKey:       ClosingKey();       break;
   }
 }
 
@@ -113,6 +113,10 @@ void CPuskMode::WaitISdropOrSlip() {
 void CPuskMode::Delay() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase >= DELAY_TIME) {
+    rSIFU.set_alpha(rSIFU.s_const.AMax);
+    rSIFU.forcing_bridge_pulses_On();
+    rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
+    rSIFU.rReg_manager.setCurrent(State::ON);    
     phases_pusk = EPhasesPusk::Forcing;
     prev_TC0_Phase = LPC_TIM0->TC;
   }
@@ -124,10 +128,6 @@ void CPuskMode::Forcing() {
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
     rSIFU.main_bridge_pulses_On();
     phases_pusk = EPhasesPusk::RelayExOn;
-    if(!rDinStr.CU_from_testing()) {
-      SWarning::setMessage(EWarningId::PK_NOT_OPEN);
-      PK_STATUS = StatusRet::ERROR;
-    }
     prev_TC0_Phase = LPC_TIM0->TC;
   }  
 }
@@ -153,21 +153,24 @@ void CPuskMode::RelayPause() {
 void CPuskMode::ClosingKey() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) { 
-    phases_pusk = EPhasesPusk::ControlKey;
     if(rDinStr.CU_from_testing()) {
-      SWarning::setMessage(EWarningId::PK_NOT_CLOSE);
-      PK_STATUS = StatusRet::ERROR;
+      SFault::setMessage(EFaultId::PK_NOT_CLOSED);
+      pSys_manager->rFault_ctrl.fault_stop();
+      return;
     }
-    prev_TC0_Phase = LPC_TIM0->TC;
+    SWork::clrMessage(EWorkId::PUSK);
+    pSys_manager->set_bsPuskMotor(State::OFF);
+    pSys_manager->set_bsWorkNormal(State::ON);
   }  
 }
 
-void CPuskMode::ControlKey() {
-  if(PK_STATUS == StatusRet::ERROR) {
-
-  } else {
-    // Сообщения и переход
-  }
+void CPuskMode::StopPusk(){
+  SWork::clrMessage(EWorkId::PUSK);
+  rDinStr.Relay_Ex_Applied(State::OFF);  
+  pSys_manager->set_bsPuskMotor(State::OFF);
+  rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
+  rSIFU.rReg_manager.setCurrent(State::OFF);
+  rSIFU.all_bridge_pulses_Off();
 }
 
 void CPuskMode::setSysManager(CSystemManager* pSys_manager) {

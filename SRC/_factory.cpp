@@ -58,7 +58,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static CTestingMode test_mode( CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CDryingMode drying_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CPuskMode pusk_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
-  static CWorkMode work_mode;
+  static CWorkMode work_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CWarningMode warning_ctrl;
   
   static CSystemManager sys_manager(sifu,      adjustment, ready_check, fault_ctrl_f, 
@@ -67,6 +67,8 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   
   adjustment.setSysManager(&sys_manager);
   test_mode.setSysManager(&sys_manager);
+  pusk_mode.setSysManager(&sys_manager);
+  work_mode.setSysManager(&sys_manager);
   ready_check.setSysManager(&sys_manager);
   drying_mode.setSysManager(&sys_manager);
   fault_ctrl_f.setSysManager(&sys_manager);

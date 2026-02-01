@@ -1,14 +1,29 @@
 #pragma once 
 #include "bool_name.hpp"
-#include "message_factory.hpp"
+#include "dIOStorage.hpp"
+#include "SIFU.hpp"
+
+class CSystemManager;
 
 class CWorkMode {
   
 public:
- CWorkMode();
- void work(bool);
+  CWorkMode(CDIN_STORAGE&, CSIFU&, CEEPSettings&);
+  
+  void setSysManager(CSystemManager*);
+  void work(bool);
   
 private:
-   
- 
+  CDIN_STORAGE& rDinStr;
+  CSIFU& rSIFU;
+  CEEPSettings& rSet;
+  CSystemManager* pSys_manager; 
+  
+  State cur_status;
+  
+  unsigned short dIset; 
+  static constexpr float ChangeInterval = 0.2f; // 0.2  сек
+    
+  static constexpr unsigned int TICK_SEC        = 10000000;
+  
 };

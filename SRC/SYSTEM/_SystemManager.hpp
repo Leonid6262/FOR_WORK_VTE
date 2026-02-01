@@ -56,10 +56,9 @@ public:
     bsAdjustment = 1 << 3, // Работа в режиме "Наладка"    
     bsWorkDry    = 1 << 4, // Работа в режиме "Сушка"
     bsWorkTest   = 1 << 5, // Работа в режиме "Опробование"
-    bsPuskOk     = 1 << 6, // Успешный пуск двигателя
-    bsWorkNormal = 1 << 7, // Штатный режим работы
-    bsWarning    = 1 << 8, // Есть предупреждения
-    bsFault      = 1 << 9  // Авария 
+    bsWorkNormal = 1 << 6, // Штатный режим работы
+    bsWarning    = 1 << 7, // Есть предупреждения
+    bsFault      = 1 << 8  // Авария 
   };
  
  // Установка/сброс битов статуса
@@ -69,7 +68,6 @@ public:
  void set_bsAdjustmen(State state)    { USystemStatus.sAdjustment = static_cast<unsigned char>(state); } 
  void set_bsWorkDry(State state)      { USystemStatus.sWorkDry    = static_cast<unsigned char>(state); }
  void set_bsWorkTest(State state)     { USystemStatus.sWorkTest   = static_cast<unsigned char>(state); }
- void set_bsPuskOk(State state)       { USystemStatus.sPuskOk     = static_cast<unsigned char>(state); }
  void set_bsWorkNormal(State state)   { USystemStatus.sWorkNormal = static_cast<unsigned char>(state); }
  void set_bsWarning(State state)      { USystemStatus.sWarning    = static_cast<unsigned char>(state); }
  void set_bsFault(State state)        { USystemStatus.sFault      = static_cast<unsigned char>(state); }
@@ -119,7 +117,7 @@ static constexpr DependencyRule rules[] {
   {PBit::bpWorkDry,      bsReady,           bsWorkTest   | bsPuskMotor  | bsWorkNormal | bsAdjustment | bsFault },
   {PBit::bpWorkTest,     bsReady,           bsPuskMotor  | bsWorkNormal | bsWorkDry    | bsAdjustment | bsFault },
   {PBit::bpPuskMotor,    bsReady,           bsWorkNormal | bsWorkDry    | bsWorkTest   | bsAdjustment | bsFault },
-  {PBit::bpNormalWork,   bsPuskOk,          bsFault                                                             },
+  {PBit::bpNormalWork,   0,                 bsFault                                                             },
   {PBit::bpFaultCtrlF,   0,                 bsReadyCheck | bsFault                                              },
   };
 };

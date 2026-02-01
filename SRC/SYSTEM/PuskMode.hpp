@@ -24,7 +24,6 @@ private:
   unsigned int prev_TC0_Phase;
   unsigned int prev_cu_time;
   unsigned int dTrsPhase;
-  StatusRet PK_STATUS;
   
   bool prev_cu;
   unsigned short cu_toggle_count;
@@ -37,8 +36,7 @@ private:
     Forcing,
     RelayExOn,
     RelayPause,
-    ClosingKey,
-    ControlKey
+    ClosingKey
   };
   
   EPhasesPusk phases_pusk;
@@ -51,7 +49,8 @@ private:
   void RelayExOn();
   void RelayPause();
   void ClosingKey();
-  void ControlKey();
+  
+  void StopPusk();
   
   static constexpr unsigned char N_CU_TOGGLE     = 10;    
   static constexpr unsigned int  TICK_SEC        = 10000000;  

@@ -77,7 +77,7 @@ struct SWork : CategoryActive<EWorkId> {
 
 // ======================= FAULT =======================
 enum class EFaultId { ID_MAX_SOFT, ID_MAX_HARD, ID_MIN, NOT_SYNC, Q1_TRIPPED, PK_FAULT, NOT_IS, 
-                      LONG_PUSK, COUNT };
+                      LONG_PUSK, PK_NOT_CLOSED, COUNT };
 struct SFault : CategoryActive<EFaultId> {
    
   static constexpr const char* NAME[G_CONST::Nlang] = { "АВАРИЯ:", "FAULT:", "АВАРIЯ:" };
@@ -89,7 +89,8 @@ struct SFault : CategoryActive<EFaultId> {
     {"Отключился Q1",   "Q1 has tripped",    "Вимкнувся Q1"},
     {"Неисправен ПК",   "PK is faulty",      "Несправний ПК"},
     {"Нет IS",          "Not IS",            "Нема IS"}, 
-    {"Затянутый Пуск",  "Prolonged Pusk",    "Тривалий Пуск"}, 
+    {"Затянутый Пуск",  "Prolonged Pusk",    "Тривалий Пуск"},
+    {"Не закрыт ПК",    "PK is not closed",  "Не закрився ПК"},    
   };
 
   static constexpr auto _checkMsg = (checkMsgSize<EFaultId>(MSG), 0);  
