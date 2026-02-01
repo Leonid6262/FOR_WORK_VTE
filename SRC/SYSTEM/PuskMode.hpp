@@ -20,12 +20,17 @@ private:
   
   State cur_status;
   unsigned int prev_TC0_Phase;
+  unsigned int prev_cu_time;
   unsigned int dTrsPhase;
   StatusRet PK_STATUS;
   
+  bool prev_cu;
+  unsigned short cu_toggle_count;
+  float slip;
+ 
   enum class EPhasesPusk : unsigned short {
-    CheckCurrent,
-    WaitCurrentDrop,
+    CheckISctrlPK,
+    WaitISdrop,
     Delay,
     Forcing,
     RelayExOn,
@@ -37,8 +42,8 @@ private:
   EPhasesPusk phases_pusk;
   
   // Фазы пуска
-  void CheckCurrent();
-  void WaitCurrentDrop();
+  void CheckISctrlPK();
+  void WaitISdrop();
   void Delay();
   void Forcing();
   void RelayExOn();
@@ -46,17 +51,13 @@ private:
   void ClosingKey();
   void ControlKey();
   
-  void StopPusk();
-  
-  // Константы времени
-  static constexpr unsigned int TICK_SEC        = 10000000;
-  
-  static constexpr unsigned int CHECK_IS        = 5000000; // 0,5 сек
-  
-  static constexpr unsigned int BRIDGE_CHANGAE  = 1000000; // 0,1 сек
-  static constexpr unsigned int RELAY_PAUSE_OFF = 5000000; // 0,5 сек
-  static constexpr unsigned int CLOSING_KEY     = 500000;  // 0,05 сек
-  
+  static constexpr unsigned char N_CU_TOGGLE     = 10;    
+  static constexpr unsigned int  TICK_SEC        = 10000000;  
+  static constexpr unsigned int  CHECK_IS        = 5000000; // 0,5 сек  
+  static constexpr unsigned int  BRIDGE_CHANGAE  = 1000000; // 0,1 сек
+  static constexpr unsigned int  RELAY_PAUSE_OFF = 5000000; // 0,5 сек
+  static constexpr unsigned int  CLOSING_KEY     = 500000;  // 0,05 сек
+  static constexpr float         NET_PERIOD      = 200000.0f;
   
   static constexpr unsigned int DELAY_TIME      = 2000000; // 2 сек
 };

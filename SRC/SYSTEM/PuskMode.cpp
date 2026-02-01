@@ -17,7 +17,9 @@ void CPuskMode::pusk(bool Permission) {
   if((rDinStr.HVS_Status() == StatusHVS::ON) && cur_status == State::OFF) { 
     pSys_manager->set_bsPuskMotor(State::ON);    
     cur_status = State::ON;
-    phases_pusk = EPhasesPusk::CheckCurrent; 
+    prev_cu = false;
+    cu_toggle_count = 0;
+    phases_pusk = EPhasesPusk::CheckISctrlPK; 
     SWork::setMessage(EWorkId::PUSK);
     prev_TC0_Phase = LPC_TIM0->TC;
     return;
@@ -25,15 +27,14 @@ void CPuskMode::pusk(bool Permission) {
   
   if((rDinStr.HVS_Status() == StatusHVS::OFF) && cur_status == State::ON) { 
     pSys_manager->set_bsPuskMotor(State::OFF);
-    StopPusk();
     return;
   }
   
   if(cur_status == State::OFF) return;
   
   switch(phases_pusk) {
-  case EPhasesPusk::CheckCurrent:    CheckCurrent(); break;
-  case EPhasesPusk::WaitCurrentDrop: WaitCurrentDrop(); break;
+  case EPhasesPusk::CheckISctrlPK:   CheckISctrlPK(); break;
+  case EPhasesPusk::WaitISdrop:      WaitISdrop(); break;
   case EPhasesPusk::Delay:           Delay(); break;
   case EPhasesPusk::Forcing:         Forcing(); break;
   case EPhasesPusk::RelayExOn:       RelayExOn(); break;
@@ -43,29 +44,64 @@ void CPuskMode::pusk(bool Permission) {
   }
 }
 
-void CPuskMode::CheckCurrent() {
+void CPuskMode::CheckISctrlPK() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  if(dTrsPhase < CHECK_IS) return;
-  if(*rSIFU.rPulsCalc.getPointer_istator_rms() > rSet.getSettings().set_pusk.ISPusk*0.5f) {
-    phases_pusk = EPhasesPusk::WaitCurrentDrop;
-    prev_TC0_Phase = LPC_TIM0->TC;
-  } else {
+  if(dTrsPhase < CHECK_IS) {
+    bool cur_cu = rDinStr.CU_from_testing();
+    if(cur_cu != prev_cu) { 
+      cu_toggle_count++; 
+      prev_cu = cur_cu;
+      prev_cu_time = LPC_TIM0->TC;
+    }    
+    return;
+  }
+  if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk*0.5f) {
     SFault::setMessage(EFaultId::NOT_IS);
     pSys_manager->rFault_ctrl.fault_stop();
   }
+  if(cu_toggle_count < N_CU_TOGGLE) {
+    SFault::setMessage(EFaultId::PK_FAULT);
+    pSys_manager->rFault_ctrl.fault_stop();
+  }
+  if(!pSys_manager->USystemStatus.sFault) {
+    prev_cu = rDinStr.CU_from_testing();
+    phases_pusk = EPhasesPusk::WaitISdrop;
+    prev_TC0_Phase = LPC_TIM0->TC;
+  }
 }
 
-void CPuskMode::WaitCurrentDrop() {
+void CPuskMode::WaitISdrop() {
+  
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk) {
+  if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
+    SFault::setMessage(EFaultId::LONG_PUSK);
+    pSys_manager->rFault_ctrl.fault_stop(); 
+    return;
+  }  
+ 
+  bool cur_cu = rDinStr.CU_from_testing();
+  if(cur_cu != prev_cu) {
+    prev_cu = cur_cu;
+
+    unsigned int now = LPC_TIM0->TC;
+    float TSlipPhase = static_cast<float>(now - prev_cu_time);
+    prev_cu_time = now;
+    
+    slip = 1 - (NET_PERIOD / TSlipPhase);
+  
+  }
+ 
+  if(*rSIFU.rPulsCalc.getPointer_istator_rms() <= rSet.getSettings().set_pusk.ISPusk) {
     phases_pusk = EPhasesPusk::Delay;
     prev_TC0_Phase = LPC_TIM0->TC;
-  } else {
-    if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
-      SFault::setMessage(EFaultId::LONG_PUSK);
-      pSys_manager->rFault_ctrl.fault_stop();      
-    }
+    return;
   } 
+  
+  if(slip <= rSet.getSettings().set_pusk.sPusk) {
+    phases_pusk = EPhasesPusk::Delay;
+    prev_TC0_Phase = LPC_TIM0->TC;
+  } 
+  
 }
 
 void CPuskMode::Delay() {
@@ -122,16 +158,10 @@ void CPuskMode::ClosingKey() {
 
 void CPuskMode::ControlKey() {
   if(PK_STATUS == StatusRet::ERROR) {
-    StopPusk();
+
   } else {
     // Сообщения и переход
   }
-}
-
-
-
-void CPuskMode::StopPusk() {
-  
 }
 
 void CPuskMode::setSysManager(CSystemManager* pSys_manager) {
