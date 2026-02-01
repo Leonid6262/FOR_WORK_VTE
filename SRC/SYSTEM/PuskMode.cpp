@@ -20,6 +20,7 @@ void CPuskMode::pusk(bool Permission) {
     phases_pusk = EPhasesPusk::CheckCurrent; 
     SWork::setMessage(EWorkId::PUSK);
     prev_TC0_Phase = LPC_TIM0->TC;
+    return;
   } 
   
   if((rDinStr.HVS_Status() == StatusHVS::OFF) && cur_status == State::ON) { 
@@ -46,14 +47,25 @@ void CPuskMode::CheckCurrent() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) return;
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() > rSet.getSettings().set_pusk.ISPusk*0.5f) {
-    
+    phases_pusk = EPhasesPusk::WaitCurrentDrop;
+    prev_TC0_Phase = LPC_TIM0->TC;
   } else {
-    StopPusk();
+    SFault::setMessage(EFaultId::NOT_IS);
+    pSys_manager->rFault_ctrl.fault_stop();
   }
 }
 
 void CPuskMode::WaitCurrentDrop() {
-
+  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk) {
+    phases_pusk = EPhasesPusk::Delay;
+    prev_TC0_Phase = LPC_TIM0->TC;
+  } else {
+    if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
+      SFault::setMessage(EFaultId::LONG_PUSK);
+      pSys_manager->rFault_ctrl.fault_stop();      
+    }
+  } 
 }
 
 void CPuskMode::Delay() {

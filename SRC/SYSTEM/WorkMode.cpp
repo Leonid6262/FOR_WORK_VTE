@@ -2,9 +2,9 @@
 
 CWorkMode::CWorkMode(){}
 
-void CWorkMode::work(bool mode) {
+void CWorkMode::work(bool Permission) {
   
-  if(!mode) {return;}
+  if(!Permission) {return;}
   
 }
 

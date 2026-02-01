@@ -30,7 +30,7 @@ void CFaultCtrlF::fault_stop() {
   pSys_manager->rSIFU.all_bridge_pulses_Off();
   rDinStr.Relay_FAULT(State::ON);
   rDinStr.Relay_Premission(State::OFF);
-
+  rDinStr.Relay_Ex_Applied(State::OFF);
 }
 
 void CFaultCtrlF::setSysManager(CSystemManager* pSys_manager) {
