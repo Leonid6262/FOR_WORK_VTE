@@ -87,7 +87,7 @@ void CPuskMode::WaitISdrop() {
     float TSlipPhase = static_cast<float>(now - prev_cu_time);
     prev_cu_time = now;
     
-    slip = 1 - (NET_PERIOD / TSlipPhase);
+    slip = 1.0f - (HALF_NET_PERIOD / TSlipPhase);
   
   }
  

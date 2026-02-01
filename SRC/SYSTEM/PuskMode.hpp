@@ -57,7 +57,7 @@ private:
   static constexpr unsigned int  BRIDGE_CHANGAE  = 1000000; // 0,1 сек
   static constexpr unsigned int  RELAY_PAUSE_OFF = 5000000; // 0,5 сек
   static constexpr unsigned int  CLOSING_KEY     = 500000;  // 0,05 сек
-  static constexpr float         NET_PERIOD      = 200000.0f;
+  static constexpr float         HALF_NET_PERIOD = 100000.0f;
   
   static constexpr unsigned int DELAY_TIME      = 2000000; // 2 сек
 };
