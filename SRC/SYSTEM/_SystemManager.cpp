@@ -2,25 +2,25 @@
 
 void CSystemManager::dispatch() { 
 
-  unsigned short AllPermissions = 0xFFFF;       // Запрашиваем все
-  for (auto& rule : rules) {                    // Прогоняем через Rule таблицу
-    bool allowed =
-      ((USystemStatus.all & rule.bStatusOn)  == rule.bStatusOn) && 
-      ((USystemStatus.all & rule.bStatusOff) == 0 );    
-    if (!allowed) { 
-      AllPermissions &= ~static_cast<unsigned short>(rule.req_bit); // снимаем
-    }    
-  }  
-  UPermissionsList.all = AllPermissions;        // Фиксируем разрещённые режимы                      
-  
   rAdj_mode.parsing_request(UPermissionsList.pAdjustment);      // Обработка запросов вкл. наладочных режимов
 
   rDrying_mode.dry(UPermissionsList.pWorkDry);                  // Режим работы при сушке ротора  
   rTest_mode.test(UPermissionsList.pWorkTest);                  // Режим работы "Опробование"
   rPusk_mode.pusk(UPermissionsList.pPuskMotor);                 // Режим работы при пуске двигателя
   rWork_normal.work(UPermissionsList.pNormalWork);              // Режим работы после успешного пуска двигателя
-  rFault_ctrl.control(UPermissionsList.pFaultCtrlF);            // Проверка аварийных состояний 
-  //–-----
+  rFault_ctrl.control(UPermissionsList.pFaultCtrlF);            // Проверка аварийных состояний   
+  
+  AllPermissions = 0xFFFF;                      // Запрашиваем все
+  for (auto& rule : rules) {                    // Прогоняем через Rule таблицу
+    bool allowed =
+      ((USystemStatus.all & rule.bStatusOn)  == rule.bStatusOn) && 
+      ((USystemStatus.all & rule.bStatusOff) == 0 );    
+    if (!allowed) { 
+      AllPermissions &= ~static_cast<unsigned short>(rule.req_bit); // запрещаем, если запрещают правила
+    }    
+  }  
+  UPermissionsList.all = AllPermissions;        // Фиксируем разрещённые режимы                      
+  
   rReady_check.check(UPermissionsList.pReadyCheck);             // Сборка готовности
   rWarning_ctrl.control();                                      // Проверка предупреждающих состояний (выполняется всегда)
   

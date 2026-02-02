@@ -101,7 +101,8 @@ public:
  void dispatch();
  
 private:
-
+  unsigned short AllPermissions;
+  
   // --- Таблица правил --- 
   struct DependencyRule {
     PBit req_bit;               // Проверяемый режим
