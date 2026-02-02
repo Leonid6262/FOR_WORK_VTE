@@ -14,7 +14,7 @@ void CPuskMode::pusk(bool Permission) {
     return; 
   }
   
-  if((rDinStr.HVS_Status() == StatusHVS::ON) && cur_status == State::OFF && !rDinStr.ControlPusk()) { 
+  if(rDinStr.HVS_Status() == StatusHVS::ON && cur_status == State::OFF) { 
     pSys_manager->set_bsPuskMotor(State::ON);    
     cur_status = State::ON;
     prev_cu = false;

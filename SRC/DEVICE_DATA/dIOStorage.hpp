@@ -159,7 +159,7 @@ class CDIN_STORAGE {
   // То есть, 50*TIC_ms = 50ms, 0*TIC_ms - нет фильтрации, и т.п.
   static constexpr unsigned int cConst_integr_Pi0[G_CONST::BYTES_RW_MAX + 1][N_BITS] = 
   {
-    {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms}, // Контроллер Pi0
+    {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 2*TIC_ms,  50*TIC_ms, 50*TIC_ms}, // Контроллер Pi0
     {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms}, // Контроллер SPI
     {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms}, // S600 byte-0 SPI
     {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms}, // S600 byte-1 SPI

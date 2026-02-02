@@ -41,7 +41,6 @@ public:
      unsigned char sAdjustment   : 1; // Работа в режиме "Наладка"
      unsigned char sWorkDry      : 1; // Работа в режиме "Сушка"
      unsigned char sWorkTest     : 1; // Работа в режиме "Опробование"
-     unsigned char sPuskOk       : 1; // Успешный пуск двигателя
      unsigned char sWorkNormal   : 1; // Штатный режим работы
      unsigned char sWarning      : 1; // Есть предупреждения
      unsigned char sFault        : 1; // Авария
