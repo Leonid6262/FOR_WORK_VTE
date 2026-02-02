@@ -36,6 +36,6 @@ private:
   }
   
   bool prevKeyDrying = true;
-  bool prevStatusHVS = true;
+  StatusHVS prevStatusHVS = StatusHVS::ON;
   
 };

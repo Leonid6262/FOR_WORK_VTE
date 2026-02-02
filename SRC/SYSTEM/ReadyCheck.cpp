@@ -24,11 +24,15 @@ void CReadyCheck::check(bool Permission) {
   check(Ready, rDinStr.HVS_Status() == StatusHVS::ERR_BC,               ENotReadyId::BC_HVS_ERR);
   check(Ready, rDinStr.CU_from_testing(),                               ENotReadyId::PK_FAULT);
 
-  if(Ready == R::NOT_READY || prevKeyDrying) { check(Ready, rDinStr.Reg_Drying(),                  ENotReadyId::DRYING_ON); }
-  if(Ready == R::NOT_READY || prevStatusHVS) { check(Ready, rDinStr.HVS_Status() == StatusHVS::ON, ENotReadyId::HVS_ON);    }
+  if((Ready == R::NOT_READY) || prevKeyDrying) {
+    check(Ready, rDinStr.Reg_Drying(), ENotReadyId::DRYING_ON); 
+  }
+  if((Ready == R::NOT_READY) || (prevStatusHVS == StatusHVS::ON)) { 
+    check(Ready, (rDinStr.HVS_Status() == StatusHVS::ON), ENotReadyId::HVS_ON);
+  }
     
   prevKeyDrying = rDinStr.Reg_Drying();
-  prevStatusHVS = (rDinStr.HVS_Status() == StatusHVS::ON);
+  prevStatusHVS = rDinStr.HVS_Status();
  
   // Разрешения возможных режимов
   if(Ready == R::READY){
