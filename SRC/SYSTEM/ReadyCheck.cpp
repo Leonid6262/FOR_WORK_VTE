@@ -28,7 +28,7 @@ void CReadyCheck::check(bool Permission) {
   if(Ready == R::NOT_READY || prevStatusHVS) { check(Ready, rDinStr.HVS_Status() == StatusHVS::ON, ENotReadyId::HVS_ON);    }
     
   prevKeyDrying = rDinStr.Reg_Drying();
-  prevStatusHVS = rDinStr.HVS_Status() == StatusHVS::ON;
+  prevStatusHVS = (rDinStr.HVS_Status() == StatusHVS::ON);
  
   // Разрешения возможных режимов
   if(Ready == R::READY){
