@@ -72,11 +72,12 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   ready_check.setSysManager(&sys_manager);
   drying_mode.setSysManager(&sys_manager);
   fault_ctrl_f.setSysManager(&sys_manager);
-  fault_ctrl_f.initEINT2();                       
+                       
 
   CProxyHandlerEINT2::getInstance().set_pFaultCtrl(&fault_ctrl_f);
   fault_ctrl_p.setSysManager(&sys_manager); 
   
+  fault_ctrl_f.initEINT2();
   return sys_manager;
 }
 

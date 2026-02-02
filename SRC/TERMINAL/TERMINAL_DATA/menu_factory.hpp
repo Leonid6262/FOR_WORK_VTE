@@ -124,10 +124,10 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("IS start",{}, &set.set_pusk.ISPusk,un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
           o("slip st", {}, &set.set_pusk.sPusk, "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
       o(Mn.PARAMS[l], {
-          o("Id Nom", {}, &set.params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V, 200,  400),
+          o("Id Nom", {}, &set.params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V,  50,  400),
           o("Ud Nom", {}, &set.params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V,  48,  230),
           o("IS Nom", {}, &set.params.ISNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V,   0, 1000),
-          o("US Nom", {}, &set.params.USNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V, 400, 6300),}),
+          o("US Nom", {}, &set.params.USNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V, 380, 6300),}),
       o(Mn.WORK[l], {
           o("Iset-0",  {}, &set.work_set.Iset_0,   un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.params.IdNom),
           o("Iset-Max",{}, &set.work_set.IsetMax,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, set.params.IdNom),
@@ -137,7 +137,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("Qset-0",  {}, &set.work_set.Qset_0,   un::kVA, cd::cdr.Q,  p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom*set.params.USNom*0.001f),      
           o("Cos-0",   {}, &set.work_set.Cos_0,    "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
       o(Mn.FAULTS[l], {
-          o("Id Max", {}, &set.set_faults.IdMax, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.params.IdNom),
+          o("Id Max", {}, &set.set_faults.IdMax, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.5f*set.params.IdNom),
           o("Id Min", {}, &set.set_faults.IdMin, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2.0f*set.params.IdNom),}),
       o(Mn.ADC_SHIFT[l],{
           o::Dual("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT),   un::d, cd::one, p0, vt::sshort,

@@ -67,6 +67,7 @@ void CFaultCtrlF::initEINT2() {
   EXTICfg.EXTI_polarity = EXTI_POLARITY_LOW_ACTIVE_OR_FALLING_EDGE;
   EXTI_Config(&EXTICfg);
   
+  LPC_SC->EXTINT |= 0x0F;
   NVIC_EnableIRQ(EINT2_IRQn);
-  LPC_SC->EXTINT |= EXTI_EINT2_BIT_MARK;
+
 }

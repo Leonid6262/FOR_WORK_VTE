@@ -24,7 +24,7 @@ namespace cd {
   constexpr float Alpha   = 180.0f / 10000;     // 180deg / 10000 tick timers
 
   // Коэффициенты передачи каналов
-  constexpr unsigned short ADC_DISCR_ID = 2047; // 4095*Inom/2*Inom           <- 2xInom    (50A/100A), cd=0.0244
+  constexpr unsigned short ADC_DISCR_ID = 1638; // 4095*Inom/2.5*Inom         <- 2.5xInom  (50A/125A), cd=0.0305
   constexpr unsigned short ADC_DISCR_UD = 819;  // 2047*Unom/2.5*Unom         <- 2.5xUnom  (48V/120V), cd=0.0586
   constexpr unsigned short ADC_DISCR_IS = 482;  // (2047/1.41)*Inom/3xInom    <- 3xInom    (54A/162A), cd=0.1120
   constexpr unsigned short ADC_DISCR_US = 1259; // (2047/1.41)*Unom/1.15*Unom <- 1.15*Unom (380V/437V),cd=0.3018
