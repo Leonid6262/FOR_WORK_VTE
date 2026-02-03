@@ -2,15 +2,8 @@
 #include "_SystemManager.hpp"
 
 CPuskMode::CPuskMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet)
-: rDinStr(rDinStr), rSIFU(rSIFU), rSet(rSet), cur_status(State::OFF), pSys_manager(nullptr) {
-  
-  LPC_IOCON->P2_15 = IOCON_T2_CAP1;  // T2 CAP1
-  LPC_TIM2->MCR = 0x00000000;        // disabled
-  LPC_TIM2->IR = 0xFFFFFFFF;         // Очистка флагов прерываний
-  LPC_TIM2->TCR |= TIM2_TCR_START;   // Старт таймера TIM3 
-  LPC_TIM2->TC = 0;
-  LPC_TIM2->CCR = TIM2_CAPTURE_RI;    // Захват T2 по спаду CAP1 без прерываний
-
+: rDinStr(rDinStr), rSIFU(rSIFU), rSet(rSet), pAdc(CADC_STORAGE::getInstance()) {
+  INIT_CAPTURE1_TIM2();
 }
 
 void CPuskMode::pusk(bool Permission) {
@@ -25,7 +18,7 @@ void CPuskMode::pusk(bool Permission) {
   if(rDinStr.HVS_Status() == StatusHVS::ON && cur_status == State::OFF) { 
     pSys_manager->set_bsPuskMotor(State::ON);    
     cur_status = State::ON;
-    cur_slip = -1.0f;
+    slip_status.slip_value = -1.0f;
     phases_pusk = EPhasesPusk::CheckISctrlPK; 
     SWork::setMessage(EWorkId::PUSK);
     prev_TC0_Phase = LPC_TIM0->TC;
@@ -42,11 +35,10 @@ void CPuskMode::pusk(bool Permission) {
   
   switch(phases_pusk) {
   case EPhasesPusk::CheckISctrlPK:    CheckISctrlPK();    break;
-  case EPhasesPusk::WaitISdropOrSlip: WaitISdropOrSlip(); break;
+  case EPhasesPusk::WaitISdrop:       WaitISdrop();       break;
   case EPhasesPusk::SelfSync:         SelfSync();         break;
   case EPhasesPusk::Forcing:          Forcing();          break;
-  case EPhasesPusk::RelayExOn:        RelayExOn();        break;
-  case EPhasesPusk::RelayPause:       RelayPause();       break;
+  case EPhasesPusk::Pause:            Pause();            break;
   case EPhasesPusk::ClosingKey:       ClosingKey();       break;
   }
 }
@@ -55,101 +47,99 @@ void CPuskMode::pusk(bool Permission) {
 void CPuskMode::CheckISctrlPK() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
-    cur_slip = CPuskMode::calc_slip(cur_slip);
+    status_slip();
     return;
   }
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk*0.5f) {
-    ////SFault::setMessage(EFaultId::NOT_IS);
-    ////pSys_manager->rFault_ctrl.fault_stop();
+    SFault::setMessage(EFaultId::NOT_IS);
+    pSys_manager->rFault_ctrl.fault_stop();
   }
-  if(cur_slip < 0) {
+  if(slip_status.slip_value < 0) {
     SFault::setMessage(EFaultId::PK_FAULT);
     pSys_manager->rFault_ctrl.fault_stop();
   }
   if(!pSys_manager->USystemStatus.sFault) {
     pusk_slip = 1.0f;
-    phases_pusk = EPhasesPusk::WaitISdropOrSlip;
+    phases_pusk = EPhasesPusk::WaitISdrop;
     prev_TC0_Phase = LPC_TIM0->TC;
   }
 }
 
 // ---Ожидание снижения тока статора до уставки подачи возбуждения---
-void CPuskMode::WaitISdropOrSlip() {
+void CPuskMode::WaitISdrop() {
   
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
-    ////SFault::setMessage(EFaultId::LONG_PUSK);
-    ////pSys_manager->rFault_ctrl.fault_stop(); 
-    ////return;
+    SFault::setMessage(EFaultId::LONG_PUSK);
+    pSys_manager->rFault_ctrl.fault_stop(); 
+    return;
   }  
-  cur_slip = CPuskMode::calc_slip(cur_slip); 
-  
-  /*
+
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() <= rSet.getSettings().set_pusk.ISPusk) {
-    SWork::setMessage(EWorkId::PUSK_ON_IS);
     phases_pusk = EPhasesPusk::SelfSync;
     prev_TC0_Phase = LPC_TIM0->TC;
-    pusk_slip = cur_slip;
     return;
   } 
-  
-  if(cur_slip <= rSet.getSettings().set_pusk.sPusk) {
-    SWork::setMessage(EWorkId::PUSK_ON_SLIPE);    
-    phases_pusk = EPhasesPusk::SelfSync;
-    prev_TC0_Phase = LPC_TIM0->TC;
-    pusk_slip = cur_slip;
-  } */
-  
+  status_slip(); 
 }
 
 // ---Фаза самосинхронизации---
 void CPuskMode::SelfSync() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  if(dTrsPhase >= rSet.getSettings().set_pusk.TSelfSync * TICK_SEC) {
-    rSIFU.set_alpha(rSIFU.s_const.AMax);
-    rSIFU.forcing_bridge_pulses_On();
-    rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
-    rSIFU.rReg_manager.setCurrent(State::ON);    
-    phases_pusk = EPhasesPusk::Forcing;
-    prev_TC0_Phase = LPC_TIM0->TC;
+  status_slip();
+  if((slip_status.slip_value >= rSet.getSettings().set_pusk.sPusk) && slip_status.slip_event) {
+    SWork::setMessage(EWorkId::PUSK_ON_SLIPE);
+    StartEx();
+    return;
+  }    
+  slip_status.slip_event = false;
+  if((dTrsPhase >= rSet.getSettings().set_pusk.TSelfSync * TICK_SEC) && slip_status.slip_event) {
+    SWork::setMessage(EWorkId::PUSK_ON_IS);
+    StartEx();
   }
 }
 
+// ---Подача возбуждения---
+void CPuskMode::StartEx() { 
+  rDinStr.Relay_Ex_Applied(State::ON);
+  pusk_slip = slip_status.slip_value;
+  rSIFU.set_alpha(rSIFU.s_const.AMax);
+  rSIFU.forcing_bridge_pulses_On();
+  rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
+  rSIFU.rReg_manager.setCurrent(State::ON);    
+  phases_pusk = EPhasesPusk::Forcing;
+  prev_TC0_Phase = LPC_TIM0->TC;
+}
+
+// ---Форсировка---
 void CPuskMode::Forcing() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= rSet.getSettings().set_pusk.TFors * TICK_SEC) { 
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
     rSIFU.main_bridge_pulses_On();
-    phases_pusk = EPhasesPusk::RelayExOn;
+    phases_pusk = EPhasesPusk::Pause;
     prev_TC0_Phase = LPC_TIM0->TC;
   }  
 }
 
-void CPuskMode::RelayExOn() {
+// ---Пауза перед закрытием ПК---
+void CPuskMode::Pause() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  if (dTrsPhase >= BRIDGE_CHANGAE) {
-    rDinStr.Relay_Ex_Applied(State::ON);
-    phases_pusk = EPhasesPusk::RelayPause;
-    prev_TC0_Phase = LPC_TIM0->TC;
-  }  
-}
-
-void CPuskMode::RelayPause() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  if (dTrsPhase >= RELAY_PAUSE_OFF) {
+  if (dTrsPhase >= PAUSE) { 
     rSIFU.execute_mode_Wone();
     phases_pusk = EPhasesPusk::ClosingKey;
     prev_TC0_Phase = LPC_TIM0->TC;
   }
 }
 
+// ---Закрытие ПК и переход в режим Работа---
 void CPuskMode::ClosingKey() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) { 
     if(rDinStr.CU_from_testing()) {
       SFault::setMessage(EFaultId::PK_NOT_CLOSED);
-      ////pSys_manager->rFault_ctrl.fault_stop();
-      ////return;
+      pSys_manager->rFault_ctrl.fault_stop();
+      return;
     }
     SWork::clrMessage(EWorkId::PUSK);
     pSys_manager->set_bsPuskMotor(State::OFF);
@@ -157,6 +147,7 @@ void CPuskMode::ClosingKey() {
   }  
 }
 
+// ---Штатная остановка Пуска---
 void CPuskMode::StopPusk(){
   SWork::clrMessage(EWorkId::PUSK);
   rDinStr.Relay_Ex_Applied(State::OFF);  

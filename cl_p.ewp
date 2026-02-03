@@ -2128,9 +2128,6 @@
             <name>$PROJ_DIR$\lpc\fpu_init.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\lpc\lpc177x_8x_exti.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\lpc\system_LPC177x.c</name>
         </file>
     </group>
