@@ -18,7 +18,7 @@ void CPuskMode::pusk(bool Permission) {
   if(rDinStr.HVS_Status() == StatusHVS::ON && cur_status == State::OFF) { 
     pSys_manager->set_bsPuskMotor(State::ON);    
     cur_status = State::ON;
-    slip_status.slip_value = -1.0f;
+    slipe_status.slipe_value = -1.0f;
     phases_pusk = EPhasesPusk::CheckISctrlPK; 
     SWork::setMessage(EWorkId::PUSK);
     prev_TC0_Phase = LPC_TIM0->TC;
@@ -47,14 +47,14 @@ void CPuskMode::pusk(bool Permission) {
 void CPuskMode::CheckISctrlPK() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
-    status_slip();
+    status_slipe();
     return;
   }
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk*0.5f) {
     SFault::setMessage(EFaultId::NOT_IS);
     pSys_manager->rFault_ctrl.fault_stop();
   }
-  if(slip_status.slip_value < 0) {
+  if(slipe_status.slipe_value < 0) {
     SFault::setMessage(EFaultId::PK_FAULT);
     pSys_manager->rFault_ctrl.fault_stop();
   }
@@ -80,20 +80,21 @@ void CPuskMode::WaitISdrop() {
     prev_TC0_Phase = LPC_TIM0->TC;
     return;
   } 
-  status_slip(); 
+  status_slipe(); 
 }
 
 // ---Фаза самосинхронизации---
 void CPuskMode::SelfSync() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  status_slip();
-  if((slip_status.slip_value >= rSet.getSettings().set_pusk.sPusk) && slip_status.slip_event) {
+  status_slipe();
+  if((slipe_status.slipe_value >= rSet.getSettings().set_pusk.sPusk) && 
+     slipe_status.slipe_event && (slipe_status.ud_polarity > 0)) {
     SWork::setMessage(EWorkId::PUSK_ON_SLIPE);
     StartEx();
     return;
   }    
-  slip_status.slip_event = false;
-  if((dTrsPhase >= rSet.getSettings().set_pusk.TSelfSync * TICK_SEC) && slip_status.slip_event) {
+  slipe_status.slipe_event = false;
+  if((dTrsPhase >= rSet.getSettings().set_pusk.TSelfSync * TICK_SEC)) {
     SWork::setMessage(EWorkId::PUSK_ON_IS);
     StartEx();
   }
@@ -102,7 +103,7 @@ void CPuskMode::SelfSync() {
 // ---Подача возбуждения---
 void CPuskMode::StartEx() { 
   rDinStr.Relay_Ex_Applied(State::ON);
-  pusk_slip = slip_status.slip_value;
+  pusk_slip = slipe_status.slipe_value;
   rSIFU.set_alpha(rSIFU.s_const.AMax);
   rSIFU.forcing_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);

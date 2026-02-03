@@ -57,26 +57,37 @@ private:
     LPC_TIM2->CCR = TIM2_CAPTURE_RI;    // Захват T2 по спаду CAP1 без прерываний
   }
   
-  struct SlipStatus {
-    bool slip_event;
-    float slip_value;
+  struct SlipeStatus {
+    bool slipe_event;
+    float slipe_value;
     signed char ud_polarity;
-  } slip_status;
+  } slipe_status;
   
-  inline void status_slip() { 
+  inline void status_slipe() { 
     static unsigned int prev_capture;
+    static unsigned char last_pulse = 1;
+    static signed long UdMeas = 0;
+    
     unsigned int cur_capture = LPC_TIM2->CR1;
     if (prev_capture != cur_capture) {
-      slip_status.slip_event = true;
       unsigned int dt = cur_capture - prev_capture;
-      prev_capture = cur_capture;
-      float cur_slip = 1.0f - (HALF_NET_PERIOD / dt);
-      slip_status.slip_value = ((cur_slip > 0) ? cur_slip : 0);
+      if(dt > (HALF_NET_PERIOD*0.8f)) {
+        prev_capture = cur_capture;      
+        slipe_status.slipe_event = true;
+        slipe_status.ud_polarity = (UdMeas >= 0) ? 1 : -1;
+        UdMeas = 0;
+        float cur_slipe = 1.0f - (HALF_NET_PERIOD / dt);
+        slipe_status.slipe_value = ((cur_slipe > 0) ? cur_slipe : 0);
+      }
     }
-    signed short UdMeas = *pAdc.getEPointer(CADC_STORAGE::ROTOR_VOLTAGE);
-    slip_status.ud_polarity = (UdMeas >= 0) ? 1 : -1;
+    
+    if (rSIFU.N_Pulse != last_pulse) { 
+      last_pulse = rSIFU.N_Pulse; 
+      UdMeas += *pAdc.getEPointer(CADC_STORAGE::ROTOR_VOLTAGE);
+    }
+    
   }
-   
+  
   static constexpr unsigned char N_CU_TOGGLE     = 10;    
   static constexpr unsigned int  TICK_SEC        = 10000000;  
   static constexpr unsigned int  CHECK_IS        = 10000000; // 1,0 сек  
