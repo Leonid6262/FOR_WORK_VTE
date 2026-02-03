@@ -71,7 +71,7 @@ class CSIFU {
     static constexpr unsigned int N_PULSES = 6;
     static constexpr unsigned int N_PULSES_STOP = 50;
     
-    static constexpr signed char N_PULSES_WONE = 6;
+    static constexpr signed char N_PULSES_WONE = 12;
     
   } s_const;
   

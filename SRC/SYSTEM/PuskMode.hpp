@@ -93,7 +93,7 @@ private:
   static constexpr unsigned int  CHECK_IS        = 10000000; // 1,0 сек  
   static constexpr unsigned int  BRIDGE_CHANGAE  = 1000000;  // 0,1 сек
   static constexpr unsigned int  PAUSE           = 5000000;  // 0,5 сек
-  static constexpr unsigned int  CLOSING_KEY     = 500000;   // 0,05 сек
+  static constexpr unsigned int  CLOSING_KEY     = 5000000;  // 0,5 сек
   
   static constexpr unsigned int DELAY_TIME       = 2000000;  // 2 сек
   
