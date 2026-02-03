@@ -93,6 +93,7 @@ class CEEPSettings {
     struct {                                               // 16 Уставки пуска
       unsigned short IFors;                                     /* Величина форсировки */
       unsigned short TFors;                                     /* Длительность форсировки */
+      unsigned short TSelfSync;                                 /* Длительность самосинхронизации*/
       unsigned short TPusk;                                     /* Максимальное время пуска */ 
       unsigned short ISPusk;                                    /* Пусковой ток статора */
       float sPusk;                                              /* Пусковое скольжение */      
@@ -150,6 +151,7 @@ class CEEPSettings {
     .set_pusk = {
       .IFors = static_cast<unsigned short>((((cd::IdNomDef * 1.5f) * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),
       .TFors = 3,
+      .TSelfSync = 5,
       .TPusk = 20,
       .ISPusk = static_cast<unsigned short>((((cd::ISNomDef)  * cd::ADC_DISCR_IS ) / cd::ISNomDef) + 0.5f),
       .sPusk = 0.0f,

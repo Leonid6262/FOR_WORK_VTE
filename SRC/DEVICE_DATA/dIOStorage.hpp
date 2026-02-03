@@ -7,12 +7,12 @@ class CDIN_STORAGE {
  public:
    
   //--- Входы контроллера, порт Pi0 ---
-  inline bool Bl_Contact_Q1()   {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b0;} // Блок контакт Q1
+  inline bool CU_from_testing() {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b0;} // Сигнал "CU" от платы опробования
   inline bool Reg_Auto()        {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b1;} // Режим "Автоматический"
   inline bool Reg_Drying()      {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b2;} // Режим "Сушка"
   inline bool Setting_More()    {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b3;} // Задание "Больше"
   inline bool Setting_Less()    {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b4;} // Задание "Меньше"
-  inline bool CU_from_testing() {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b5;} // Сигнал "CU" от платы опробования
+  inline bool Bl_Contact_Q1()   {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b5;} // Блок контакт Q1
   inline bool Bl_HVS_NO()       {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b6;} // NO блок контакт ВВ
   inline bool Bl_HVS_NC()       {return UData_din_f[static_cast<char>(EIBNumber::CPU_PORT)].b7;} // NC блок контакт ВВ
   
@@ -185,7 +185,7 @@ class CDIN_STORAGE {
   // То есть, 50*TIC_ms = 50ms, 0*TIC_ms - нет фильтрации, и т.п.
   static constexpr unsigned int cConst_integr_Pi0[G_CONST::BYTES_RW_MAX + 1][N_BITS] = 
   {
-    {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 2*TIC_ms,  50*TIC_ms, 50*TIC_ms}, // Контроллер Pi0
+    {2*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms,  50*TIC_ms,  50*TIC_ms, 50*TIC_ms}, // Контроллер Pi0
     {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms}, // Контроллер SPI
     {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms}, // S600 byte-0 SPI
     {50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms, 50*TIC_ms}, // S600 byte-1 SPI

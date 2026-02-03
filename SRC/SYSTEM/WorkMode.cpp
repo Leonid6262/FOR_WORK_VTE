@@ -18,6 +18,9 @@ void CWorkMode::work(bool Permission) {
     return; 
   }
   
+  
+  
+  
 }
 
 void CWorkMode::setSysManager(CSystemManager* pSys_manager) {

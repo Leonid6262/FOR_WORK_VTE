@@ -118,11 +118,12 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
               o("KpQ",   {}, &set.set_reg.KpQ, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiQ",   {}, &set.set_reg.KiQ, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),}),
       o(Mn.PUSK[l], {
-          o("I fors",  {}, &set.set_pusk.IFors, un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2*set.params.IdNom),
-          o("T fors",  {}, &set.set_pusk.TFors, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 10),
-          o("T pusk",  {}, &set.set_pusk.TPusk, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
-          o("IS start",{}, &set.set_pusk.ISPusk,un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
-          o("slip st", {}, &set.set_pusk.sPusk, "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
+          o("I fors",   {}, &set.set_pusk.IFors,     un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2*set.params.IdNom),
+          o("T fors",   {}, &set.set_pusk.TFors,     un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 10),
+          o("T pusk",   {}, &set.set_pusk.TPusk,     un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
+          o("T s-sync", {}, &set.set_pusk.TSelfSync, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 5, 15),          
+          o("IS start", {}, &set.set_pusk.ISPusk,    un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
+          o("slip st",  {}, &set.set_pusk.sPusk,     "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
       o(Mn.PARAMS[l], {
           o("Id Nom", {}, &set.params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V,  50,  400),
           o("Ud Nom", {}, &set.params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V,  48,  230),
@@ -155,12 +156,12 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o::Dual("Ex-Set" , pAdc.getEPointer(sadc::EXT_SETTINGS),    un::d, cd::one, p0, vt::sshort,
                     "shift", &set.shift_adc[  sadc::EXT_SETTINGS],    un::d, cd::one, p0, vt::sshort, nm::IE2V, 0, 3000),}),
       o("Invert DIN-0",{
-          o("BC breaker Q1",{}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_0, nm::Ed1V),
+          o("CU Testing",   {}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_0, nm::Ed1V),
           o("Mode Auto",    {}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_1, nm::Ed1V),
           o("Mode Drying",  {}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_2, nm::Ed1V),  
           o("Setting More", {}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_3, nm::Ed1V),
           o("Setting Less", {}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_4, nm::Ed1V),
-          o("CU Testing",   {}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_5, nm::Ed1V),  
+          o("BC breaker Q1",{}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_5, nm::Ed1V),  
           o("HVS NO",       {}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_6, nm::Ed1V),
           o("HVS NC",       {}, &set.din_Pi_invert[static_cast<char>(sbin::CPU_PORT)], un::b, cd::one, p0, vt::eb_7, nm::Ed1V),}),  
       o("Invert DIN-1",{

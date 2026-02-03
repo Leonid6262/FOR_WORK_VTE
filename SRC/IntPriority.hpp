@@ -33,6 +33,7 @@ namespace Priorities {
   
   // ---  Группа 2  --- 8 подгрупп
   constexpr unsigned int UART = make_priority(EG::group2, ES::sgroup0);
+  constexpr unsigned int Timer2 = make_priority(EG::group2, ES::sgroup1);
   
   // ---  Группа 3  --- 8 подгрупп
   
