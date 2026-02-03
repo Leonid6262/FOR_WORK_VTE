@@ -66,7 +66,7 @@ private:
   inline void status_slipe() { 
     static unsigned int prev_capture;
     static unsigned char last_pulse = 1;
-    static signed long UdMeas = 0;
+    static signed int UdMeas = 0;
     
     unsigned int cur_capture = LPC_TIM2->CR1;
     if (prev_capture != cur_capture) {
