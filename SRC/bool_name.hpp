@@ -11,5 +11,6 @@ enum class StatusHVS
 { 
   OFF = 0, 
   ON = 1,
-  ERR_BC = 2
+  PROCESS = 2,
+  ERR_BC = 3
 };

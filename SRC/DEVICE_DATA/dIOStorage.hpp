@@ -132,19 +132,45 @@ class CDIN_STORAGE {
     }
   }
   
- inline StatusHVS HVS_Status() {
+  inline StatusHVS HVS_Status() {
+    static StatusHVS curStatusHVS = StatusHVS::OFF;
+    static StatusHVS prevStatusHVS = StatusHVS::OFF;
+    static unsigned int prev_TC0;
     bool NOcontact = Bl_HVS_NO();  
-    bool NCcontact = Bl_HVS_NC();  
-    if ( NOcontact && !NCcontact ) { 
-      return StatusHVS::ON; 
-    } else if ( !NOcontact && NCcontact ) { 
-      return StatusHVS::OFF; 
-    } else { 
-      return StatusHVS::ERR_BC; 
+    bool NCcontact = Bl_HVS_NC();
+    // Определение включённого состояния
+    if ( NOcontact && !NCcontact ) {
+      curStatusHVS = StatusHVS::ON;
+      prevStatusHVS  = StatusHVS::ON;
+    } 
+    // Определение отключённого состояния    
+    if ( !NOcontact && NCcontact ) {
+      curStatusHVS = StatusHVS::OFF;
+      prevStatusHVS = StatusHVS::OFF;
+    } 
+    // Если состояние запрещённое, но перед этим было штатное - переключение,
+    // Выделяем время на переключение.
+    if ((((NOcontact && NCcontact) || (!NOcontact && !NCcontact)) && 
+         ((prevStatusHVS == StatusHVS::ON) || (prevStatusHVS == StatusHVS::OFF))) &&
+        (curStatusHVS != StatusHVS::PROCESS) && (curStatusHVS != StatusHVS::ERR_BC)) 
+    { 
+      curStatusHVS = StatusHVS::PROCESS;
+      prev_TC0 = LPC_TIM0->TC;
     }
+    // Фаза ожидания переключения
+    if(curStatusHVS == StatusHVS::PROCESS) {
+      unsigned int dTrsPhase = LPC_TIM0->TC - prev_TC0;
+      if(dTrsPhase > SWITCHING_TIME) {
+        // Время отведенное на переключение вышло. Статус - ERR_BC
+        curStatusHVS = StatusHVS::ERR_BC;
+      }
+    }
+    return curStatusHVS; 
   }
-
+  
  private:
+  static constexpr unsigned int SWITCHING_TIME = 2000000; // 200ms
+   
   static constexpr unsigned short B_ULED = 9;        // Бит U-LED
   static constexpr unsigned short B_Q1VF = 13;       // Бит Q1VF
   static constexpr unsigned short B0_PORT_OUT = 24;  // 1-й бит порта
