@@ -3,7 +3,6 @@
 #include <string>
 
 CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos) : rAdc(rAdc), dac_cos(dac_cos) {
-  v_rest.ind_d_avr = 0;
 
   // Регистрация в реестре указателейconst
   PPV.registerVar(NProxyVar::ProxyVarID::Ustat,  &U_STATOR_RMS,  cd::cdr.US, NProxyVar::Unit::Volt);
@@ -33,7 +32,49 @@ void CPULSCALC::conv_and_calc() {
   */
 
   sin_restoration();
+  detectRotorPhaseAdaptive();
+  
 }
+
+// ---Адаптивный алгоритм определения перехода напряжения ротора через ноль (с минус в плюс)---
+// ---Используется в алгоритме пуска двигателя.---
+void CPULSCALC::detectRotorPhaseAdaptive() {
+  // Быстрое обновление скользящего окна (Бегущая сумма)
+  short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);
+
+  s_ud_frame.sum_ud_frame -= s_ud_frame.ud_frame[r_phase_adaptive.ind_ud_frame];  
+  s_ud_frame.ud_frame[r_phase_adaptive.ind_ud_frame] = new_val;
+  s_ud_frame.sum_ud_frame += s_ud_frame.ud_frame[r_phase_adaptive.ind_ud_frame];
+  
+  r_phase_adaptive.ind_ud_frame = (r_phase_adaptive.ind_ud_frame + 1) % s_ud_frame.N_UD_FRAME;
+  
+  // Сбор статистики, пока мы в отрицательной зоне
+  if (s_ud_frame.sum_ud_frame < 0) {
+    r_phase_adaptive.s_neg_accumulator += abs(new_val); // Копим "энергию" минуса
+    r_phase_adaptive.n_neg_samples++;
+    r_phase_adaptive.neg_wave_ready = true;
+  } 
+  // ТОЧКА ПЕРЕЛОМА: Вышли в ноль/плюс, обсчитываем порог для будущей волны
+  else if (r_phase_adaptive.neg_wave_ready) {
+    if (r_phase_adaptive.n_neg_samples > 5) { // Защита от дребезга (не менее 16мс в минусе)
+      long avg_u = r_phase_adaptive.s_neg_accumulator / r_phase_adaptive.n_neg_samples;
+      
+      // Адаптивный порог: 2 средние амплитуды
+      s_ud_frame.delta_s_adaptive = avg_u * 2; 
+      
+      // Санитарные лимиты
+      if (s_ud_frame.delta_s_adaptive < 20)   s_ud_frame.delta_s_adaptive = 20;  
+      if (s_ud_frame.delta_s_adaptive > 500)  s_ud_frame.delta_s_adaptive = 500;
+    }
+    
+    // Сброс накопителей для следующего цикла
+    r_phase_adaptive.s_neg_accumulator = 0;
+    r_phase_adaptive.n_neg_samples = 0;
+    r_phase_adaptive.neg_wave_ready = false; 
+  }
+ 
+}
+
 void CPULSCALC::sin_restoration() {
   /*
   Восстановление сигналов произвадится по двум мгновенным значениям и углу (Theta) между ними:

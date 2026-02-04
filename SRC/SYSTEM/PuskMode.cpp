@@ -45,7 +45,7 @@ void CPuskMode::pusk(bool Permission) {
 
 // ---Ожидание тока статора и проверка работы ПК (Пускового ключа)--- 
 void CPuskMode::CheckISctrlPK() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  /*dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
     status_slipe();
     return;
@@ -57,29 +57,29 @@ void CPuskMode::CheckISctrlPK() {
   if(slipe_status.slipe_value < 0) {
     SFault::setMessage(EFaultId::PK_FAULT);
     pSys_manager->rFault_ctrl.fault_stop();
-  }
-  if(!pSys_manager->USystemStatus.sFault) {
+  }*/
+  ///if(!pSys_manager->USystemStatus.sFault) {
     pusk_slip = 1.0f;
     phases_pusk = EPhasesPusk::WaitISdrop;
     prev_TC0_Phase = LPC_TIM0->TC;
-  }
+  ///}
 }
 
 // ---Ожидание снижения тока статора до уставки подачи возбуждения---
 void CPuskMode::WaitISdrop() {
   
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
-    SFault::setMessage(EFaultId::LONG_PUSK);
-    pSys_manager->rFault_ctrl.fault_stop(); 
-    return;
-  }  
+  //dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  //if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
+  //  SFault::setMessage(EFaultId::LONG_PUSK);
+  //  pSys_manager->rFault_ctrl.fault_stop(); 
+  //  return;
+  //}  
 
-  if(*rSIFU.rPulsCalc.getPointer_istator_rms() <= rSet.getSettings().set_pusk.ISPusk) {
-    phases_pusk = EPhasesPusk::SelfSync;
-    prev_TC0_Phase = LPC_TIM0->TC;
-    return;
-  } 
+  //if(*rSIFU.rPulsCalc.getPointer_istator_rms() <= rSet.getSettings().set_pusk.ISPusk) {
+  //  phases_pusk = EPhasesPusk::SelfSync;
+  //  prev_TC0_Phase = LPC_TIM0->TC;
+  //  return;
+  //} 
   status_slipe(); 
 }
 

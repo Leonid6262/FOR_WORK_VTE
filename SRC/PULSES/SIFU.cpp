@@ -31,7 +31,7 @@ void CSIFU::rising_puls() {
     puls_phase = PulsPhase::RISING;
   }
   
-  CDIN_STORAGE::UserLedOn();
+  //CDIN_STORAGE::UserLedOn();
   
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.
   control_fault_and_reg();              // Контроль аварий и регулирование
@@ -90,7 +90,7 @@ void CSIFU::rising_puls() {
   
   rRemOsc.send_data();  // Передача отображаемых данных в ESP32
   
-  CDIN_STORAGE::UserLedOff();
+  //CDIN_STORAGE::UserLedOff();
 }
 
 // Вычисление следующего значения MR0 (фронт следующего ИУ)
