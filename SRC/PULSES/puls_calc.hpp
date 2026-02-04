@@ -17,12 +17,22 @@ class CPULSCALC {
   inline float* getPointer_ustator_rms() { return &u_stator_rms; }
   inline float* getPointer_istator_rms() { return &i_stator_rms; }
 
-  struct Ud_Frame {
-    static constexpr char N_UD_FRAME = 10;
-    signed short ud_frame[N_UD_FRAME];
+
+    static constexpr char N_FRAME = 10;
+    signed short ud_frame[N_FRAME];
     signed int sum_ud_frame = 0;
     unsigned short delta_s_adaptive;
-  } s_ud_frame;
+    
+    unsigned char ind = 0;
+    signed int s_neg_accumulator = 0;   // Сумма отрицательных значений
+    unsigned short  n_neg_samples = 0;  // Счетчик отсчетов в минусе
+    bool neg_wave_ready = false;        // Флаг: мы накопили данные в минусе    
+    
+    unsigned short n_pulses = 0;
+    bool phase_detected_latch = false;
+   
+    bool slip_event = false; 
+    float slip_value = 1.0f;
  
  private:
   float u_stator_rms; 
@@ -60,15 +70,7 @@ class CPULSCALC {
     unsigned int dT_istator;
 
   } v_rest;
-  
-  struct RotorPhaseAdaptive {
-    unsigned char ind_ud_frame = 0;
-    signed int s_neg_accumulator = 0;   // Сумма отрицательных значений
-    unsigned short  n_neg_samples = 0;  // Счетчик отсчетов в минусе
-    bool neg_wave_ready = false;        // Флаг: мы накопили данные в минусе    
-  } r_phase_adaptive;
-  
-
+ 
   void sin_restoration();
   void detectRotorPhaseAdaptive();
   

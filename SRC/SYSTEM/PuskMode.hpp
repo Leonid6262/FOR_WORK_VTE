@@ -86,10 +86,10 @@ private:
       UdMeas += *pAdc.getEPointer(CADC_STORAGE::ROTOR_VOLTAGE);
     }
     
-    signed int frame_sum = rSIFU.rPulsCalc.s_ud_frame.sum_ud_frame;
-    if(frame_sum > rSIFU.rPulsCalc.s_ud_frame.delta_s_adaptive) {
+    //signed int frame_sum = rSIFU.rPulsCalc.s_ud_frame.sum_ud_frame;
+    //if(frame_sum > rSIFU.rPulsCalc.s_ud_frame.delta_s_adaptive) {
       // Переход из минуса в плюс 
-    }
+    //}
     
   }
   

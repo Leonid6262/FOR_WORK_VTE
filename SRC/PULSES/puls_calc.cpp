@@ -39,40 +39,54 @@ void CPULSCALC::conv_and_calc() {
 // ---Адаптивный алгоритм определения перехода напряжения ротора через ноль (с минус в плюс)---
 // ---Используется в алгоритме пуска двигателя.---
 void CPULSCALC::detectRotorPhaseAdaptive() {
-  // Быстрое обновление скользящего окна (Бегущая сумма)
-  short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);
-
-  s_ud_frame.sum_ud_frame -= s_ud_frame.ud_frame[r_phase_adaptive.ind_ud_frame];  
-  s_ud_frame.ud_frame[r_phase_adaptive.ind_ud_frame] = new_val;
-  s_ud_frame.sum_ud_frame += s_ud_frame.ud_frame[r_phase_adaptive.ind_ud_frame];
   
-  r_phase_adaptive.ind_ud_frame = (r_phase_adaptive.ind_ud_frame + 1) % s_ud_frame.N_UD_FRAME;
+  n_pulses++;
   
-  // Сбор статистики, пока мы в отрицательной зоне
-  if (s_ud_frame.sum_ud_frame < 0) {
-    r_phase_adaptive.s_neg_accumulator += abs(new_val); // Копим "энергию" минуса
-    r_phase_adaptive.n_neg_samples++;
-    r_phase_adaptive.neg_wave_ready = true;
+  // --- 1. Работа с окном (бегущая сумма) ---
+  short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
+  sum_ud_frame -= ud_frame[ind];   
+  ud_frame[ind] = new_val;
+  sum_ud_frame += ud_frame[ind];  
+  ind = (ind + 1) % N_FRAME; 
+  
+  // --- 2. ТОЧКА СОБЫТИЯ (Положительная область + Порог) ---
+  if (sum_ud_frame > delta_s_adaptive) {
+    if (!phase_detected_latch) {
+      phase_detected_latch = true;                      // Защёлка на одну полуволну
+      n_pulses = 0;                                     // Сброс счётчика
+      slip_value = 20.0f / (n_pulses * 3.33333f);       // Расчёт скольжения
+      slip_event = true;       
+    }
+  }
+  
+  // --- 3. Отрицательная область ---
+  if (sum_ud_frame < 0) {
+    s_neg_accumulator += abs(new_val); // Накапливаем "вес" минуса
+    n_neg_samples++;
+    neg_wave_ready = true;
+    phase_detected_latch = false;      // Сброс защёлки (готовимся к новому плюсу)
   } 
-  // ТОЧКА ПЕРЕЛОМА: Вышли в ноль/плюс, обсчитываем порог для будущей волны
-  else if (r_phase_adaptive.neg_wave_ready) {
-    if (r_phase_adaptive.n_neg_samples > 5) { // Защита от дребезга (не менее 16мс в минусе)
-      long avg_u = r_phase_adaptive.s_neg_accumulator / r_phase_adaptive.n_neg_samples;
+  
+  // --- 4. Выход из минуса в ноль ---
+  else if (neg_wave_ready) {
+    // Если полуволна была достаточно длинной (защита от шума)
+    if (n_neg_samples > 5) { 
       
-      // Адаптивный порог: 2 средние амплитуды
-      s_ud_frame.delta_s_adaptive = avg_u * 2; 
+      // Вычисляем порог для следующего плюса
+      float avg_u = static_cast<float>(s_neg_accumulator) / static_cast<float>(n_neg_samples);
+      delta_s_adaptive = static_cast<int>(avg_u * 2.0f + 0.5f);
       
-      // Санитарные лимиты
-      if (s_ud_frame.delta_s_adaptive < 20)   s_ud_frame.delta_s_adaptive = 20;  
-      if (s_ud_frame.delta_s_adaptive > 500)  s_ud_frame.delta_s_adaptive = 500;
+      // Санитарные границы
+      if (delta_s_adaptive < 20)   delta_s_adaptive = 20;  
+      if (delta_s_adaptive > 500)  delta_s_adaptive = 500;
     }
     
-    // Сброс накопителей для следующего цикла
-    r_phase_adaptive.s_neg_accumulator = 0;
-    r_phase_adaptive.n_neg_samples = 0;
-    r_phase_adaptive.neg_wave_ready = false; 
+    // Очистка накопителей статистики
+    s_neg_accumulator = 0;
+    n_neg_samples = 0;
+    neg_wave_ready = false; 
   }
- 
+  
 }
 
 void CPULSCALC::sin_restoration() {
