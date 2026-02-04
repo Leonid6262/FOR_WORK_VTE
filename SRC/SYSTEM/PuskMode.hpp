@@ -13,8 +13,6 @@ public:
   void setSysManager(CSystemManager*);
   void pusk(bool Permission);   // основной цикл автомата
   
-  float pusk_slip;
-  
 private:
   CDIN_STORAGE& rDinStr;
   CSIFU& rSIFU;
@@ -62,35 +60,26 @@ private:
     float slipe_value;
     signed char ud_polarity;
   } slipe_status;
-  
-  inline void status_slipe() { 
+   
+  inline bool status_pk(bool reset) { 
     static unsigned int prev_capture;
-    static unsigned char last_pulse = 1;
-    static signed int UdMeas = 0;
+    static unsigned int N_PK = 0;
+    static bool status = false;
+    
+    if (reset) {
+      N_PK = 0;
+      status = false;
+      return false;
+    }
     
     unsigned int cur_capture = LPC_TIM2->CR1;
     if (prev_capture != cur_capture) {
-      unsigned int dt = cur_capture - prev_capture;
-      if(dt > (HALF_NET_PERIOD*0.8f)) {
-        prev_capture = cur_capture;      
-        slipe_status.slipe_event = true;
-        slipe_status.ud_polarity = (UdMeas >= 0) ? 1 : -1;
-        UdMeas = 0;
-        float cur_slipe = 1.0f - (HALF_NET_PERIOD / dt);
-        slipe_status.slipe_value = ((cur_slipe > 0) ? cur_slipe : 0);
-      }
+      prev_capture = cur_capture;
+      N_PK++;
+      if(N_PK > 5) status = true;
     }
     
-    if (rSIFU.N_Pulse != last_pulse) { 
-      last_pulse = rSIFU.N_Pulse; 
-      UdMeas += *pAdc.getEPointer(CADC_STORAGE::ROTOR_VOLTAGE);
-    }
-    
-    //signed int frame_sum = rSIFU.rPulsCalc.s_ud_frame.sum_ud_frame;
-    //if(frame_sum > rSIFU.rPulsCalc.s_ud_frame.delta_s_adaptive) {
-      // Переход из минуса в плюс 
-    //}
-    
+    return status;    
   }
   
   static constexpr unsigned char N_CU_TOGGLE     = 10;    

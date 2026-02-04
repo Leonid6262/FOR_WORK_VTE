@@ -2,9 +2,7 @@
 #include "_SystemManager.hpp"
 
 CPuskMode::CPuskMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet)
-: rDinStr(rDinStr), rSIFU(rSIFU), rSet(rSet), pAdc(CADC_STORAGE::getInstance()) {
-  INIT_CAPTURE1_TIM2();
-}
+: rDinStr(rDinStr), rSIFU(rSIFU), rSet(rSet), pAdc(CADC_STORAGE::getInstance()) {}
 
 void CPuskMode::pusk(bool Permission) {
   
@@ -18,7 +16,7 @@ void CPuskMode::pusk(bool Permission) {
   if(rDinStr.HVS_Status() == StatusHVS::ON && cur_status == State::OFF) { 
     pSys_manager->set_bsPuskMotor(State::ON);    
     cur_status = State::ON;
-    slipe_status.slipe_value = -1.0f;
+    status_pk(true);
     phases_pusk = EPhasesPusk::CheckISctrlPK; 
     SWork::setMessage(EWorkId::PUSK);
     prev_TC0_Phase = LPC_TIM0->TC;
@@ -45,21 +43,23 @@ void CPuskMode::pusk(bool Permission) {
 
 // ---Ожидание тока статора и проверка работы ПК (Пускового ключа)--- 
 void CPuskMode::CheckISctrlPK() {
-  /*dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
-    status_slipe();
+    status_pk(false);
     return;
   }
+ 
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk*0.5f) {
     SFault::setMessage(EFaultId::NOT_IS);
     pSys_manager->rFault_ctrl.fault_stop();
   }
-  if(slipe_status.slipe_value < 0) {
+  
+  if(!status_pk(false)) {
     SFault::setMessage(EFaultId::PK_FAULT);
     pSys_manager->rFault_ctrl.fault_stop();
-  }*/
+  }
   ///if(!pSys_manager->USystemStatus.sFault) {
-    pusk_slip = 1.0f;
+  ///  pusk_slip = 1.0f;
     phases_pusk = EPhasesPusk::WaitISdrop;
     prev_TC0_Phase = LPC_TIM0->TC;
   ///}
@@ -80,14 +80,15 @@ void CPuskMode::WaitISdrop() {
   //  prev_TC0_Phase = LPC_TIM0->TC;
   //  return;
   //} 
-  status_slipe(); 
+  
+  ////////status_slipe(); 
 }
 
 // ---Фаза самосинхронизации---
 void CPuskMode::SelfSync() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  status_slipe();
-  if((slipe_status.slipe_value >= rSet.getSettings().set_pusk.sPusk) && 
+  ////////status_slipe();
+  /*if((slipe_status.slipe_value >= rSet.getSettings().set_pusk.sPusk) && 
      slipe_status.slipe_event && (slipe_status.ud_polarity > 0)) {
     SWork::setMessage(EWorkId::PUSK_ON_SLIPE);
     StartEx();
@@ -97,13 +98,13 @@ void CPuskMode::SelfSync() {
   if((dTrsPhase >= rSet.getSettings().set_pusk.TSelfSync * TICK_SEC)) {
     SWork::setMessage(EWorkId::PUSK_ON_IS);
     StartEx();
-  }
+  }*/
 }
 
 // ---Подача возбуждения---
 void CPuskMode::StartEx() { 
   rDinStr.Relay_Ex_Applied(State::ON);
-  pusk_slip = slipe_status.slipe_value;
+  ////////pusk_slip = slipe_status.slipe_value;
   rSIFU.set_alpha(rSIFU.s_const.AMax);
   rSIFU.forcing_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
