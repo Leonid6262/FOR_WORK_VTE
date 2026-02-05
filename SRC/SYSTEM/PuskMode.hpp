@@ -13,6 +13,8 @@ public:
   void setSysManager(CSystemManager*);
   void pusk(bool Permission);   // основной цикл автомата
   
+  inline float* getPointerPslipe() { return &pusk_slipe; }
+  
 private:
   CDIN_STORAGE& rDinStr;
   CSIFU& rSIFU;
@@ -23,6 +25,7 @@ private:
   State cur_status = State::OFF;
   unsigned int prev_TC0_Phase;
   unsigned int dTrsPhase;
+  float pusk_slipe = 1.0f;
   
   enum class EPhasesPusk : unsigned short {
     CheckISctrlPK,
@@ -53,36 +56,41 @@ private:
     LPC_TIM2->TCR |= TIM2_TCR_START;   // Старт таймера TIM3 
     LPC_TIM2->TC = 0;
     LPC_TIM2->CCR = TIM2_CAPTURE_RI;    // Захват T2 по спаду CAP1 без прерываний
-  }
-  
-  struct SlipeStatus {
-    bool slipe_event;
-    float slipe_value;
-    signed char ud_polarity;
-  } slipe_status;
-   
-  inline bool status_pk(bool reset) { 
-    static unsigned int prev_capture;
-    static unsigned int N_PK = 0;
-    static bool status = false;
     
-    if (reset) {
-      N_PK = 0;
-      status = false;
+    NVIC_EnableIRQ(TIMER2_IRQn);
+  }
+    
+  inline bool switching_check_pk(Mode mode) { 
+    static unsigned int prev_capture;
+    static unsigned short n_switch = 0;
+    static unsigned short u_rotor_p = 0;
+    static unsigned short u_rotor_n = 0;
+    static constexpr unsigned char MIN_TOGGLE = 15;
+    
+    if (mode == Mode::FORBIDDEN) {
+      prev_capture = LPC_TIM2->CR1;
+      n_switch = 0;
+      u_rotor_p = 0;
+      u_rotor_n = 0;
       return false;
     }
     
     unsigned int cur_capture = LPC_TIM2->CR1;
     if (prev_capture != cur_capture) {
+      unsigned int dt = cur_capture - prev_capture;
       prev_capture = cur_capture;
-      N_PK++;
-      if(N_PK > 5) status = true;
+      if (dt > (HALF_NET_PERIOD * 1.8f)) {
+        n_switch++;
+        if(pAdc.getExternal(CADC_STORAGE::ROTOR_VOLTAGE) > 0) u_rotor_p++;
+        if(pAdc.getExternal(CADC_STORAGE::ROTOR_VOLTAGE) < 0) u_rotor_n++;
+      }      
+    }    
+    if((n_switch > MIN_TOGGLE) && (u_rotor_p  > MIN_TOGGLE) && (u_rotor_n  > MIN_TOGGLE)) {
+      return true;
     }
-    
-    return status;    
+    return false;    
   }
   
-  static constexpr unsigned char N_CU_TOGGLE     = 10;    
   static constexpr unsigned int  TICK_SEC        = 10000000;  
   static constexpr unsigned int  CHECK_IS        = 10000000; // 1,0 сек  
   static constexpr unsigned int  BRIDGE_CHANGAE  = 1000000;  // 0,1 сек

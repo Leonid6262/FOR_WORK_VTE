@@ -5,8 +5,6 @@
 #include "lpc_eeprom.h"
 #include <stddef.h>
 
-
-
 // Пространство имён глобальных констант
 namespace G_CONST {
   constexpr unsigned short NUMBER_CHANNELS = 16;   // Количество какналов внешнего АЦП
@@ -96,7 +94,7 @@ class CEEPSettings {
       unsigned short TSelfSync;                                 /* Длительность самосинхронизации*/
       unsigned short TPusk;                                     /* Максимальное время пуска */ 
       unsigned short ISPusk;                                    /* Пусковой ток статора */
-      float sPusk;                                              /* Пусковое скольжение */      
+      float SlipePusk;                                          /* Пусковое скольжение */      
     } set_pusk; 
     struct {                                               // 17 Рабочие начальные значения
       unsigned short Iset_0;                                     /* Ток после форсировки в режиме РТ */  
@@ -154,7 +152,7 @@ class CEEPSettings {
       .TSelfSync = 5,
       .TPusk = 20,
       .ISPusk = static_cast<unsigned short>((((cd::ISNomDef)  * cd::ADC_DISCR_IS ) / cd::ISNomDef) + 0.5f),
-      .sPusk = 0.0f,
+      .SlipePusk = 0.05f,
     },
     .work_set = {
       .Iset_0    = static_cast<unsigned short>((((cd::IdNomDef / 2)  * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),

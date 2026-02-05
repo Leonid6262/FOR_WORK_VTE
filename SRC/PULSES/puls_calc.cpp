@@ -12,9 +12,6 @@ CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos) : rAd
   PPV.registerVar(NProxyVar::ProxyVarID::CosPhi, &COS_PHI,       0.01f,      "");
 }
 
-
-float US_MAX = 0;
-
 void CPULSCALC::conv_and_calc() {
   // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
   rAdc.conv_tnf({
@@ -37,54 +34,71 @@ void CPULSCALC::conv_and_calc() {
 }
 
 // ---Адаптивный алгоритм определения перехода напряжения ротора через ноль (с минус в плюс)---
-// ---Используется в алгоритме пуска двигателя.---
+// ---Используется в режиме пуска двигателя---
 void CPULSCALC::detectRotorPhaseAdaptive() {
   
-  n_pulses++;
+  if(!v_slipe.Permission) {        
+    v_slipe.slipe_event = false;
+    v_slipe.u0_event = false;
+    v_slipe.slipe_value = 1.0f;
+    v_slipe.nT_slipe = 0;       
+    v_slipe.neg_accumulator = 0;
+    v_slipe.neg_samples = 0;
+    v_slipe.collecting_neg_wave = false; 
+    v_slipe.u0_event = false;
+    v_slipe.collecting_neg_wave = false;        
+    v_slipe.detected_latch = false;        
+    return;
+  }
   
-  // --- 1. Работа с окном (бегущая сумма) ---
+  v_slipe.nT_slipe++; // Считаем перид скольжения
+  
+  // --- 1. Работа с кадром (бегущая сумма) ---
   short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
-  sum_ud_frame -= ud_frame[ind];   
-  ud_frame[ind] = new_val;
-  sum_ud_frame += ud_frame[ind];  
-  ind = (ind + 1) % N_FRAME; 
+  v_slipe.sum_ud_frame -= v_slipe.ud_frame[v_slipe.ind_ud_fram];    
+  v_slipe.ud_frame[v_slipe.ind_ud_fram] = new_val;
+  v_slipe.sum_ud_frame += v_slipe.ud_frame[v_slipe.ind_ud_fram];   
+  v_slipe.ind_ud_fram = (v_slipe.ind_ud_fram + 1) % v_slipe.N_FRAME; 
   
   // --- 2. ТОЧКА СОБЫТИЯ (Положительная область + Порог) ---
-  if (sum_ud_frame > delta_s_adaptive) {
-    if (!phase_detected_latch) {
-      phase_detected_latch = true;                      // Защёлка на одну полуволну
-      n_pulses = 0;                                     // Сброс счётчика
-      slip_value = 20.0f / (n_pulses * 3.33333f);       // Расчёт скольжения
-      slip_event = true;       
+  if (v_slipe.sum_ud_frame > v_slipe.delta_adaptive) {
+    if (!v_slipe.detected_latch) {
+      v_slipe.detected_latch = true;                                     // Защёлка на одну полуволну 
+      v_slipe.slipe_value = 6.0f / static_cast<float>(v_slipe.nT_slipe); // Расчёт скольжения 6 = 20 / 3.333
+      v_slipe.slipe_event = true;                                        // Заданная глубина достигнута
+      v_slipe.nT_slipe = 0;                                              // Сброс счётчика
     }
   }
   
   // --- 3. Отрицательная область ---
-  if (sum_ud_frame < 0) {
-    s_neg_accumulator += abs(new_val); // Накапливаем "вес" минуса
-    n_neg_samples++;
-    neg_wave_ready = true;
-    phase_detected_latch = false;      // Сброс защёлки (готовимся к новому плюсу)
+  if (v_slipe.sum_ud_frame < 0) {
+    v_slipe.neg_accumulator += abs(new_val);    // Накапливаем "вес" минуса
+    v_slipe.neg_samples++;                      // Считаем отсчёты
+    v_slipe.collecting_neg_wave = true;         // Данные минуса накапливаются 
+    v_slipe.detected_latch = false;             // Сброс защёлки (готовимся к новому плюсу)
   } 
   
   // --- 4. Выход из минуса в ноль ---
-  else if (neg_wave_ready) {
+  else if (v_slipe.collecting_neg_wave) {
     // Если полуволна была достаточно длинной (защита от шума)
-    if (n_neg_samples > 5) { 
+    if (v_slipe.neg_samples > 5) { 
       
       // Вычисляем порог для следующего плюса
-      float avg_u = static_cast<float>(s_neg_accumulator) / static_cast<float>(n_neg_samples);
-      delta_s_adaptive = static_cast<int>(avg_u * 2.0f + 0.5f);
+      float avg_u = static_cast<float>(v_slipe.neg_accumulator) / static_cast<float>(v_slipe.neg_samples);
+      v_slipe.delta_adaptive = static_cast<int>(avg_u * 2.0f + 0.5f);
       
       // Санитарные границы
-      if (delta_s_adaptive < 20)   delta_s_adaptive = 20;  
-      if (delta_s_adaptive > 500)  delta_s_adaptive = 500;
+      if (v_slipe.delta_adaptive < v_slipe.min_delta_adaptive)  v_slipe.delta_adaptive = v_slipe.min_delta_adaptive;  
+      if (v_slipe.delta_adaptive > v_slipe.max_delta_adaptive)  v_slipe.delta_adaptive = v_slipe.max_delta_adaptive;
+      
+      v_slipe.u0_event = true; // Служебное событие
+      
     }
     
     // Очистка накопителей статистики
-    s_neg_accumulator = 0;
-    n_neg_samples = 0;
-    neg_wave_ready = false; 
+    v_slipe.neg_accumulator = 0;
+    v_slipe.neg_samples = 0;
+    v_slipe.collecting_neg_wave = false; 
   }
   
 }
@@ -143,9 +157,6 @@ void CPULSCALC::sin_restoration() {
     avr += v_rest.u_stat[u];
   }
   avr = avr / v_rest.PULS_AVR;
-  
-  US_MAX = avr;
-  
   
   u_stator_rms = avr/v_rest.sqrt_2;
   U_STATOR_RMS = static_cast<unsigned short>((avr/v_rest.sqrt_2) + 0.5f);

@@ -17,23 +17,15 @@ class CPULSCALC {
   inline float* getPointer_ustator_rms() { return &u_stator_rms; }
   inline float* getPointer_istator_rms() { return &i_stator_rms; }
 
-
-    static constexpr char N_FRAME = 10;
-    signed short ud_frame[N_FRAME];
-    signed int sum_ud_frame = 0;
-    unsigned short delta_s_adaptive;
-    
-    unsigned char ind = 0;
-    signed int s_neg_accumulator = 0;   // Сумма отрицательных значений
-    unsigned short  n_neg_samples = 0;  // Счетчик отсчетов в минусе
-    bool neg_wave_ready = false;        // Флаг: мы накопили данные в минусе    
-    
-    unsigned short n_pulses = 0;
-    bool phase_detected_latch = false;
-   
-    bool slip_event = false; 
-    float slip_value = 1.0f;
- 
+  inline bool getSlipeEvent()     { return v_slipe.slipe_event; } 
+  inline bool getU0Event()        { return v_slipe.u0_event; }
+  inline float getSlipeValue()    { return v_slipe.slipe_value; }
+  inline float* getPointer_slipe(){ return &v_slipe.slipe_value; }
+  inline void resSlipeEvent()     { v_slipe.slipe_event = false; }
+  inline void resU0Event()        { v_slipe.u0_event = false; }
+  inline void setSlipePermission(){ v_slipe.Permission = true; }
+  inline void clrSlipePermission(){ v_slipe.Permission = false; }
+  
  private:
   float u_stator_rms; 
   unsigned short U_STATOR_RMS;
@@ -70,7 +62,34 @@ class CPULSCALC {
     unsigned int dT_istator;
 
   } v_rest;
- 
+  
+  struct SlipeState {
+    
+    bool Permission = false;
+    
+    static constexpr char N_FRAME = 10; // Длина бегущего кадра
+    signed short ud_frame[N_FRAME];     // Бегущий кадр
+    unsigned char ind_ud_fram = 0;      // Индекс бегущего кадра           
+    signed int sum_ud_frame = 0;        // Бегущая сумма
+    
+    signed int neg_accumulator = 0;     // Сумма отрицательных значений
+    unsigned short  neg_samples = 0;    // Счетчик отсчетов в минусе
+    bool collecting_neg_wave = false;   // Данные минуса накапливаются 
+    unsigned short delta_adaptive;      // Адаптивный порог
+        
+    unsigned short nT_slipe = 0;        // Счётчик перида скольжения
+    bool detected_latch = false;        // Защёлка минуса
+    
+    bool slipe_event = false;
+    bool u0_event = false;
+    float slipe_value = 1.0f;
+    
+    static constexpr char min_neg_samples = 5;                // Минимальная длина полуволны
+    static constexpr unsigned short min_delta_adaptive = 20;  // Минимальная дельта
+    static constexpr unsigned short max_delta_adaptive = 500; // Максимальная дельта
+    
+  } v_slipe; 
+  
   void sin_restoration();
   void detectRotorPhaseAdaptive();
   
