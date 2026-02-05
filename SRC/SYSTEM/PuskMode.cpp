@@ -99,24 +99,39 @@ void CPuskMode::WaitISdrop() {
   
 }
 
-// ---Фаза самосинхронизации---
+// ---Фаза самосинхронизации и определенпе типа пуска---
 void CPuskMode::SelfSync() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   
-  if((rSIFU.rPulsCalc.getSlipValue() <= rSet.getSettings().set_pusk.SlipPusk) && rSIFU.rPulsCalc.getSlipEvent()) {
-    SWork::setMessage(EWorkId::PUSK_ON_SLIP);
-    StartEx();
-    return;
-  }    
-
-  if((dTrsPhase >= rSet.getSettings().set_pusk.TSelfSync * TICK_SEC) && rSIFU.rPulsCalc.getSlipEvent()) {
+  bool isNewSlipData = rSIFU.rPulsCalc.getSlipEvent();
+  
+  // 1. Пуск по скольжению 
+  if (isNewSlipData) {
+    if (rSIFU.rPulsCalc.getSlipValue() <= rSet.getSettings().set_pusk.SlipPusk) {
+      SWork::setMessage(EWorkId::PUSK_ON_SLIP);
+      StartEx();
+      return;
+    }
+  }
+  
+  // 2. По току в фазе скольжения
+  if ((dTrsPhase >= rSet.getSettings().set_pusk.TSelfSync * TICK_SEC) && isNewSlipData) {
     SWork::setMessage(EWorkId::PUSK_ON_IS);
     StartEx();
     return;
   }
   
-  if(rSIFU.rPulsCalc.getSlipEvent()) rSIFU.rPulsCalc.resSlipEvent();
-}
+  // Сброс флага, если он пришел, но не вызвал StartEx
+  if (isNewSlipData) rSIFU.rPulsCalc.resSlipEvent();
+  
+  // 3. По току в случайный момент времени. Жесткий таймаут (TSelfSync + 2сек).
+  if (dTrsPhase >= (rSet.getSettings().set_pusk.TSelfSync + 2) * TICK_SEC) {
+    SWork::setMessage(EWorkId::PUSK_ON_TIMEOUT); 
+    StartEx();
+    return;
+  }
+
+}  
 
 // ---Подача возбуждения---
 void CPuskMode::StartEx() { 
