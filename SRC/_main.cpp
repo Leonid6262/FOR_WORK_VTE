@@ -24,8 +24,8 @@ void main(void) {
   static auto& term_manager = CFactory::createTM(sys_manager);  // Управление объектами ПТ
   
   CDIN_STORAGE::UserLedOff();                           // Визуальный контроль окончания инициализации
-   
-  while (true) {  
+
+  while (true) {
     
     int_adc.measure_5V();       // Измерение напряжения питания +/- 5V (внутреннее ADC)
     iso_meas.meas();            // Измерение сопротивления изоляции

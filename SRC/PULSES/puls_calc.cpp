@@ -37,68 +37,68 @@ void CPULSCALC::conv_and_calc() {
 // ---Используется в режиме пуска двигателя---
 void CPULSCALC::detectRotorPhaseAdaptive() {
   
-  if(!v_slipe.Permission) {        
-    v_slipe.slipe_event = false;
-    v_slipe.u0_event = false;
-    v_slipe.slipe_value = 1.0f;
-    v_slipe.nT_slipe = 0;       
-    v_slipe.neg_accumulator = 0;
-    v_slipe.neg_samples = 0;
-    v_slipe.collecting_neg_wave = false; 
-    v_slipe.u0_event = false;
-    v_slipe.collecting_neg_wave = false;        
-    v_slipe.detected_latch = false;        
+  if(!v_slip.Permission) {        
+    v_slip.slip_event = false;
+    v_slip.u0_event = false;
+    v_slip.slip_value = 1.0f;
+    v_slip.nT_slip = 0;       
+    v_slip.neg_accumulator = 0;
+    v_slip.neg_samples = 0;
+    v_slip.collecting_neg_wave = false; 
+    v_slip.u0_event = false;
+    v_slip.collecting_neg_wave = false;        
+    v_slip.detected_latch = false;        
     return;
   }
   
-  v_slipe.nT_slipe++; // Считаем перид скольжения
+  v_slip.nT_slip++; // Считаем перид скольжения
   
   // --- 1. Работа с кадром (бегущая сумма) ---
   short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
-  v_slipe.sum_ud_frame -= v_slipe.ud_frame[v_slipe.ind_ud_fram];    
-  v_slipe.ud_frame[v_slipe.ind_ud_fram] = new_val;
-  v_slipe.sum_ud_frame += v_slipe.ud_frame[v_slipe.ind_ud_fram];   
-  v_slipe.ind_ud_fram = (v_slipe.ind_ud_fram + 1) % v_slipe.N_FRAME; 
+  v_slip.sum_ud_frame -= v_slip.ud_frame[v_slip.ind_ud_fram];    
+  v_slip.ud_frame[v_slip.ind_ud_fram] = new_val;
+  v_slip.sum_ud_frame += v_slip.ud_frame[v_slip.ind_ud_fram];   
+  v_slip.ind_ud_fram = (v_slip.ind_ud_fram + 1) % v_slip.N_FRAME; 
   
   // --- 2. ТОЧКА СОБЫТИЯ (Положительная область + Порог) ---
-  if (v_slipe.sum_ud_frame > v_slipe.delta_adaptive) {
-    if (!v_slipe.detected_latch) {
-      v_slipe.detected_latch = true;                                     // Защёлка на одну полуволну 
-      v_slipe.slipe_value = 6.0f / static_cast<float>(v_slipe.nT_slipe); // Расчёт скольжения 6 = 20 / 3.333
-      v_slipe.slipe_event = true;                                        // Заданная глубина достигнута
-      v_slipe.nT_slipe = 0;                                              // Сброс счётчика
+  if (v_slip.sum_ud_frame > v_slip.delta_adaptive) {
+    if (!v_slip.detected_latch) {
+      v_slip.detected_latch = true;                                   // Защёлка на одну полуволну 
+      v_slip.slip_value = 6.0f / static_cast<float>(v_slip.nT_slip);  // Расчёт скольжения 6 = 20 / 3.333
+      v_slip.slip_event = true;                                       // Заданная глубина достигнута
+      v_slip.nT_slip = 0;                                             // Сброс счётчика
     }
   }
   
   // --- 3. Отрицательная область ---
-  if (v_slipe.sum_ud_frame < 0) {
-    v_slipe.neg_accumulator += abs(new_val);    // Накапливаем "вес" минуса
-    v_slipe.neg_samples++;                      // Считаем отсчёты
-    v_slipe.collecting_neg_wave = true;         // Данные минуса накапливаются 
-    v_slipe.detected_latch = false;             // Сброс защёлки (готовимся к новому плюсу)
+  if (v_slip.sum_ud_frame < 0) {
+    v_slip.neg_accumulator += abs(new_val);    // Накапливаем "вес" минуса
+    v_slip.neg_samples++;                      // Считаем отсчёты
+    v_slip.collecting_neg_wave = true;         // Данные минуса накапливаются 
+    v_slip.detected_latch = false;             // Сброс защёлки (готовимся к новому плюсу)
   } 
   
   // --- 4. Выход из минуса в ноль ---
-  else if (v_slipe.collecting_neg_wave) {
+  else if (v_slip.collecting_neg_wave) {
     // Если полуволна была достаточно длинной (защита от шума)
-    if (v_slipe.neg_samples > 5) { 
+    if (v_slip.neg_samples > 5) { 
       
       // Вычисляем порог для следующего плюса
-      float avg_u = static_cast<float>(v_slipe.neg_accumulator) / static_cast<float>(v_slipe.neg_samples);
-      v_slipe.delta_adaptive = static_cast<int>(avg_u * 2.0f + 0.5f);
+      float avg_u = static_cast<float>(v_slip.neg_accumulator) / static_cast<float>(v_slip.neg_samples);
+      v_slip.delta_adaptive = static_cast<int>(avg_u * 2.0f + 0.5f);
       
       // Санитарные границы
-      if (v_slipe.delta_adaptive < v_slipe.min_delta_adaptive)  v_slipe.delta_adaptive = v_slipe.min_delta_adaptive;  
-      if (v_slipe.delta_adaptive > v_slipe.max_delta_adaptive)  v_slipe.delta_adaptive = v_slipe.max_delta_adaptive;
+      if (v_slip.delta_adaptive < v_slip.min_delta_adaptive)  v_slip.delta_adaptive = v_slip.min_delta_adaptive;  
+      if (v_slip.delta_adaptive > v_slip.max_delta_adaptive)  v_slip.delta_adaptive = v_slip.max_delta_adaptive;
       
-      v_slipe.u0_event = true; // Служебное событие
+      v_slip.u0_event = true; // Служебное событие
       
     }
     
     // Очистка накопителей статистики
-    v_slipe.neg_accumulator = 0;
-    v_slipe.neg_samples = 0;
-    v_slipe.collecting_neg_wave = false; 
+    v_slip.neg_accumulator = 0;
+    v_slip.neg_samples = 0;
+    v_slip.collecting_neg_wave = false; 
   }
   
 }

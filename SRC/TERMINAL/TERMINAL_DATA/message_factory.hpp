@@ -57,7 +57,7 @@ struct SReady : CategoryActive<EReadyId>{
 };
 // ======================= WORK =======================
 enum class EWorkId { PUSK, CURRENT_REG, COS_REG, Q_POWER_REG, DRYING, TESTING, TESTING_OK, 
-                     PUSK_ON_IS, PUSK_ON_SLIPE, CONTROL_PUSK, COUNT };
+                     PUSK_ON_IS, PUSK_ON_SLIP, CONTROL_PUSK, COUNT };
 struct SWork : CategoryActive<EWorkId> {
   
   static constexpr const char* NAME[G_CONST::Nlang] = { "РАБОТА:", "WORK:", "РОБОТА:" };

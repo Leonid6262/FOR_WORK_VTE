@@ -94,7 +94,7 @@ class CEEPSettings {
       unsigned short TSelfSync;                                 /* Длительность самосинхронизации*/
       unsigned short TPusk;                                     /* Максимальное время пуска */ 
       unsigned short ISPusk;                                    /* Пусковой ток статора */
-      float SlipePusk;                                          /* Пусковое скольжение */      
+      float SlipPusk;                                           /* Пусковое скольжение */      
     } set_pusk; 
     struct {                                               // 17 Рабочие начальные значения
       unsigned short Iset_0;                                     /* Ток после форсировки в режиме РТ */  
@@ -152,7 +152,7 @@ class CEEPSettings {
       .TSelfSync = 5,
       .TPusk = 20,
       .ISPusk = static_cast<unsigned short>((((cd::ISNomDef)  * cd::ADC_DISCR_IS ) / cd::ISNomDef) + 0.5f),
-      .SlipePusk = 0.05f,
+      .SlipPusk = 0.05f,
     },
     .work_set = {
       .Iset_0    = static_cast<unsigned short>((((cd::IdNomDef / 2)  * cd::ADC_DISCR_ID ) / cd::IdNomDef) + 0.5f),

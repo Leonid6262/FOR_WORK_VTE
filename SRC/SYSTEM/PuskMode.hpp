@@ -13,7 +13,7 @@ public:
   void setSysManager(CSystemManager*);
   void pusk(bool Permission);   // основной цикл автомата
   
-  inline float* getPointerPslipe() { return &pusk_slipe; }
+  inline float* getPointerPslip() { return &pusk_slip; }
   
 private:
   CDIN_STORAGE& rDinStr;
@@ -25,7 +25,7 @@ private:
   State cur_status = State::OFF;
   unsigned int prev_TC0_Phase;
   unsigned int dTrsPhase;
-  float pusk_slipe = 1.0f;
+  float pusk_slip = 1.0f;
   
   enum class EPhasesPusk : unsigned short {
     CheckISctrlPK,

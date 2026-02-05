@@ -17,14 +17,14 @@ class CPULSCALC {
   inline float* getPointer_ustator_rms() { return &u_stator_rms; }
   inline float* getPointer_istator_rms() { return &i_stator_rms; }
 
-  inline bool getSlipeEvent()     { return v_slipe.slipe_event; } 
-  inline bool getU0Event()        { return v_slipe.u0_event; }
-  inline float getSlipeValue()    { return v_slipe.slipe_value; }
-  inline float* getPointer_slipe(){ return &v_slipe.slipe_value; }
-  inline void resSlipeEvent()     { v_slipe.slipe_event = false; }
-  inline void resU0Event()        { v_slipe.u0_event = false; }
-  inline void setSlipePermission(){ v_slipe.Permission = true; }
-  inline void clrSlipePermission(){ v_slipe.Permission = false; }
+  inline bool getSlipEvent()      { return v_slip.slip_event; } 
+  inline bool getU0Event()        { return v_slip.u0_event; }
+  inline float getSlipValue()     { return v_slip.slip_value; }
+  inline float* getPointer_slip() { return &v_slip.slip_value; }
+  inline void resSlipEvent()      { v_slip.slip_event = false; }
+  inline void resU0Event()        { v_slip.u0_event = false; }
+  inline void setSlipPermission() { v_slip.Permission = true; }
+  inline void clrSlipPermission() { v_slip.Permission = false; }
   
  private:
   float u_stator_rms; 
@@ -63,7 +63,7 @@ class CPULSCALC {
 
   } v_rest;
   
-  struct SlipeState {
+  struct SlipState {
     
     bool Permission = false;
     
@@ -77,18 +77,18 @@ class CPULSCALC {
     bool collecting_neg_wave = false;   // Данные минуса накапливаются 
     unsigned short delta_adaptive;      // Адаптивный порог
         
-    unsigned short nT_slipe = 0;        // Счётчик перида скольжения
+    unsigned short nT_slip = 0;         // Счётчик перида скольжения
     bool detected_latch = false;        // Защёлка минуса
     
-    bool slipe_event = false;
+    bool slip_event = false;
     bool u0_event = false;
-    float slipe_value = 1.0f;
+    float slip_value = 1.0f;
     
     static constexpr char min_neg_samples = 5;                // Минимальная длина полуволны
     static constexpr unsigned short min_delta_adaptive = 20;  // Минимальная дельта
     static constexpr unsigned short max_delta_adaptive = 500; // Максимальная дельта
     
-  } v_slipe; 
+  } v_slip; 
   
   void sin_restoration();
   void detectRotorPhaseAdaptive();

@@ -80,8 +80,8 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
                   "Fsync",   sifu.get_Sync_Frequency(),               un::Hz,   cd::one,    p1, vt::vfloat, nm::In2V),
           o::Dual("P5",      pAdc.getIPointer(sadc::SUPPLY_P5),       un::Volt, cd::one,    p1, vt::vfloat,
                   "N5",      pAdc.getIPointer(sadc::SUPPLY_N5),       un::Volt, cd::one,    p1, vt::vfloat, nm::In2V),
-          o::Dual("slipe-c", sifu.rPulsCalc.getPointer_slipe(),       "sl-c",cd::one,    p2, vt::vfloat,
-                  "slipe-p", rSysMgr.rPusk_mode.getPointerPslipe(),   "sl-p",cd::one,    p2, vt::vfloat, nm::In2V),}),
+          o::Dual("Slip-c", sifu.rPulsCalc.getPointer_slip(),        "sl-c",cd::one,    p2, vt::vfloat,
+                  "Slip-p", rSysMgr.rPusk_mode.getPointerPslip(),    "sl-p",cd::one,    p2, vt::vfloat, nm::In2V),}),
       o(Mn.BIT_DATA[l],{
           o("dInCPU-D", {}, &str.UData_din_f[static_cast<unsigned char>(sbin::CPU_PORT)].all, un::d, cd::one, p0, vt::char2b, nm::In1V),
           o("dInCPU-S", {}, &str.UData_din_f[static_cast<unsigned char>(sbin::CPU_SPI)].all,  un::d, cd::one, p0, vt::char2b, nm::In1V),}),}),
@@ -125,7 +125,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("T pusk",   {}, &set.set_pusk.TPusk,     un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
           o("T s-sync", {}, &set.set_pusk.TSelfSync, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 5, 15),          
           o("IS start", {}, &set.set_pusk.ISPusk,    un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
-          o("slipe",    {}, &set.set_pusk.SlipePusk, "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
+          o("Slip",     {}, &set.set_pusk.SlipPusk, "",      cd::one,     p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
       o(Mn.PARAMS[l], {
           o("Id Nom", {}, &set.params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V,  50,  400),
           o("Ud Nom", {}, &set.params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V,  48,  230),
