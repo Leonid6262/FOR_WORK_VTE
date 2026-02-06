@@ -26,6 +26,7 @@ void CFaultCtrlF::fault_stop() {
   pSys_manager->rReg_manager.setQPower(State::OFF);
   pSys_manager->rReg_manager.setCosPhi(State::OFF);
   pSys_manager->rSIFU.all_bridge_pulses_Off();
+  pSys_manager->rSIFU.rPulsCalc.stopDetectRotorPhase();
   rDinStr.Relay_FAULT(State::ON);
   rDinStr.Relay_Premission(State::OFF);
   rDinStr.Relay_Ex_Applied(State::OFF);

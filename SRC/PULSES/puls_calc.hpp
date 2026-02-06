@@ -23,8 +23,28 @@ class CPULSCALC {
   inline float* getPointer_slip() { return &v_slip.slip_value; }
   inline void resSlipEvent()      { v_slip.slip_event = false; }
   inline void resU0Event()        { v_slip.u0_event = false; }
-  inline void setSlipPermission() { v_slip.Permission = true; }
-  inline void clrSlipPermission() { v_slip.Permission = false; }
+  
+  inline void startDetectRotorPhase() { 
+    v_slip.Permission = true; 
+    
+    v_slip.slip_event = false;
+    v_slip.u0_event = false;
+    v_slip.slip_value = 1.0f;
+    v_slip.nT_slip = 0;       
+    v_slip.neg_accumulator = 0;
+    v_slip.neg_samples = 0;
+    v_slip.collecting_neg_wave = false; 
+    v_slip.u0_event = false;
+    v_slip.collecting_neg_wave = false;        
+    v_slip.detected_latch = false; 
+    
+    for(unsigned char i = 0; i < v_slip.N_FRAME; i++) v_slip.ud_frame[i] = 0;
+    v_slip.sum_ud_frame = 0;
+    v_slip.ind_ud_fram = 0;
+    v_slip.delta_adaptive = 32000; // Стартовый замок    
+  }
+  
+  inline void stopDetectRotorPhase() { v_slip.Permission = false; }
   
  private:
   float u_stator_rms; 

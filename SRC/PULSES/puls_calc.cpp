@@ -33,28 +33,11 @@ void CPULSCALC::conv_and_calc() {
   
 }
 
-// ---Адаптивный алгоритм определения перехода напряжения ротора через ноль (с минус в плюс)---
-// ---Используется в режиме пуска двигателя для вычисления скольжения и угла возбуждения---
+// ---Адаптивный алгоритм определения перехода напряжения ротора через ноль 
+// (с минус в плюс), вычисления скольжения и угла возбуждения---
 void CPULSCALC::detectRotorPhaseAdaptive() {
   
-  if(!v_slip.Permission) {        
-    v_slip.slip_event = false;
-    v_slip.u0_event = false;
-    v_slip.slip_value = 1.0f;
-    v_slip.nT_slip = 0;       
-    v_slip.neg_accumulator = 0;
-    v_slip.neg_samples = 0;
-    v_slip.collecting_neg_wave = false; 
-    v_slip.u0_event = false;
-    v_slip.collecting_neg_wave = false;        
-    v_slip.detected_latch = false; 
-    
-    for(unsigned char i = 0; i < v_slip.N_FRAME; i++) v_slip.ud_frame[i] = 0;
-    v_slip.sum_ud_frame = 0;
-    v_slip.ind_ud_fram = 0;
-    v_slip.delta_adaptive = 32000; // Стартовый замок    
-    return;
-  }
+  if(!v_slip.Permission) { return; }
   
   v_slip.nT_slip++; // Считаем перид скольжения
   

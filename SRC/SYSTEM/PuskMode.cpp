@@ -54,7 +54,7 @@ void CPuskMode::CheckISctrlPK() {
   // В режиме пуска без возбуждения контролируем Is и slip
   if(without_ex) {
     SWork::setMessage(EWorkId::PUSK_WEX);
-    rSIFU.rPulsCalc.setSlipPermission();
+    rSIFU.rPulsCalc.startDetectRotorPhase();
     phases_pusk = EPhasesPusk::SelfSync;
     return;
   }  
@@ -71,19 +71,19 @@ void CPuskMode::CheckISctrlPK() {
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk*0.5f) {
     SFault::setMessage(EFaultId::NOT_IS);
     pSys_manager->rFault_ctrl.fault_stop();
-    rSIFU.rPulsCalc.clrSlipPermission();
+    rSIFU.rPulsCalc.stopDetectRotorPhase();
   }
   
   if(!switching_check_pk(Mode::ALLOWED)) { 
     SFault::setMessage(EFaultId::PK_FAULT);
     pSys_manager->rFault_ctrl.fault_stop();
-    rSIFU.rPulsCalc.clrSlipPermission();
+    rSIFU.rPulsCalc.stopDetectRotorPhase();
 
   }
   
   if(!pSys_manager->USystemStatus.sFault) {
     pusk_slip = 1.0f;
-    rSIFU.rPulsCalc.setSlipPermission();
+    rSIFU.rPulsCalc.startDetectRotorPhase();
     phases_pusk = EPhasesPusk::WaitISdrop;
     prev_TC0_Phase = LPC_TIM0->TC;
   }
@@ -95,7 +95,7 @@ void CPuskMode::WaitISdrop() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
     SFault::setMessage(EFaultId::LONG_PUSK);
-    rSIFU.rPulsCalc.clrSlipPermission();
+    rSIFU.rPulsCalc.stopDetectRotorPhase();
     pSys_manager->rFault_ctrl.fault_stop(); 
     return;
   }  
@@ -162,7 +162,7 @@ void CPuskMode::StartEx() {
   pusk_slip = rSIFU.rPulsCalc.getSlipValue();
   pusk_is = *rSIFU.rPulsCalc.getPointer_istator_rms();
   rSIFU.rPulsCalc.resSlipEvent();
-  rSIFU.rPulsCalc.clrSlipPermission(); 
+  rSIFU.rPulsCalc.stopDetectRotorPhase(); 
   rSIFU.set_alpha(rSIFU.s_const.AMax);
   rSIFU.forcing_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
@@ -216,7 +216,7 @@ void CPuskMode::StopPusk(){
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
   rSIFU.all_bridge_pulses_Off();
-  rSIFU.rPulsCalc.clrSlipPermission(); 
+  rSIFU.rPulsCalc.stopDetectRotorPhase();
 }
 
 void CPuskMode::setSysManager(CSystemManager* pSys_manager) {
