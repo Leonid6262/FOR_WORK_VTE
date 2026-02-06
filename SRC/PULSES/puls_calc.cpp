@@ -81,11 +81,11 @@ void CPULSCALC::detectRotorPhaseAdaptive() {
   // --- 4. Выход из минуса в ноль ---
   else if (v_slip.collecting_neg_wave) {
     // Если полуволна была достаточно длинной (защита от шума)
-    if (v_slip.neg_samples > 5) { 
+    if (v_slip.neg_samples > v_slip.min_neg_samples) { 
       
       // Вычисляем порог для следующего плюса
       float avg_u = static_cast<float>(v_slip.neg_accumulator) / static_cast<float>(v_slip.neg_samples);
-      v_slip.delta_adaptive = static_cast<int>(avg_u * 2.0f + 0.5f);
+      v_slip.delta_adaptive = static_cast<int>(avg_u * v_slip.k_depth + 0.5f);
       
       // Санитарные границы
       if (v_slip.delta_adaptive < v_slip.min_delta_adaptive)  v_slip.delta_adaptive = v_slip.min_delta_adaptive;  

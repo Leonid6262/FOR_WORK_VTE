@@ -132,7 +132,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("T pusk",   {}, &set.set_pusk.TPusk,               un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
           o("T s-sync", {}, &set.set_pusk.TSelfSync,           un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 5, 15),          
           o("IS start", {}, &set.set_pusk.ISPusk,              un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
-          o("Slip",     {}, &set.set_pusk.SlipPusk,            "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),
+          o("Slip",     {}, &set.set_pusk.SlipPusk,            "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 0.1f),
           o("W Ex",     {}, rSysMgr.rPusk_mode.getPointerWex(),"NoS",   cd::one,    p0, vt::vbool,  nm::Ed1V, 0, 1),}),      
       o(Mn.PARAMS[l], {
           o("Id Nom", {}, &set.params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V,  50,  400),

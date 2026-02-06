@@ -81,9 +81,10 @@ class CPULSCALC {
     bool detected_latch = false;        // Защёлка минуса
     
     bool slip_event = false;
-    bool u0_event = false;
     float slip_value = 1.0f;
+    bool u0_event = false;
     
+    static constexpr float k_depth = 4.0f;                    // Коэффициент глубины захода в плюс
     static constexpr char min_neg_samples = 5;                // Минимальная длина полуволны
     static constexpr unsigned short min_delta_adaptive = 20;  // Минимальная дельта
     static constexpr unsigned short max_delta_adaptive = 500; // Максимальная дельта
