@@ -25,6 +25,7 @@ static const struct {
     const char* INDICATION[G_CONST::Nlang]     = {"ИНДИКАЦИЯ",       "INDICATION",       "IНДИКАЦIЯ"};
     const char* CURRENT_DATA[G_CONST::Nlang]   = {"ТЕКУЩИЕ ДАННЫЕ",  "CURRENT DATA",     "ПОТОЧНI ДАНI"};
     const char* BIT_DATA[G_CONST::Nlang]       = {"БИТОВЫЕ ДАННЫЕ",  "BIT DATA",         "БIТОВІ ДАНI"};
+    const char* SERVICE[G_CONST::Nlang]        = {"СЛУЖЕБНАЯ",       "SERVICE DATA",     "СЛУЖБОВА"};
     const char* SETTINGS[G_CONST::Nlang]       = {"УСТАВКИ",         "SETTINGS",         "УСТАНОВКИ"};
     const char* REGULATORS[G_CONST::Nlang]     = {"РЕГУЛЯТОРОВ",     "REGULATORS",       "РЕГУЛЯТОРИ"};
     const char* CURRENT[G_CONST::Nlang]        = {"ТОКА",            "CURRENT",          "СТРУМУ"};
@@ -79,12 +80,16 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o::Dual("Sync",    sifu.get_pSyncStat(),                    "Sync",   cd::one,    p0, vt::vbool,
                   "Fsync",   sifu.get_Sync_Frequency(),               un::Hz,   cd::one,    p1, vt::vfloat, nm::In2V),
           o::Dual("P5",      pAdc.getIPointer(sadc::SUPPLY_P5),       un::Volt, cd::one,    p1, vt::vfloat,
-                  "N5",      pAdc.getIPointer(sadc::SUPPLY_N5),       un::Volt, cd::one,    p1, vt::vfloat, nm::In2V),
-          o::Dual("Slip-c", sifu.rPulsCalc.getPointer_slip(),        "sl-c",cd::one,    p2, vt::vfloat,
-                  "Slip-p", rSysMgr.rPusk_mode.getPointerPslip(),    "sl-p",cd::one,    p2, vt::vfloat, nm::In2V),}),
+                  "N5",      pAdc.getIPointer(sadc::SUPPLY_N5),       un::Volt, cd::one,    p1, vt::vfloat, nm::In2V),}),
       o(Mn.BIT_DATA[l],{
           o("dInCPU-D", {}, &str.UData_din_f[static_cast<unsigned char>(sbin::CPU_PORT)].all, un::d, cd::one, p0, vt::char2b, nm::In1V),
-          o("dInCPU-S", {}, &str.UData_din_f[static_cast<unsigned char>(sbin::CPU_SPI)].all,  un::d, cd::one, p0, vt::char2b, nm::In1V),}),}),
+          o("dInCPU-S", {}, &str.UData_din_f[static_cast<unsigned char>(sbin::CPU_SPI)].all,  un::d, cd::one, p0, vt::char2b, nm::In1V),}),
+      o(Mn.SERVICE[l],{          
+          o::Dual("IStat-c", sifu.rPulsCalc.getPointer_istator_rms(), un::Amp,  cd::cdr.IS, p0, vt::vfloat,
+                  "Slip-c",  sifu.rPulsCalc.getPointer_slip(),        "sl-c",   cd::one,    p2, vt::vfloat, nm::In2V),          
+          o::Dual("IStat-p", rSysMgr.rPusk_mode.getPointerPis(),      un::Amp,  cd::cdr.IS, p0, vt::vfloat,
+                  "Slip-p",  rSysMgr.rPusk_mode.getPointerPslip(),    "sl-p",   cd::one,    p2, vt::vfloat, nm::In2V),
+          o("slip-e", {},    rSysMgr.rPusk_mode.getPointerSlE(),      "",       cd::one,    p0, vt::vbool,  nm::In1V),}),}),
   o(Mn.ADJ_MODE[l],{
       o("On-Off ADJ MODE",{
           o("ADJ Mode",   {}, &rSysMgr.USystemStatus.all,            "",      cd::one,    p0, vt::eb_3,   nm::Ed1V),
@@ -120,12 +125,13 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
               o("KpQ",   {}, &set.set_reg.KpQ, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiQ",   {}, &set.set_reg.KiQ, "", cd::one, p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),}),
       o(Mn.PUSK[l], {
-          o("I fors",   {}, &set.set_pusk.IFors,     un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2*set.params.IdNom),
-          o("T fors",   {}, &set.set_pusk.TFors,     un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 10),
-          o("T pusk",   {}, &set.set_pusk.TPusk,     un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
-          o("T s-sync", {}, &set.set_pusk.TSelfSync, un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 5, 15),          
-          o("IS start", {}, &set.set_pusk.ISPusk,    un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
-          o("Slip",     {}, &set.set_pusk.SlipPusk, "",      cd::one,     p2, vt::vfloat, nm::Ed1V, 0, 1),}),      
+          o("I fors",   {}, &set.set_pusk.IFors,               un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 2*set.params.IdNom),
+          o("T fors",   {}, &set.set_pusk.TFors,               un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 10),
+          o("T pusk",   {}, &set.set_pusk.TPusk,               un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 1, 60),
+          o("T s-sync", {}, &set.set_pusk.TSelfSync,           un::sec, cd::one,    p0, vt::ushort, nm::Ed1V, 5, 15),          
+          o("IS start", {}, &set.set_pusk.ISPusk,              un::Amp, cd::cdr.IS, p0, vt::ushort, nm::Ed1V, 0, set.params.ISNom),
+          o("Slip",     {}, &set.set_pusk.SlipPusk,            "",      cd::one,    p2, vt::vfloat, nm::Ed1V, 0, 1),
+          o("W Ex",     {}, rSysMgr.rPusk_mode.getPointerWex(),"NoS",   cd::one,    p0, vt::vbool,  nm::Ed1V, 0, 1),}),      
       o(Mn.PARAMS[l], {
           o("Id Nom", {}, &set.params.IdNom, un::Amp,  cd::one,    p0, vt::ushort, nm::Ed1V,  50,  400),
           o("Ud Nom", {}, &set.params.UdNom, un::Volt, cd::one,    p0, vt::ushort, nm::Ed1V,  48,  230),

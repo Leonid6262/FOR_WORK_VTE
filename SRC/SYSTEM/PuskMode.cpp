@@ -50,6 +50,15 @@ void CPuskMode::CheckISctrlPK() {
     return;
   }
   
+  
+  // В режиме пуска без возбуждения контролируем Is и slip
+  if(without_ex) {
+    SWork::setMessage(EWorkId::PUSK_WEX);
+    rSIFU.rPulsCalc.setSlipPermission();
+    phases_pusk = EPhasesPusk::SelfSync;
+    return;
+  }  
+  
   // В режиме контрольного пуска подаём возбуждение
   if(rDinStr.ControlPusk()) {
     SWork::setMessage(EWorkId::CONTROL_PUSK);
@@ -105,6 +114,20 @@ void CPuskMode::SelfSync() {
   
   bool isNewSlipData = rSIFU.rPulsCalc.getSlipEvent();
   
+  // 0. Пуск без возбуждения
+  if(without_ex) {
+    if (isNewSlipData) {
+      c_slip_ev++;
+      if(c_slip_ev > 3) {
+        c_slip_ev = 0;
+        slip_ev = !slip_ev;
+      }
+      pusk_slip = rSIFU.rPulsCalc.getSlipValue();
+      rSIFU.rPulsCalc.resSlipEvent();
+    }
+    return;
+  }
+  
   // 1. Пуск по скольжению 
   if (isNewSlipData) {
     if (rSIFU.rPulsCalc.getSlipValue() <= rSet.getSettings().set_pusk.SlipPusk) {
@@ -137,6 +160,7 @@ void CPuskMode::SelfSync() {
 void CPuskMode::StartEx() { 
   rDinStr.Relay_Ex_Applied(State::ON);
   pusk_slip = rSIFU.rPulsCalc.getSlipValue();
+  pusk_is = *rSIFU.rPulsCalc.getPointer_istator_rms();
   rSIFU.rPulsCalc.resSlipEvent();
   rSIFU.rPulsCalc.clrSlipPermission(); 
   rSIFU.set_alpha(rSIFU.s_const.AMax);
