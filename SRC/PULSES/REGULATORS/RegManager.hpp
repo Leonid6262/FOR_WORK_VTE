@@ -40,15 +40,15 @@ public:
   void setQPower(State mode)  { URegMode_request.QPower  = static_cast<unsigned char>(mode); } 
   void setCosPhi(State mode)  { URegMode_request.CosPhi  = static_cast<unsigned char>(mode); } 
  
-private:
-  
-  // --- Биты режимов регулирования --- 
+    // --- Биты режимов регулирования --- 
   enum MBit : unsigned char { 
     Current = 1 << 0, // Разрешение РТ 
     QPower  = 1 << 1, // Разрешение РQ 
     CosPhi  = 1 << 2, // Разрешение РCos 
   };
   
+private:
+
   // --- Правила --- 
   struct DependencyRule { 
     MBit req_bit;                    // какой режим проверяется

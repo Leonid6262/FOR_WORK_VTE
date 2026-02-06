@@ -21,6 +21,13 @@ private:
   
   State cur_status;
   
+  void CurrentSetting();
+  void StopWork();
+
+  unsigned int prev_TC0_Reg;
+  unsigned int dTrsReg;
+  unsigned short Iset;
+  
   unsigned short dIset; 
   static constexpr float ChangeInterval = 0.2f; // 0.2  сек
     

@@ -80,7 +80,9 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o::Dual("Sync",    sifu.get_pSyncStat(),                    "Sync",   cd::one,    p0, vt::vbool,
                   "Fsync",   sifu.get_Sync_Frequency(),               un::Hz,   cd::one,    p1, vt::vfloat, nm::In2V),
           o::Dual("P5",      pAdc.getIPointer(sadc::SUPPLY_P5),       un::Volt, cd::one,    p1, vt::vfloat,
-                  "N5",      pAdc.getIPointer(sadc::SUPPLY_N5),       un::Volt, cd::one,    p1, vt::vfloat, nm::In2V),}),
+                  "N5",      pAdc.getIPointer(sadc::SUPPLY_N5),       un::Volt, cd::one,    p1, vt::vfloat, nm::In2V),
+          o::Dual("I-Rotor", pAdc.getEPointer(sadc::ROTOR_CURRENT),   un::Amp,  cd::cdr.Id, p0, vt::sshort,
+                  "I-Set",   rSysMgr.rReg_manager.rCurrent_reg.getPointerIset(),   un::Amp,  cd::cdr.Id, p0, vt::ushort, nm::In2V),}),
       o(Mn.BIT_DATA[l],{
           o("dInCPU-D", {}, &str.UData_din_f[static_cast<unsigned char>(sbin::CPU_PORT)].all, un::d, cd::one, p0, vt::char2b, nm::In1V),
           o("dInCPU-S", {}, &str.UData_din_f[static_cast<unsigned char>(sbin::CPU_SPI)].all,  un::d, cd::one, p0, vt::char2b, nm::In1V),}),

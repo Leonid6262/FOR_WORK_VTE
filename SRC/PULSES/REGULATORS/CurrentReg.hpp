@@ -13,6 +13,7 @@ public:
 
  void step(bool, CSIFU*);
  void set_Iset(unsigned short);
+ unsigned short* getPointerIset();
  bool bStart_reg = false;
   
 private:

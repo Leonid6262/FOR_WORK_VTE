@@ -32,6 +32,7 @@ private:
   unsigned int dTrsPhase;
   unsigned int prev_TC0_Reg;
   unsigned int dTrsReg;
+  unsigned short Iset;
   StatusRet PK_STATUS; 
   
   unsigned short dIset; 

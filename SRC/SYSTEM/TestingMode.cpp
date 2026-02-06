@@ -102,6 +102,7 @@ void CTestingMode::ControlKey() {
   if(PK_STATUS == StatusRet::ERROR) {
     StopTest();
   } else {
+    Iset = rSet.getSettings().work_set.Iset_0;
     phases_test = EPhasesTest::Regulation;
     SWork::clrMessage(EWorkId::TESTING);
     SWork::setMessage(EWorkId::TESTING_OK);
@@ -120,9 +121,7 @@ void CTestingMode::Regulation() {
   dTrsReg = LPC_TIM0->TC - prev_TC0_Reg;
   if (dTrsReg >= ChangeInterval * TICK_SEC ) {
     prev_TC0_Reg = LPC_TIM0->TC;
-    
-    unsigned short Iset = rSet.getSettings().work_set.Iset_0;
-    
+       
     if(rDinStr.Setting_More()) { Iset += dIset; }   
     if(rDinStr.Setting_Less()) { Iset -= dIset; }
     

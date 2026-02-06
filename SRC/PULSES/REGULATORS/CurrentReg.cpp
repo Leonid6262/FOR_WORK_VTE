@@ -19,6 +19,10 @@ void CCurrentReg::set_Iset(unsigned short Iset) {
   this->Iset = Iset;
 }
 
+unsigned short* CCurrentReg::getPointerIset() {
+  return &Iset;
+}
+
 void CCurrentReg::step(bool Permission, CSIFU* pSIFU) { 
  
   if(!Permission) { 
