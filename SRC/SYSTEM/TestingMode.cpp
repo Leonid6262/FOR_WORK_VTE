@@ -44,6 +44,7 @@ void CTestingMode::test(bool Permission) {
   
 }
 
+// Включение ИУ ф.моста и РТ с заданием форсировочного значения
 void CTestingMode::StartPhase() {
   rSIFU.set_alpha(rSIFU.s_const.AMax);
   rSIFU.forcing_bridge_pulses_On();
@@ -54,6 +55,7 @@ void CTestingMode::StartPhase() {
   prev_TC0_Phase = LPC_TIM0->TC;  
 }
 
+// Форсировка, переключение на рабочий мост и проверк открытого состояния ПК
 void CTestingMode::Forcing() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= rSet.getSettings().set_pusk.TFors * TICK_SEC) { 
@@ -68,6 +70,7 @@ void CTestingMode::Forcing() {
   }  
 }
 
+// Включение реле "Возбуждение подано" после паузы
 void CTestingMode::RelayExOn() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= BRIDGE_CHANGAE) {
@@ -77,6 +80,7 @@ void CTestingMode::RelayExOn() {
   }  
 }
 
+// Пауза на включение реле и включение режима СИФУ "Через один"
 void CTestingMode::RelayPause() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= RELAY_PAUSE_OFF) {
@@ -86,6 +90,7 @@ void CTestingMode::RelayPause() {
   }
 }
 
+// Проверка закрытого состояния ПК
 void CTestingMode::ClosingKey() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) { 
@@ -98,6 +103,7 @@ void CTestingMode::ClosingKey() {
   }  
 }
 
+// Переход к регулированию если ПК Ok.
 void CTestingMode::ControlKey() {
   if(PK_STATUS == StatusRet::ERROR) {
     StopTest();
@@ -111,6 +117,7 @@ void CTestingMode::ControlKey() {
   }
 }
 
+// Регулирование до окончания режима
 void CTestingMode::Regulation() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
@@ -134,6 +141,7 @@ void CTestingMode::Regulation() {
   
 }
 
+// Остановка теста
 void CTestingMode::StopTest(){
   SWork::clrMessage(EWorkId::TESTING);
   SWork::clrMessage(EWorkId::TESTING_OK);
