@@ -13,10 +13,11 @@ public:
   void setSysManager(CSystemManager*);
   void pusk(bool Permission);   // основной цикл автомата
   
-  inline float* getPointerPslip() { return &pusk_slip;  }
-  inline float* getPointerPis()   { return &pusk_is;    }
-  inline bool*  getPointerWex()   { return &without_ex; }
-  inline bool*  getPointerSlE()   { return &slip_ev;    }
+  inline float* getPointerPslip() { return &StartingSlip;  }
+  inline float* getPointerPis()   { return &StartingIS;    }
+  inline bool*  getPointerWex()   { return &WithoutExMode; }
+  inline bool*  getPointerSlE()   { return &slip_ev;       }
+  inline bool*  getPointerSPK()   { return &PK_Status;     }
   
 private:
   CDIN_STORAGE& rDinStr;
@@ -28,11 +29,14 @@ private:
   State cur_status = State::OFF;
   unsigned int prev_TC0_Phase;
   unsigned int dTrsPhase;
-  float pusk_slip = 1.0f;
-  float pusk_is   = 0.0f;
-  bool without_ex = false;
-  bool slip_ev = false;
-  unsigned char c_slip_ev = 0;
+
+  float StartingIS   = 0.0f;    // Ток статора при котором осуществлён пуск (информационно)
+  float StartingSlip = 1.0f;    // Скольжение при котором осуществлён пуск (информационно)  
+  bool PK_Status = false;       // Статус ПК
+  
+  bool WithoutExMode = false;   // Режим пуска без подачи возбуждения
+  bool slip_ev = false;         // Индикатор события - скольжение измеренно, глубина достигнута
+  unsigned char c_slip_ev = 0;  // Счётчик событий slip_ev (для снижения частоты индикации)
   
   enum class EPhasesPusk : unsigned short {
     CheckISctrlPK,
@@ -67,14 +71,14 @@ private:
     NVIC_EnableIRQ(TIMER2_IRQn);
   }
     
-  inline bool switching_check_pk(Mode mode) { 
+  inline bool switching_check_pk(Check mode) { 
     static unsigned int prev_capture;
     static unsigned short n_switch = 0;
     static unsigned short u_rotor_p = 0;
     static unsigned short u_rotor_n = 0;
     static constexpr unsigned char MIN_TOGGLE = 15;
     
-    if (mode == Mode::FORBIDDEN) {
+    if (mode == Check::RESET) {
       prev_capture = LPC_TIM2->CR1;
       n_switch = 0;
       u_rotor_p = 0;

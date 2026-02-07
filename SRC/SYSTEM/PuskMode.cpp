@@ -18,8 +18,9 @@ void CPuskMode::pusk(bool Permission) {
   if(rDinStr.HVS_Status() == StatusHVS::ON && cur_status == State::OFF) { 
     pSys_manager->set_bsPuskMotor(State::ON);    
     cur_status = State::ON;
-    switching_check_pk(Mode::FORBIDDEN);
-    phases_pusk = EPhasesPusk::CheckISctrlPK; 
+    switching_check_pk(Check::RESET);
+    phases_pusk = EPhasesPusk::CheckISctrlPK;
+    PK_Status = false;
     prev_TC0_Phase = LPC_TIM0->TC;
     return;
   } 
@@ -46,13 +47,12 @@ void CPuskMode::pusk(bool Permission) {
 void CPuskMode::CheckISctrlPK() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
-    switching_check_pk(Mode::ALLOWED);
+    PK_Status = switching_check_pk(Check::CHECK);
     return;
   }
-  
-  
+   
   // В режиме пуска без возбуждения контролируем Is и slip
-  if(without_ex) {
+  if(WithoutExMode) {
     SWork::setMessage(EWorkId::PUSK_WEX);
     rSIFU.rPulsCalc.startDetectRotorPhase();
     phases_pusk = EPhasesPusk::SelfSync;
@@ -74,15 +74,14 @@ void CPuskMode::CheckISctrlPK() {
     rSIFU.rPulsCalc.stopDetectRotorPhase();
   }
   
-  if(!switching_check_pk(Mode::ALLOWED)) { 
+  if(!PK_Status) { 
     SFault::setMessage(EFaultId::PK_FAULT);
     pSys_manager->rFault_ctrl.fault_stop();
     rSIFU.rPulsCalc.stopDetectRotorPhase();
-
   }
   
   if(!pSys_manager->USystemStatus.sFault) {
-    pusk_slip = 1.0f;
+    StartingSlip = 1.0f;
     rSIFU.rPulsCalc.startDetectRotorPhase();
     phases_pusk = EPhasesPusk::WaitISdrop;
     prev_TC0_Phase = LPC_TIM0->TC;
@@ -115,14 +114,14 @@ void CPuskMode::SelfSync() {
   bool isNewSlipData = rSIFU.rPulsCalc.getSlipEvent();
   
   // 0. Пуск без возбуждения
-  if(without_ex) {
+  if(WithoutExMode) {
     if (isNewSlipData) {
       c_slip_ev++;
       if(c_slip_ev > 3) {
         c_slip_ev = 0;
         slip_ev = !slip_ev;
       }
-      pusk_slip = rSIFU.rPulsCalc.getSlipValue();
+      StartingSlip = rSIFU.rPulsCalc.getSlipValue();
       rSIFU.rPulsCalc.resSlipEvent();
     }
     return;
@@ -159,8 +158,8 @@ void CPuskMode::SelfSync() {
 // ---Подача возбуждения---
 void CPuskMode::StartEx() { 
   rDinStr.Relay_Ex_Applied(State::ON);
-  pusk_slip = rSIFU.rPulsCalc.getSlipValue();
-  pusk_is = *rSIFU.rPulsCalc.getPointer_istator_rms();
+  StartingSlip = rSIFU.rPulsCalc.getSlipValue();
+  StartingIS = *rSIFU.rPulsCalc.getPointer_istator_rms();
   rSIFU.rPulsCalc.resSlipEvent();
   rSIFU.rPulsCalc.stopDetectRotorPhase(); 
   rSIFU.set_alpha(rSIFU.s_const.AMax);

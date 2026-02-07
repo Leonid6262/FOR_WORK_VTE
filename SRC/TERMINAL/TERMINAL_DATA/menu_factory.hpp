@@ -89,9 +89,10 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
       o(Mn.SERVICE[l],{          
           o::Dual("IStat-c", sifu.rPulsCalc.getPointer_istator_rms(), un::Amp,  cd::cdr.IS, p0, vt::vfloat,
                   "Slip-c",  sifu.rPulsCalc.getPointer_slip(),        "sl-c",   cd::one,    p2, vt::vfloat, nm::In2V),          
+          o::Dual("slip-e",  rSysMgr.rPusk_mode.getPointerSlE(),      "",       cd::one,    p0, vt::vbool,
+                  "PKstat",  rSysMgr.rPusk_mode.getPointerSPK(),      "",       cd::one,    p0, vt::vbool, nm::In2V),
           o::Dual("IStat-p", rSysMgr.rPusk_mode.getPointerPis(),      un::Amp,  cd::cdr.IS, p0, vt::vfloat,
-                  "Slip-p",  rSysMgr.rPusk_mode.getPointerPslip(),    "sl-p",   cd::one,    p2, vt::vfloat, nm::In2V),
-          o("slip-e", {},    rSysMgr.rPusk_mode.getPointerSlE(),      "",       cd::one,    p0, vt::vbool,  nm::In1V),}),}),
+                  "Slip-p",  rSysMgr.rPusk_mode.getPointerPslip(),    "sl-p",   cd::one,    p2, vt::vfloat, nm::In2V),}),}),
   o(Mn.ADJ_MODE[l],{
       o("On-Off ADJ MODE",{
           o("ADJ Mode",   {}, &rSysMgr.USystemStatus.all,            "",      cd::one,    p0, vt::eb_3,   nm::Ed1V),
