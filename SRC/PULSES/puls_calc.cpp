@@ -34,25 +34,25 @@ void CPULSCALC::conv_and_calc() {
 }
 
 // ---Адаптивный алгоритм определения перехода напряжения ротора через ноль 
-// (с минус в плюс), вычисления скольжения и угла возбуждения---
+// (с минус в плюс), вычисления скольжения и угла подачи возбуждения---
 void CPULSCALC::detectRotorPhaseAdaptive() {
   
   if(!v_slip.Permission) { return; }
   
   v_slip.nT_slip++; // Считаем перид скольжения
   
-  // --- 1. Работа с кадром (бегущая сумма) ---
+  // --- 1. Работа с кадром (бегущий интеграл) ---
   short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
   v_slip.sum_ud_frame -= v_slip.ud_frame[v_slip.ind_ud_fram];    
   v_slip.ud_frame[v_slip.ind_ud_fram] = new_val;
   v_slip.sum_ud_frame += v_slip.ud_frame[v_slip.ind_ud_fram];   
   v_slip.ind_ud_fram = (v_slip.ind_ud_fram + 1) % v_slip.N_FRAME; 
   
-  // --- 2. ТОЧКА СОБЫТИЯ (Положительная область + Порог) ---
+  // --- 2. ТОЧКА СОБЫТИЯ (адаптивный порог в положительной области ) ---
   if (v_slip.sum_ud_frame > v_slip.delta_adaptive) {
     if (!v_slip.detected_latch) {
       v_slip.detected_latch = true;                                   // Защёлка на одну полуволну 
-      v_slip.slip_value = 6.0f / static_cast<float>(v_slip.nT_slip);  // Расчёт скольжения 6 = 20 / 3.333
+      v_slip.slip_value = 6.0f / static_cast<float>(v_slip.nT_slip);  // Расчёт скольжения (20ms/(nT*3,33ms)=6/nT
       v_slip.slip_event = true;                                       // Заданная глубина достигнута
       v_slip.nT_slip = 0;                                             // Сброс счётчика
     }
@@ -91,6 +91,7 @@ void CPULSCALC::detectRotorPhaseAdaptive() {
   
 }
 
+// ---Восстановление синусоидальных сигналов по двум измерениям и углу.
 void CPULSCALC::sin_restoration() {
   /*
   Восстановление сигналов произвадится по двум мгновенным значениям и углу (Theta) между ними:
