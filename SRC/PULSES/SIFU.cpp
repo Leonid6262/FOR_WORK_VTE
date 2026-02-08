@@ -174,9 +174,9 @@ void CSIFU::control_sync() {
     if (v_sync.prev_capture != v_sync.cur_capture) {
       // Вычисляем дельту и обновляем предыдущее значение
       unsigned int dt = v_sync.cur_capture - v_sync.prev_capture;
-      v_sync.prev_capture = v_sync.cur_capture;
       // Проверяем, что дельта в пределах 20мс
       if (dt >= s_const.DT_MIN && dt <= s_const.DT_MAX) {
+        v_sync.prev_capture = v_sync.cur_capture;
         // Устанавливаем флаг события синхроимпульса, 
         // фиксируем текущее значение синхронизации,
         // вычисляем частоту сети

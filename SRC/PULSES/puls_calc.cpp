@@ -33,6 +33,71 @@ void CPULSCALC::conv_and_calc() {
   
 }
 
+void CPULSCALC::detectRotorPhaseFixed() {
+  
+  if(!v_slip.Permission) { return; }
+  
+  v_slip.nT_slip++;      // Общий счетчик периода (от нуля до нуля)
+  v_slip.tick_counter++; // Счетчик тиков внутри текущей полуволны
+  
+  // --- 1. Работа с кадром (бегущий интеграл для фильтрации) ---
+  signed short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
+  v_slip.sum_ud_frame -= v_slip.ud_frame[v_slip.ind_ud_fram];    
+  v_slip.ud_frame[v_slip.ind_ud_fram] = new_val;
+  v_slip.sum_ud_frame += v_slip.ud_frame[v_slip.ind_ud_fram];   
+  v_slip.ind_ud_fram = (v_slip.ind_ud_fram + 1) % v_slip.N_FRAME; 
+  
+  // --- 2. ИСПОЛНИТЕЛЬНОЕ СОБЫТИЕ ---
+  if (v_slip.wait_for_pulse) {
+    // Проверяем: пришло ли время И есть ли физический сигнал в плюсе
+    if (v_slip.tick_counter >= v_slip.target_tick) { 
+      v_slip.slip_event = true;
+      v_slip.wait_for_pulse = false; 
+    }
+  }
+  
+  // --- 3. Отрицательная область ---
+  if (v_slip.sum_ud_frame < 0) { 
+    v_slip.neg_samples++;                      
+    v_slip.collecting_neg_wave = true;         
+  } 
+  
+  // --- 4. Переход через ноль (из - в +) ---
+  else if (v_slip.collecting_neg_wave) {
+    // Если полуволна была достаточно длинной (защита от шума)
+    if (v_slip.neg_samples > v_slip.min_neg_samples) { 
+      
+      // Считаем реальное скольжение по ЗАВЕРШЕННОМУ периоду
+      v_slip.slip_value = 6.0f / static_cast<float>(v_slip.nT_slip);
+      
+      // Рассчитываем задержку для следующего импульса (например, заход на 30 градусов)
+      // Полный период = nT_slip. 30 градусов от начала полуволны — это 1/12 
+      signed short  pure_target = v_slip.nT_slip / 12;
+      // Вычитаем задержку фильтра (половина N_FRAME). Например для N=10 это 5 тиков
+      signed short  filter_delay = v_slip.N_FRAME / 2;
+      signed short  final_target = pure_target - filter_delay;      
+      
+      // Анализируем результат
+      if (final_target <= 0) {
+        // Если задержка фильтра больше, чем нужный нам угол, событие должно произойти ПРЯМО СЕЙЧАС 
+        v_slip.target_tick = 0;
+        v_slip.slip_event = true;
+        v_slip.wait_for_pulse = false; 
+      } else {
+        v_slip.target_tick = static_cast<unsigned short>(final_target);
+        v_slip.tick_counter = 0; // Сбрасываем счетчик для отсчета ПАУЗЫ
+        v_slip.wait_for_pulse = true;       
+      }
+      v_slip.nT_slip = 0;       // Сброс для измерения следующего периода
+      v_slip.u0_event = true;   // Сообщаем системе, что ноль пройден успешно
+    }
+    
+    // Очистка накопителей статистики минуса
+    v_slip.neg_samples = 0;
+    v_slip.collecting_neg_wave = false; 
+  }
+}
+
 // ---Адаптивный алгоритм определения перехода напряжения ротора через ноль 
 // (с минус в плюс), вычисления скольжения и угла подачи возбуждения---
 void CPULSCALC::detectRotorPhaseAdaptive() {
@@ -42,7 +107,7 @@ void CPULSCALC::detectRotorPhaseAdaptive() {
   v_slip.nT_slip++; // Считаем перид скольжения
   
   // --- 1. Работа с кадром (бегущий интеграл) ---
-  short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
+  signed short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
   v_slip.sum_ud_frame -= v_slip.ud_frame[v_slip.ind_ud_fram];    
   v_slip.ud_frame[v_slip.ind_ud_fram] = new_val;
   v_slip.sum_ud_frame += v_slip.ud_frame[v_slip.ind_ud_fram];   

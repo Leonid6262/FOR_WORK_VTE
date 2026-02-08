@@ -121,7 +121,8 @@ void CPuskMode::SelfSync() {
       if(c_slip_ev > 3) {
         c_slip_ev = 0;
         slip_ev = !slip_ev;
-      }
+      }    
+      CDIN_STORAGE::UserLedToggle();
       StartingSlip = rSIFU.rPulsCalc.getSlipValue();
       rSIFU.rPulsCalc.resSlipEvent();
     }

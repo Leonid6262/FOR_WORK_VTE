@@ -41,7 +41,16 @@ class CPULSCALC {
     for(unsigned char i = 0; i < v_slip.N_FRAME; i++) v_slip.ud_frame[i] = 0;
     v_slip.sum_ud_frame = 0;
     v_slip.ind_ud_fram = 0;
-    v_slip.delta_adaptive = 32000; // Стартовый замок    
+    v_slip.delta_adaptive = 32000; // Стартовый замок 
+    
+    
+// для detectRotorPhaseFixed()
+
+v_slip.wait_for_pulse = false;
+v_slip.tick_counter = 0;
+v_slip.target_tick = 0;
+    
+    
   }
   
   inline void stopDetectRotorPhase() { v_slip.Permission = false; }
@@ -109,9 +118,17 @@ class CPULSCALC {
     static constexpr unsigned short min_delta_adaptive = 20;  // Минимальная дельта
     static constexpr unsigned short max_delta_adaptive = 500; // Максимальная дельта
     
+// для detectRotorPhaseFixed()
+
+bool wait_for_pulse = false;
+unsigned short tick_counter = 0;
+unsigned short target_tick = 0;
+
+
   } v_slip; 
   
   void sin_restoration();
   void detectRotorPhaseAdaptive();
+  void detectRotorPhaseFixed();
   
 };
