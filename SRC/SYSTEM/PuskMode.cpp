@@ -60,7 +60,7 @@ void CPuskMode::CheckISctrlPK() {
     return;
   }  
   
-  // В режиме контрольного пуска подаём возбуждение
+  // В режиме контрольного пуска сразу подаём возбуждение
   if(rDinStr.ControlPusk()) {
     SWork::setMessage(EWorkId::CONTROL_PUSK);
     StartEx();
@@ -69,18 +69,19 @@ void CPuskMode::CheckISctrlPK() {
   
   SWork::setMessage(EWorkId::PUSK);
   
+  // Не тока статора
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk*0.5f) {
     SFault::setMessage(EFaultId::NOT_IS);
     pSys_manager->rFault_ctrl.fault_stop();
     rSIFU.rPulsCalc.stopDetectRotorPhase();
   }
-  
+  // ПК не переключался
   if(!PK_Status) { 
     SFault::setMessage(EFaultId::PK_FAULT);
     pSys_manager->rFault_ctrl.fault_stop();
     rSIFU.rPulsCalc.stopDetectRotorPhase();
   }
-  
+  // Всё Ок. Переход к фазе WaitISdrop
   if(!pSys_manager->USystemStatus.sFault) {
     StartingSlip = 1.0f;
     rSIFU.rPulsCalc.startDetectRotorPhase();
@@ -92,6 +93,10 @@ void CPuskMode::CheckISctrlPK() {
 // ---Ожидание снижения тока статора до уставки подачи возбуждения---
 void CPuskMode::WaitISdrop() {
   
+  // Сброс флага за ненадобностью в этой фазе
+  if (rSIFU.rPulsCalc.getSlipEvent()) rSIFU.rPulsCalc.resSlipEvent();
+  
+  // Ток не снизился. Затянувшийся пуск
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
     SFault::setMessage(EFaultId::LONG_PUSK);
@@ -100,6 +105,7 @@ void CPuskMode::WaitISdrop() {
     return;
   }  
 
+  // Ток снизился. Переход к фазе самосинхронизации
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() <= rSet.getSettings().set_pusk.ISPusk) {
     phases_pusk = EPhasesPusk::SelfSync;
     prev_TC0_Phase = LPC_TIM0->TC;

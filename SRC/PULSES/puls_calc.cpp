@@ -49,7 +49,7 @@ void CPULSCALC::detectRotorPhaseFixed() {
   
   // --- 2. ИСПОЛНИТЕЛЬНОЕ СОБЫТИЕ ---
   if (v_slip.wait_for_pulse) {
-    // Проверяем: пришло ли время И есть ли физический сигнал в плюсе
+    // Проверяем пришло ли время события
     if (v_slip.tick_counter >= v_slip.target_tick) { 
       v_slip.slip_event = true;
       v_slip.wait_for_pulse = false; 
