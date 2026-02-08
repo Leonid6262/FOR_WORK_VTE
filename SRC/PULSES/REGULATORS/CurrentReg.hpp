@@ -13,19 +13,19 @@ public:
 
  void step(bool, CSIFU*);
  void set_Iset(unsigned short);
- unsigned short* getPointerIset();
  bool bStart_reg = false;
-  
+ 
+ inline unsigned short* getPointerIset() { return &Iset; }
+
 private:
  CADC_STORAGE& pAdc;
  CEEPSettings& rSet;
  
- void start_reg(CSIFU*);
- void stop_reg(CSIFU*);
+ void init_reg(CSIFU*);
  
- float u_i;
- signed short u_min;
- signed short u_max;
+ float I_part;
+ float I_part_min;
+ float I_part_max;
  unsigned short Iset;
  
 };

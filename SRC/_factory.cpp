@@ -46,8 +46,8 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), ESET::getInstance());                      
   CSET_SPI::config(ESPI::SPI_2);
   static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance()); 
-  static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, ESET::getInstance(), rem_osc);
-  reg_manager.getSIFU(&sifu); 
+  static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, ESET::getInstance(), rem_osc); 
+  reg_manager.getSIFU(&sifu);   
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu);
   sifu.init_and_start(CProxyPointerVar::getInstance());
   

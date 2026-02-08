@@ -2,58 +2,35 @@
 
 CCurrentReg::CCurrentReg(CEEPSettings& rSet) : pAdc(CADC_STORAGE::getInstance()), rSet(rSet) {}
 
-void CCurrentReg::start_reg(CSIFU* pSIFU) {
-  auto set = rSet.getSettings();
-  u_i = set.set_reg.A0 - pSIFU->get_alpha();
-  u_min = set.set_reg.A0 - pSIFU->s_const.AMax;
-  u_max = set.set_reg.A0 - pSIFU->s_const.AMin;
-  bStart_reg = true;
+void CCurrentReg::init_reg(CSIFU* pSIFU) {
+  I_part = rSet.getSettings().set_reg.A0 - pSIFU->get_alpha();
+  I_part_min = rSet.getSettings().set_reg.A0 - pSIFU->s_const.AMax;
+  I_part_max = rSet.getSettings().set_reg.A0 - pSIFU->s_const.AMin;
 }
 
-void CCurrentReg::stop_reg(CSIFU* pSIFU) {
-  pSIFU->set_alpha(pSIFU->s_const.AMax);
-  bStart_reg = false;
-}
-
-void CCurrentReg::set_Iset(unsigned short Iset) {
-  this->Iset = Iset;
-}
-
-unsigned short* CCurrentReg::getPointerIset() {
-  return &Iset;
-}
+void CCurrentReg::set_Iset(unsigned short Iset) { this->Iset = Iset; }
 
 void CCurrentReg::step(bool Permission, CSIFU* pSIFU) { 
  
-  if(!Permission) { 
-    if(bStart_reg) { 
-      stop_reg(pSIFU); 
-    } 
-    return;
-  }
-  if(!bStart_reg) start_reg(pSIFU);
+  if(!Permission) { bStart_reg = false; return; }
   
-  auto set = rSet.getSettings();
+  if(!bStart_reg) { bStart_reg = true; init_reg(pSIFU); }
   
   signed short Imeas = *pAdc.getEPointer(CADC_STORAGE::ROTOR_CURRENT);
  
-  float e = static_cast<float>(Iset - Imeas);
+  float delta = static_cast<float>(Iset - Imeas);
   
-  float u_p = set.set_reg.KpCr * e; 
-  u_i += set.set_reg.KiCr * e;
+  float P_part = rSet.getSettings().set_reg.KpCr * delta; 
+  I_part += rSet.getSettings().set_reg.KiCr * delta;
 
-  if (u_i < static_cast<float>(u_min)) u_i = static_cast<float>(u_min); 
-  if (u_i > static_cast<float>(u_max)) u_i = static_cast<float>(u_max);
+  if (I_part < I_part_min) I_part = I_part_min; 
+  if (I_part > I_part_max) I_part = I_part_max;
   
-  float u_total = u_p + u_i;
-  float new_Alpha = set.set_reg.A0 - u_total;
+  signed short new_Alpha = static_cast<signed short>(rSet.getSettings().set_reg.A0 - (P_part + I_part) + 0.5f);
   
   if (new_Alpha < pSIFU->s_const.AMin) new_Alpha = pSIFU->s_const.AMin; 
   if (new_Alpha > pSIFU->s_const.AMax) new_Alpha = pSIFU->s_const.AMax;
   
-  signed short Alpha_out = static_cast<signed short>(new_Alpha);
-  
-  pSIFU->set_alpha(Alpha_out);
+  pSIFU->set_alpha(new_Alpha);
 }
-
 

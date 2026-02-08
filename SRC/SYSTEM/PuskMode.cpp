@@ -21,6 +21,7 @@ void CPuskMode::pusk(bool Permission) {
     switching_check_pk(Check::RESET);
     phases_pusk = EPhasesPusk::CheckISctrlPK;
     PK_Status = false;
+    rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
     prev_TC0_Phase = LPC_TIM0->TC;
     return;
   } 
@@ -162,7 +163,7 @@ void CPuskMode::StartEx() {
   StartingIS = *rSIFU.rPulsCalc.getPointer_istator_rms();
   rSIFU.rPulsCalc.resSlipEvent();
   rSIFU.rPulsCalc.stopDetectRotorPhase(); 
-  rSIFU.set_alpha(rSIFU.s_const.AMax);
+  rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
   rSIFU.forcing_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);    

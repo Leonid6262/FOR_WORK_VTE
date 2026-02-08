@@ -46,7 +46,7 @@ void CTestingMode::test(bool Permission) {
 
 // Включение ИУ ф.моста и РТ с заданием форсировочного значения
 void CTestingMode::StartPhase() {
-  rSIFU.set_alpha(rSIFU.s_const.AMax);
+  rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
   rSIFU.forcing_bridge_pulses_On();
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);
