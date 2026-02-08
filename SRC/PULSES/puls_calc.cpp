@@ -70,16 +70,17 @@ void CPULSCALC::detectRotorPhaseFixed() {
       // Считаем реальное скольжение по ЗАВЕРШЕННОМУ периоду
       v_slip.slip_value = 6.0f / static_cast<float>(v_slip.nT_slip);
       
-      // Рассчитываем задержку для следующего импульса (например, заход на 30 градусов)
-      // Полный период = nT_slip. 30 градусов от начала полуволны — это 1/12 
-      signed short  pure_target = v_slip.nT_slip / 12;
-      // Вычитаем задержку фильтра (половина N_FRAME). Например для N=10 это 5 тиков
+      // Рассчитываем желаемую глубину захода в + (например, заход на 30 градусов)
+      // Полный период = nT_slip. 30 градусов от начала полуволны — это 1/12 (60гр -> 1/6)
+      signed short  pure_target = v_slip.nT_slip / v_slip.Depth; // Depth = 360 / Depth_DEG;
+      // Вычитаем задержку кадра (половина N_FRAME). Например для N=10 это 5 тиков
+      // и задержку RC фильтра (на частотах 2...10Гц примерно 12ms/3.333ms = 4 тика)
       signed short  filter_delay = v_slip.N_FRAME / 2;
-      signed short  final_target = pure_target - filter_delay;      
+      signed short  final_target = pure_target - filter_delay - v_slip.delay_rc;      
       
       // Анализируем результат
       if (final_target <= 0) {
-        // Если задержка фильтра больше, чем нужный нам угол, событие должно произойти ПРЯМО СЕЙЧАС 
+        // Если задержка фильтров больше, чем нужная глубина, событие должно произойти ПРЯМО СЕЙЧАС 
         v_slip.target_tick = 0;
         v_slip.slip_event = true;
         v_slip.wait_for_pulse = false; 

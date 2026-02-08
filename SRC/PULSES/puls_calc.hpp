@@ -124,6 +124,9 @@ bool wait_for_pulse = false;
 unsigned short tick_counter = 0;
 unsigned short target_tick = 0;
 
+static constexpr unsigned char delay_rc = 4;       // Задержка RC фильтра
+static constexpr unsigned char Depth = 360 / 30;   // 360гр/30гр глубины
+
 
   } v_slip; 
   
