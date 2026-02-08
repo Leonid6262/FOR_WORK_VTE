@@ -73,7 +73,7 @@ void CPULSCALC::detectRotorPhaseFixed() {
       // Рассчитываем желаемую глубину захода в + (например, заход на 30 градусов)
       // Полный период = nT_slip. 30 градусов от начала полуволны — это 1/12 (60гр -> 1/6)
       signed short  pure_target = v_slip.nT_slip / v_slip.Depth; // Depth = 360 / Depth_DEG;
-      // Вычитаем задержку кадра (половина N_FRAME). Например для N=10 это 5 тиков
+      // Вычитаем задержку кадра (половина N_FRAME). Например для N = 8 будет 4 тика (13ms)
       // и задержку RC фильтра (на частотах 2...10Гц примерно 12ms/3.333ms = 4 тика)
       signed short  filter_delay = v_slip.N_FRAME / 2;
       signed short  final_target = pure_target - filter_delay - v_slip.delay_rc;      

@@ -96,7 +96,7 @@ v_slip.target_tick = 0;
     
     bool Permission = false;
     
-    static constexpr char N_FRAME = 10; // Длина бегущего кадра
+    static constexpr char N_FRAME = 8;  // Длина бегущего кадра
     signed short ud_frame[N_FRAME];     // Бегущий кадр
     unsigned char ind_ud_fram = 0;      // Индекс бегущего кадра           
     signed int sum_ud_frame = 0;        // Бегущая сумма
