@@ -434,11 +434,11 @@
                 </option>
                 <option>
                     <name>CCEncSource</name>
-                    <state>0</state>
+                    <state>2</state>
                 </option>
                 <option>
                     <name>CCEncOutput</name>
-                    <state>0</state>
+                    <state>2</state>
                 </option>
                 <option>
                     <name>CCEncOutputBom</name>
@@ -446,7 +446,7 @@
                 </option>
                 <option>
                     <name>CCEncInput</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IccExceptions2</name>
@@ -668,7 +668,7 @@
             <data>
                 <extensions></extensions>
                 <cmdline></cmdline>
-                <hasPrio>1</hasPrio>
+                <hasPrio>64</hasPrio>
                 <buildSequence>inputOutputBased</buildSequence>
             </data>
         </settings>
@@ -676,7 +676,7 @@
             <name>BUILDACTION</name>
             <archiveVersion>1</archiveVersion>
             <data>
-                <prebuild>version.bat</prebuild>
+                <prebuild>E:\S\Programs\IAR9_GIT\FOR_WORK_VTE\version.bat</prebuild>
                 <postbuild></postbuild>
             </data>
         </settings>

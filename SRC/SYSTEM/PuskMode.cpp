@@ -60,7 +60,7 @@ void CPuskMode::CheckISctrlPK() {
     return;
   }  
   
-  // В режиме контрольного пуска сразу подаём возбуждение ()
+  // В режиме контрольного пуска сразу подаём возбуждение
   if(rDinStr.ControlPusk()) {
     SWork::setMessage(EWorkId::CONTROL_PUSK);
     StartEx();
