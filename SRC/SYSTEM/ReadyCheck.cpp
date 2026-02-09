@@ -22,7 +22,7 @@ void CReadyCheck::check(bool Permission) {
   check(Ready, abs(*rAdcStr.getEPointer(sadc::STATOR_CURRENT)) > dMax,  ENotReadyId::SENS_CS_FAULT);
   check(Ready, !(*pSys_manager->rSIFU.get_pSyncStat()),                 ENotReadyId::NOT_SYNC);
   check(Ready, rDinStr.HVS_Status() == StatusHVS::ERR_BC,               ENotReadyId::BC_HVS_ERR);
-  check(Ready, rDinStr.CU_from_testing(),                               ENotReadyId::PK_FAULT);
+  check(Ready, !rDinStr.CU_from_testing(),                               ENotReadyId::PK_FAULT);
 
   if((Ready == R::NOT_READY) || prevKeyDrying) {
     check(Ready, rDinStr.Reg_Drying(), ENotReadyId::DRYING_ON); 

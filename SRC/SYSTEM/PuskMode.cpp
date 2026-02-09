@@ -203,7 +203,7 @@ void CPuskMode::Pause() {
 void CPuskMode::ClosingKey() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) { 
-    if(rDinStr.CU_from_testing()) {
+    if(!rDinStr.CU_from_testing()) {
       SFault::setMessage(EFaultId::PK_NOT_CLOSED);
       pSys_manager->rFault_ctrl.fault_stop();
       return;

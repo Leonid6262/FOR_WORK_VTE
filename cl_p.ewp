@@ -668,7 +668,7 @@
             <data>
                 <extensions></extensions>
                 <cmdline></cmdline>
-                <hasPrio>64</hasPrio>
+                <hasPrio>48</hasPrio>
                 <buildSequence>inputOutputBased</buildSequence>
             </data>
         </settings>
@@ -676,7 +676,7 @@
             <name>BUILDACTION</name>
             <archiveVersion>1</archiveVersion>
             <data>
-                <prebuild>E:\S\Programs\IAR9_GIT\FOR_WORK_VTE\version.bat</prebuild>
+                <prebuild>version.bat</prebuild>
                 <postbuild></postbuild>
             </data>
         </settings>

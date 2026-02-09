@@ -62,7 +62,7 @@ void CTestingMode::Forcing() {
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
     rSIFU.main_bridge_pulses_On();
     phases_test = EPhasesTest::RelayExOn;
-    if(!rDinStr.CU_from_testing()) {
+    if(rDinStr.CU_from_testing()) {
       SWarning::setMessage(EWarningId::PK_NOT_OPEN);
       PK_STATUS = StatusRet::ERROR;
     }
@@ -95,7 +95,7 @@ void CTestingMode::ClosingKey() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) { 
     phases_test = EPhasesTest::ControlKey;
-    if(rDinStr.CU_from_testing()) {
+    if(!rDinStr.CU_from_testing()) {
       SWarning::setMessage(EWarningId::PK_NOT_CLOSE);
       PK_STATUS = StatusRet::ERROR;
     }
