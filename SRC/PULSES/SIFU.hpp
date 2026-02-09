@@ -57,7 +57,7 @@ class CSIFU {
     static constexpr signed short _150gr = (150 * 10000 + 90) / 180;
     static constexpr signed short _180gr = 10000;
     
-    static constexpr signed int PULSE_WIDTH = 1515;  // us
+    static constexpr signed int PULSE_WIDTH = 2515;  // us
     
     static constexpr float TIC_SEC = 1000000.0;
     
