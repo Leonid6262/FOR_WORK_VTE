@@ -3,6 +3,7 @@
 #include <array>
 #include "bool_name.hpp"
 #include "SIFU.hpp"
+#include "dIOStorage.hpp"
 
 class CSIFU;
 class CSystemManager;
@@ -10,7 +11,7 @@ class CSystemManager;
 // Класс управления режимом Наладка
 class CAdjustmentMode {
 public:
-  CAdjustmentMode(CSIFU&, CEEPSettings&);
+  CAdjustmentMode(CSIFU&, CEEPSettings&, CDIN_STORAGE&);
   
   void parsing_request(bool);         // Анализ и принятие решения по запросу от внешнего источника
   unsigned short reqADJmode = 0;      // Битовая маска запросов режимов от внешнего источника
@@ -82,6 +83,7 @@ private:
   CSIFU& rSIFU;
   CEEPSettings& rSettings;
   CSystemManager* pSys_manager;
+  CDIN_STORAGE& rDinStr;
   
   unsigned short prevBits = 0; 
   

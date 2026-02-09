@@ -1,8 +1,8 @@
 #include "Adjustment.hpp"
 #include "_SystemManager.hpp"
   
-CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU, CEEPSettings& rSettings) : 
-  rSIFU(rSIFU), rSettings(rSettings), prevModeAdj(State::OFF) {} 
+CAdjustmentMode::CAdjustmentMode(CSIFU& rSIFU, CEEPSettings& rSettings, CDIN_STORAGE& rDinStr) : 
+  rSIFU(rSIFU), rSettings(rSettings), rDinStr(rDinStr), prevModeAdj(State::OFF) {} 
 
 void CAdjustmentMode::parsing_request(bool Permission) {
   
@@ -83,10 +83,12 @@ void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normal
       AlphaAdj = rSIFU.s_const.AMax;
       rSIFU.forcing_bridge_pulses_On();
       cur_mode = EModeAdj::ForcingPulses;
+      rDinStr.Relay_Ex_Applied(State::ON);
     }
     else {
       AlphaAdj = rSIFU.s_const.AMax;
-      rSIFU.all_bridge_pulses_Off();      
+      rSIFU.all_bridge_pulses_Off();
+      rDinStr.Relay_Ex_Applied(State::OFF);      
     }
   }
   
@@ -95,10 +97,12 @@ void CAdjustmentMode::applyChanges(unsigned short changed, unsigned short normal
       AlphaAdj = rSIFU.s_const.AMax;
       rSIFU.main_bridge_pulses_On();
       cur_mode = EModeAdj::MainPulses;
+      rDinStr.Relay_Ex_Applied(State::ON);
     }
     else {
       AlphaAdj = rSIFU.s_const.AMax;
       rSIFU.all_bridge_pulses_Off();
+      rDinStr.Relay_Ex_Applied(State::OFF);
     }
   }
   

@@ -52,7 +52,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   sifu.init_and_start(CProxyPointerVar::getInstance());
   
   // --- System Manager ---
-  static CAdjustmentMode adjustment(sifu, ESET::getInstance());
+  static CAdjustmentMode adjustment(sifu, ESET::getInstance(), CDIN_STORAGE::getInstance());
   static CReadyCheck ready_check(CADC_STORAGE::getInstance(), CDIN_STORAGE::getInstance());
   static CFaultCtrlF fault_ctrl_f(CDIN_STORAGE::getInstance());
   static CTestingMode test_mode( CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
