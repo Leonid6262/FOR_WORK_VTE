@@ -39,8 +39,8 @@ void CPULSCALC::conv_and_calc() {
   
 }
 
-// ---Алгоритм определения перехода напряжения ротора через ноль 
-// (с минус в плюс), вычисления скольжения и угла подачи возбуждения---
+// --- Алгоритм определения перехода напряжения ротора через ноль 
+// (с минус в плюс), вычисление скольжения и угла подачи возбуждения ---
 void CPULSCALC::detectRotorPhaseFixed() {
   
   if(!v_slip.Permission) { return; }
@@ -48,14 +48,14 @@ void CPULSCALC::detectRotorPhaseFixed() {
   v_slip.nT_slip++;      // Общий счетчик периода (от нуля до нуля)
   v_slip.tick_counter++; // Счетчик тиков внутри текущей полуволны
   
-  // --- 1. Работа с кадром (бегущий интеграл для фильтрации) ---
+  // --- 1. Работа с кадром (бегущая сумма для фильтрации) ---
   signed short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
   v_slip.sum_ud_frame -= v_slip.ud_frame[v_slip.ind_ud_fram];    
   v_slip.ud_frame[v_slip.ind_ud_fram] = new_val;
   v_slip.sum_ud_frame += v_slip.ud_frame[v_slip.ind_ud_fram];   
   v_slip.ind_ud_fram = (v_slip.ind_ud_fram + 1) % v_slip.N_FRAME; 
   
-  // --- 2. ИСПОЛНИТЕЛЬНОЕ СОБЫТИЕ ---
+  // --- 2. Глубина достигнута, выставляем событие  ---
   if (v_slip.wait_for_pulse) {
     // Проверяем пришло ли время события
     if (v_slip.tick_counter >= v_slip.target_tick) { 
@@ -67,20 +67,20 @@ void CPULSCALC::detectRotorPhaseFixed() {
   // --- 3. Отрицательная область ---
   if (v_slip.sum_ud_frame < 0) { 
     v_slip.neg_samples++;                      
-    v_slip.collecting_neg_wave = true;         
-  } 
-  
+    v_slip.neg_wave = true;         
+  }  
   // --- 4. Переход через ноль (из - в +) ---
-  else if (v_slip.collecting_neg_wave) {
+  else if (v_slip.neg_wave) {
+    
     // Если полуволна была достаточно длинной (защита от шума)
     if (v_slip.neg_samples > v_slip.min_neg_samples) { 
       
-      // Считаем реальное скольжение по ЗАВЕРШЕННОМУ периоду
+      // Считаем скольжение
       v_slip.slip_value = 6.0f / static_cast<float>(v_slip.nT_slip);
       
       // Рассчитываем желаемую глубину захода в + (например, заход на 30 градусов)
-      // Полный период = nT_slip. 30 градусов от начала полуволны — это 1/12 (60гр -> 1/6)
-      signed short  pure_target = 0;//v_slip.nT_slip / v_slip.Depth; // Depth = 360 / Depth_DEG;
+      // Полный период = nT_slip. 30 градусов от начала полуволны — это 1/12,  60гр -> 1/6 и т.д.
+      signed short  pure_target = v_slip.nT_slip / v_slip.Depth; // Depth = 360 / Depth_DEG;
       // Вычитаем задержку кадра (половина N_FRAME). Например для N = 8 будет 4 тика (13ms)
       // и задержку RC фильтра (на частотах 2...10Гц примерно 12ms/3.333ms = 4 тика)
       signed short  filter_delay = v_slip.N_FRAME / 2;
@@ -88,80 +88,23 @@ void CPULSCALC::detectRotorPhaseFixed() {
       
       // Анализируем результат
       if (final_target <= 0) {
-        // Если задержка фильтров больше, чем нужная глубина, событие должно произойти ПРЯМО СЕЙЧАС 
+        // Если задержка фильтров больше нужной глубины, выставляем событие 
         v_slip.target_tick = 0;
         v_slip.slip_event = true;
         v_slip.wait_for_pulse = false; 
       } else {
+        // Глубина не достигнута. Ждём.
         v_slip.target_tick = static_cast<unsigned short>(final_target);
         v_slip.tick_counter = 0; // Сбрасываем счетчик для отсчета ПАУЗЫ
         v_slip.wait_for_pulse = true;       
       }
       v_slip.nT_slip = 0;       // Сброс для измерения следующего периода
       v_slip.u0_event = true;   // Сообщаем системе, что ноль пройден успешно
-    }
-    
-    // Очистка накопителей статистики минуса
+    }   
+    // Очистка статистики минуса
     v_slip.neg_samples = 0;
-    v_slip.collecting_neg_wave = false; 
+    v_slip.neg_wave = false; 
   }
-}
-
-
-void CPULSCALC::detectRotorPhaseAdaptive() {
-  
-  if(!v_slip.Permission) { return; }
-  
-  v_slip.nT_slip++; // Считаем перид скольжения
-  
-  // --- 1. Работа с кадром (бегущий интеграл) ---
-  signed short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
-  v_slip.sum_ud_frame -= v_slip.ud_frame[v_slip.ind_ud_fram];    
-  v_slip.ud_frame[v_slip.ind_ud_fram] = new_val;
-  v_slip.sum_ud_frame += v_slip.ud_frame[v_slip.ind_ud_fram];   
-  v_slip.ind_ud_fram = (v_slip.ind_ud_fram + 1) % v_slip.N_FRAME; 
-  
-  // --- 2. ТОЧКА СОБЫТИЯ (адаптивный порог в положительной области ) ---
-  if (v_slip.sum_ud_frame > v_slip.delta_adaptive) {
-    if (!v_slip.detected_latch) {
-      v_slip.detected_latch = true;                                   // Защёлка на одну полуволну 
-      v_slip.slip_value = 6.0f / static_cast<float>(v_slip.nT_slip);  // Расчёт скольжения (20ms/(nT*3,33ms)=6/nT
-      v_slip.slip_event = true;                                       // Заданная глубина достигнута
-      v_slip.nT_slip = 0;                                             // Сброс счётчика
-    }
-  }
-  
-  // --- 3. Отрицательная область ---
-  if (v_slip.sum_ud_frame < 0) {
-    v_slip.neg_accumulator += abs(new_val);    // Накапливаем "вес" минуса
-    v_slip.neg_samples++;                      // Считаем отсчёты
-    v_slip.collecting_neg_wave = true;         // Данные минуса накапливаются 
-    v_slip.detected_latch = false;             // Сброс защёлки (готовимся к новому плюсу)
-  } 
-  
-  // --- 4. Выход из минуса в ноль ---
-  else if (v_slip.collecting_neg_wave) {
-    // Если полуволна была достаточно длинной (защита от шума)
-    if (v_slip.neg_samples > v_slip.min_neg_samples) { 
-      
-      // Вычисляем порог для следующего плюса
-      float avg_u = static_cast<float>(v_slip.neg_accumulator) / static_cast<float>(v_slip.neg_samples);
-      v_slip.delta_adaptive = static_cast<int>(avg_u * v_slip.k_depth + 0.5f);
-      
-      // Санитарные границы
-      if (v_slip.delta_adaptive < v_slip.min_delta_adaptive)  v_slip.delta_adaptive = v_slip.min_delta_adaptive;  
-      if (v_slip.delta_adaptive > v_slip.max_delta_adaptive)  v_slip.delta_adaptive = v_slip.max_delta_adaptive;
-      
-      v_slip.u0_event = true; // Служебное событие
-      
-    }
-    
-    // Очистка накопителей статистики
-    v_slip.neg_accumulator = 0;
-    v_slip.neg_samples = 0;
-    v_slip.collecting_neg_wave = false; 
-  }
-  
 }
 
 // ---Восстановление синусоидальных сигналов по двум измерениям и углу.
