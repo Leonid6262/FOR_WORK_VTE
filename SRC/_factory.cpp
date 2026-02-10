@@ -42,7 +42,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   // --- СИФУ и его окружение ---
   static CADC adc(CSET_SPI::config(ESPI::SPI_1), CADC_STORAGE::getInstance());
   static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance());
-  static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos); 
+  static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos, reg_manager, CADC_STORAGE::getInstance()); 
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), ESET::getInstance());                      
   CSET_SPI::config(ESPI::SPI_2);
   static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance()); 

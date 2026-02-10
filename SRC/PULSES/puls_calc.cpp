@@ -1,8 +1,11 @@
 #include "puls_calc.hpp"
 #include "AdcStorage.hpp"
+#include "RegManager.hpp"
+
 #include <string>
 
-CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos) : rAdc(rAdc), dac_cos(dac_cos) {
+CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos, CRegManager& rReg_manager, CADC_STORAGE& rStrADC) : 
+  rAdc(rAdc), dac_cos(dac_cos), rReg_manager(rReg_manager), rStrADC(rStrADC) {
 
   // Регистрация в реестре указателей
   PPV.registerVar(NProxyVar::ProxyVarID::Ustat,  &U_STATOR_RMS,  cd::cdr.US, NProxyVar::Unit::Volt);
@@ -13,9 +16,8 @@ CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos) : rAd
 }
 
 void CPULSCALC::conv_Id() {
-    rAdc.conv_tnf({
-    CADC_STORAGE::ROTOR_CURRENT, 
-});
+  rAdc.conv_tnf({ CADC_STORAGE::ROTOR_CURRENT });
+  rReg_manager.rCurrent_reg.Imeas_0 = *rStrADC.getEPointer(CADC_STORAGE::ROTOR_CURRENT);
 }
 
 void CPULSCALC::conv_and_calc() {

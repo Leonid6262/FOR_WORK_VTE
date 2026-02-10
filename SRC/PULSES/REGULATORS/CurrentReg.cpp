@@ -17,9 +17,7 @@ void CCurrentReg::step(bool Permission, CSIFU* pSIFU) {
   if(!bStart_reg) { bStart_reg = true; init_reg(pSIFU); }
   
   signed short Imeas = *pAdc.getEPointer(CADC_STORAGE::ROTOR_CURRENT);
-  if(fors) {
-      Imeas = Imeas_0;
-  }
+  if(Res_connected) { Imeas = Imeas_0;}
  
   float delta = static_cast<float>(Iset - Imeas);
   

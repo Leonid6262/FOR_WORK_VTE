@@ -24,7 +24,7 @@ void CSIFU::rising_puls() {
     LPC_TIM3->MR1 = static_cast<unsigned int>(RISING_MR0 + SIFUConst::PULSE_WIDTH);
     
     rPulsCalc.conv_Id();
-    rReg_manager.rCurrent_reg.Imeas_0 = *CADC_STORAGE::getInstance().getEPointer(CADC_STORAGE::ROTOR_CURRENT);
+
     // Следующий заход через 13 градусов
     LPC_TIM3->MR0 = static_cast<unsigned int>(RISING_MR0 + s_const._13gr);
     return;

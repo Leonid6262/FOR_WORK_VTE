@@ -48,7 +48,7 @@ void CTestingMode::test(bool Permission) {
 void CTestingMode::StartPhase() {
   rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
   rSIFU.forcing_bridge_pulses_On();
-  rSIFU.rReg_manager.rCurrent_reg.fors = true;
+  rSIFU.rReg_manager.rCurrent_reg.Res_connected = true;
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);
   phases_test = EPhasesTest::Forcing;
@@ -77,7 +77,6 @@ void CTestingMode::RelayExOn() {
   if (dTrsPhase >= BRIDGE_CHANGAE) {
     rDinStr.Relay_Ex_Applied(State::ON);
     phases_test = EPhasesTest::RelayPause;
-    rSIFU.rReg_manager.rCurrent_reg.fors = false;
     prev_TC0_Phase = LPC_TIM0->TC;
   }  
 }
@@ -95,7 +94,8 @@ void CTestingMode::RelayPause() {
 // Проверка закрытого состояния ПК
 void CTestingMode::ClosingKey() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
-  if (dTrsPhase >= CLOSING_KEY) { 
+  if (dTrsPhase >= CLOSING_KEY) {
+    rSIFU.rReg_manager.rCurrent_reg.Res_connected = false;
     phases_test = EPhasesTest::ControlKey;
     if(!rDinStr.CU_from_testing()) {
       SWarning::setMessage(EWarningId::PK_NOT_CLOSE);
@@ -151,8 +151,8 @@ void CTestingMode::StopTest(){
   pSys_manager->set_bsWorkTest(State::OFF);
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
+  rSIFU.rReg_manager.rCurrent_reg.Res_connected = false;
   rSIFU.all_bridge_pulses_Off();
-  rSIFU.rReg_manager.rCurrent_reg.fors = false;
 }
 
 

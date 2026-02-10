@@ -4,12 +4,12 @@
 #include "proxy_pointer_var.hpp"
 #include "dac.hpp"
 
+class CRegManager;
+
 class CPULSCALC {
  public:
-  CPULSCALC(CADC&, CProxyPointerVar&, CDAC_PWM&);
+  CPULSCALC(CADC&, CProxyPointerVar&, CDAC_PWM&, CRegManager&, CADC_STORAGE&);
 
-  CADC& rAdc;
-  CDAC_PWM& dac_cos;
   void conv_and_calc();
   void conv_Id();
 
@@ -109,5 +109,10 @@ class CPULSCALC {
   
   void sin_restoration();
   void detectRotorPhaseFixed();
+  
+  CADC& rAdc;
+  CDAC_PWM& dac_cos;
+  CADC_STORAGE& rStrADC;  
+  CRegManager& rReg_manager; 
   
 };
