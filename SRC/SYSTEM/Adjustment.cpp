@@ -26,7 +26,7 @@ void CAdjustmentMode::parsing_request(bool Permission) {
   }
   
   
-  // 3. Проверка штатного отключения любого режима 
+  // 3. Проверка штатного отключения любого режима ()
   unsigned short prev_active   = prevBits;                      // что было реально включено
   unsigned short req_active    = reqADJmode;                    // что пользователь хочет сейчас
   unsigned short disabled_mask = prev_active & ~req_active;     // что пользователь штатно снял
