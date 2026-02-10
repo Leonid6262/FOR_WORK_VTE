@@ -45,65 +45,59 @@ void CPULSCALC::detectRotorPhaseFixed() {
   
   if(!v_slip.Permission) { return; }
   
-  v_slip.nT_slip++;      // Общий счетчик периода (от нуля до нуля)
-  v_slip.tick_counter++; // Счетчик тиков внутри текущей полуволны
+  v_slip.nT_slip++;      // Счетчик периода
   
-  // --- 1. Работа с кадром (бегущая сумма для фильтрации) ---
+  // --- Работа с кадром бегущей суммы ---
   signed short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
   v_slip.sum_ud_frame -= v_slip.ud_frame[v_slip.ind_ud_fram];    
   v_slip.ud_frame[v_slip.ind_ud_fram] = new_val;
   v_slip.sum_ud_frame += v_slip.ud_frame[v_slip.ind_ud_fram];   
   v_slip.ind_ud_fram = (v_slip.ind_ud_fram + 1) % v_slip.N_FRAME; 
   
-  // --- 2. Глубина достигнута, выставляем событие  ---
-  if (v_slip.wait_for_pulse) {
-    // Проверяем пришло ли время события
-    if (v_slip.tick_counter >= v_slip.target_tick) { 
+  // --- Проверяем пришло ли время события ---
+  if (v_slip.wait_for_event) {
+    v_slip.tick_wait++;    // Счетчик тиков угла события    
+    if (v_slip.tick_wait >= v_slip.target_tick) { 
+      // Глубина достигнута, выставляем событие
       v_slip.slip_event = true;
-      v_slip.wait_for_pulse = false; 
+      v_slip.wait_for_event = false; 
     }
   }
   
-  // --- 3. Отрицательная область ---
-  if (v_slip.sum_ud_frame < 0) { 
-    v_slip.neg_samples++;                      
+  // --- Отрицательная область ---
+  if (v_slip.sum_ud_frame < 0) {                     
     v_slip.neg_wave = true;         
   }  
-  // --- 4. Переход через ноль (из - в +) ---
+  // --- Переход через ноль (из - в +) ---
   else if (v_slip.neg_wave) {
-    
-    // Если полуволна была достаточно длинной (защита от шума)
-    if (v_slip.neg_samples > v_slip.min_neg_samples) { 
+    v_slip.neg_wave = false; 
+    v_slip.u0_event = true;   // Ноль пройден
+    // Если период был достаточно длинный (защита от шума)
+    if (v_slip.nT_slip > v_slip.min_nT_slip) { 
       
       // Считаем скольжение
       v_slip.slip_value = 6.0f / static_cast<float>(v_slip.nT_slip);
       
       // Рассчитываем желаемую глубину захода в + (например, заход на 30 градусов)
-      // Полный период = nT_slip. 30 градусов от начала полуволны — это 1/12,  60гр -> 1/6 и т.д.
-      signed short  pure_target = v_slip.nT_slip / v_slip.Depth; // Depth = 360 / Depth_DEG;
+      // Полный период = nT_slip. 30 градусов от начала полуволны — 1/12,  60гр - 1/6 и т.д.
+      signed short  pure_target = v_slip.nT_slip / (360 / v_slip.DepthDeg);
       // Вычитаем задержку кадра (половина N_FRAME). Например для N = 8 будет 4 тика (13ms)
       // и задержку RC фильтра (на частотах 2...10Гц примерно 12ms/3.333ms = 4 тика)
-      signed short  filter_delay = v_slip.N_FRAME / 2;
-      signed short  final_target = pure_target - filter_delay - v_slip.delay_rc;      
+      signed short  depth_target = pure_target - (v_slip.N_FRAME / 2) - v_slip.delay_rc;      
       
-      // Анализируем результат
-      if (final_target <= 0) {
-        // Если задержка фильтров больше нужной глубины, выставляем событие 
+      if (depth_target <= 0) {
+        // Задержка фильтров больше нужной глубины, выставляем событие 
         v_slip.target_tick = 0;
         v_slip.slip_event = true;
-        v_slip.wait_for_pulse = false; 
+        v_slip.wait_for_event = false; 
       } else {
         // Глубина не достигнута. Ждём.
-        v_slip.target_tick = static_cast<unsigned short>(final_target);
-        v_slip.tick_counter = 0; // Сбрасываем счетчик для отсчета ПАУЗЫ
-        v_slip.wait_for_pulse = true;       
+        v_slip.target_tick = static_cast<unsigned short>(depth_target);
+        v_slip.tick_wait = 0;   // Сбрасываем счетчик паузы
+        v_slip.wait_for_event = true;       
       }
-      v_slip.nT_slip = 0;       // Сброс для измерения следующего периода
-      v_slip.u0_event = true;   // Сообщаем системе, что ноль пройден успешно
-    }   
-    // Очистка статистики минуса
-    v_slip.neg_samples = 0;
-    v_slip.neg_wave = false; 
+    } 
+    v_slip.nT_slip = 0;       // Сброс для следующего периода
   }
 }
 

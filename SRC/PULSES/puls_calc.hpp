@@ -26,22 +26,19 @@ class CPULSCALC {
   inline void resU0Event()        { v_slip.u0_event = false; }
   
   inline void startDetectRotorPhase() { 
-    v_slip.Permission = true; 
-    
-    v_slip.slip_event = false;
-    v_slip.u0_event = false;
+    v_slip.Permission = true;    
+    for(char i = 0; i < v_slip.N_FRAME; i++) v_slip.ud_frame[i] = 0;
     v_slip.slip_value = 1.0f;
-    v_slip.nT_slip = 0;       
-    v_slip.neg_samples = 0;
-    v_slip.neg_wave = false; 
-    v_slip.u0_event = false;         
-    for(unsigned char i = 0; i < v_slip.N_FRAME; i++) v_slip.ud_frame[i] = 0;
+    v_slip.nT_slip = 0;             
     v_slip.sum_ud_frame = 0;
-    v_slip.ind_ud_fram = 0;
-    v_slip.wait_for_pulse = false;
-    v_slip.tick_counter = 0;
+    v_slip.ind_ud_fram = 0;    
+    v_slip.tick_wait = 0;
     v_slip.target_tick = 0;
-    
+    v_slip.neg_wave = false; 
+    v_slip.u0_event = false;      
+    v_slip.wait_for_event = false;
+    v_slip.slip_event = false;
+    v_slip.u0_event = false;    
   }
   
   inline void stopDetectRotorPhase() { v_slip.Permission = false; }
@@ -92,7 +89,6 @@ class CPULSCALC {
     unsigned char ind_ud_fram = 0;      // Индекс бегущего кадра           
     signed int sum_ud_frame = 0;        // Бегущая сумма
     
-    unsigned short  neg_samples = 0;    // Счетчик отсчетов в минусе
     bool neg_wave = false;              // Отрицательная полуволна 
        
     unsigned short nT_slip = 0;         // Счётчик перида скольжения
@@ -101,13 +97,13 @@ class CPULSCALC {
     float slip_value = 1.0f;
     bool u0_event = false;
  
-    bool wait_for_pulse = false;
-    unsigned short tick_counter = 0;
+    bool wait_for_event = false;
+    unsigned short tick_wait = 0;
     unsigned short target_tick = 0;
     
-    static constexpr char min_neg_samples = 5;         // Минимальная длина полуволны
+    static constexpr char min_nT_slip = 15;            // Минимальная длина полуволны
     static constexpr unsigned char delay_rc = 4;       // Задержка RC фильтра
-    static constexpr unsigned char Depth = 360 / 30;   // 360гр/30гр глубины
+    static constexpr unsigned char DepthDeg = 30;      // Глубина в градусах
 
   } v_slip; 
   
