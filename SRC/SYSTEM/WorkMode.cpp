@@ -14,7 +14,9 @@ void CWorkMode::work(bool Permission) {
     pSys_manager->set_bsWorkNormal(State::OFF);
     SWork::clrMessage(EWorkId::CURRENT_REG);
     SWork::clrMessage(EWorkId::Q_POWER_REG);
-    SWork::clrMessage(EWorkId::COS_REG);  
+    SWork::clrMessage(EWorkId::COS_REG);
+    SWork::clrMessage(EWorkId::CONTROL_PUSK);
+    SWork::clrMessage(EWorkId::PUSK_WEX);
     Iset = rSet.getSettings().work_set.Iset_0;
     return; 
   }

@@ -11,6 +11,7 @@ class CPULSCALC {
   CADC& rAdc;
   CDAC_PWM& dac_cos;
   void conv_and_calc();
+  void conv_Id();
 
   inline unsigned short* getPointer_USTATOR_RMS() { return &U_STATOR_RMS; }
   inline unsigned short* getPointer_ISTATOR_RMS() { return &I_STATOR_RMS; }
@@ -96,7 +97,7 @@ v_slip.target_tick = 0;
     
     bool Permission = false;
     
-    static constexpr char N_FRAME = 8;  // Длина бегущего кадра
+    static constexpr char N_FRAME = 6;  // Длина бегущего кадра
     signed short ud_frame[N_FRAME];     // Бегущий кадр
     unsigned char ind_ud_fram = 0;      // Индекс бегущего кадра           
     signed int sum_ud_frame = 0;        // Бегущая сумма

@@ -12,6 +12,12 @@ CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos) : rAd
   PPV.registerVar(NProxyVar::ProxyVarID::CosPhi, &COS_PHI,       0.01f,      "");
 }
 
+void CPULSCALC::conv_Id() {
+    rAdc.conv_tnf({
+    CADC_STORAGE::ROTOR_CURRENT, 
+});
+}
+
 void CPULSCALC::conv_and_calc() {
   // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
   rAdc.conv_tnf({
@@ -29,10 +35,12 @@ void CPULSCALC::conv_and_calc() {
   */
 
   sin_restoration();
-  detectRotorPhaseAdaptive();
+  detectRotorPhaseFixed();
   
 }
 
+// ---Алгоритм определения перехода напряжения ротора через ноль 
+// (с минус в плюс), вычисления скольжения и угла подачи возбуждения---
 void CPULSCALC::detectRotorPhaseFixed() {
   
   if(!v_slip.Permission) { return; }
@@ -72,7 +80,7 @@ void CPULSCALC::detectRotorPhaseFixed() {
       
       // Рассчитываем желаемую глубину захода в + (например, заход на 30 градусов)
       // Полный период = nT_slip. 30 градусов от начала полуволны — это 1/12 (60гр -> 1/6)
-      signed short  pure_target = v_slip.nT_slip / v_slip.Depth; // Depth = 360 / Depth_DEG;
+      signed short  pure_target = 0;//v_slip.nT_slip / v_slip.Depth; // Depth = 360 / Depth_DEG;
       // Вычитаем задержку кадра (половина N_FRAME). Например для N = 8 будет 4 тика (13ms)
       // и задержку RC фильтра (на частотах 2...10Гц примерно 12ms/3.333ms = 4 тика)
       signed short  filter_delay = v_slip.N_FRAME / 2;
@@ -99,8 +107,7 @@ void CPULSCALC::detectRotorPhaseFixed() {
   }
 }
 
-// ---Адаптивный алгоритм определения перехода напряжения ротора через ноль 
-// (с минус в плюс), вычисления скольжения и угла подачи возбуждения---
+
 void CPULSCALC::detectRotorPhaseAdaptive() {
   
   if(!v_slip.Permission) { return; }

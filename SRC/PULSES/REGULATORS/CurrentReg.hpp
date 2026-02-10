@@ -15,6 +15,9 @@ public:
  void set_Iset(unsigned short);
  bool bStart_reg = false;
  
+ signed short Imeas_0;
+ bool fors = false;
+ 
  inline unsigned short* getPointerIset() { return &Iset; }
 
 private:

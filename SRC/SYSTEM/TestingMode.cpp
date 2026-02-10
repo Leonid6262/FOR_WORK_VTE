@@ -48,6 +48,7 @@ void CTestingMode::test(bool Permission) {
 void CTestingMode::StartPhase() {
   rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
   rSIFU.forcing_bridge_pulses_On();
+  rSIFU.rReg_manager.rCurrent_reg.fors = true;
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);
   phases_test = EPhasesTest::Forcing;
@@ -76,6 +77,7 @@ void CTestingMode::RelayExOn() {
   if (dTrsPhase >= BRIDGE_CHANGAE) {
     rDinStr.Relay_Ex_Applied(State::ON);
     phases_test = EPhasesTest::RelayPause;
+    rSIFU.rReg_manager.rCurrent_reg.fors = false;
     prev_TC0_Phase = LPC_TIM0->TC;
   }  
 }
@@ -150,6 +152,7 @@ void CTestingMode::StopTest(){
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
   rSIFU.all_bridge_pulses_Off();
+  rSIFU.rReg_manager.rCurrent_reg.fors = false;
 }
 
 

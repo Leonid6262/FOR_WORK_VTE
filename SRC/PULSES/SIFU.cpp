@@ -21,7 +21,10 @@ void CSIFU::rising_puls() {
     
     // Задание момента выключения ИУ
     RISING_MR0 = static_cast<signed int>(LPC_TIM3->MR0);
-    LPC_TIM3->MR1 = static_cast<unsigned int>(RISING_MR0 + SIFUConst::PULSE_WIDTH);   
+    LPC_TIM3->MR1 = static_cast<unsigned int>(RISING_MR0 + SIFUConst::PULSE_WIDTH);
+    
+    rPulsCalc.conv_Id();
+    rReg_manager.rCurrent_reg.Imeas_0 = *CADC_STORAGE::getInstance().getEPointer(CADC_STORAGE::ROTOR_CURRENT);
     // Следующий заход через 13 градусов
     LPC_TIM3->MR0 = static_cast<unsigned int>(RISING_MR0 + s_const._13gr);
     return;
@@ -30,10 +33,9 @@ void CSIFU::rising_puls() {
   default: 
     puls_phase = PulsPhase::RISING;
   }
-  
-  //CDIN_STORAGE::UserLedOn();
-  
+
   rPulsCalc.conv_and_calc();            // Измерения и вычисления.
+  
   control_fault_and_reg();              // Контроль аварий и регулирование
   control_sync();                       // Мониторинг события захвата CR1 синхроимпульсом
     
