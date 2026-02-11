@@ -38,7 +38,9 @@ class CPULSCALC {
     v_slip.u0_event = false;      
     v_slip.wait_for_event = false;
     v_slip.slip_event = false;
-    v_slip.u0_event = false;    
+    v_slip.u0_event = false; 
+    
+v_slip.neg_samples = 0;    
   }
   
   inline void stopDetectRotorPhase() { v_slip.Permission = false; }
@@ -100,6 +102,8 @@ class CPULSCALC {
     bool wait_for_event = false;
     unsigned short tick_wait = 0;
     unsigned short target_tick = 0;
+    
+unsigned short neg_samples = 0;
     
     static constexpr char min_nT_slip = 15;            // Минимальная длина полуволны
     static constexpr unsigned char delay_rc = 4;       // Задержка RC фильтра

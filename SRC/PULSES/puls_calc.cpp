@@ -40,9 +40,74 @@ void CPULSCALC::conv_and_calc() {
   detectRotorPhaseFixed();
   
 }
-
+void CPULSCALC::detectRotorPhaseFixed() {
+  
+  if(!v_slip.Permission) { return; }
+  
+  v_slip.nT_slip++;      // Общий счетчик периода (от нуля до нуля)
+  v_slip.tick_wait++; // Счетчик тиков внутри текущей полуволны
+  
+  // --- 1. Работа с кадром (бегущий интеграл для фильтрации) ---
+  signed short new_val = CADC_STORAGE::getInstance().getExternal(CADC_STORAGE::ROTOR_VOLTAGE);  
+  v_slip.sum_ud_frame -= v_slip.ud_frame[v_slip.ind_ud_fram];    
+  v_slip.ud_frame[v_slip.ind_ud_fram] = new_val;
+  v_slip.sum_ud_frame += v_slip.ud_frame[v_slip.ind_ud_fram];   
+  v_slip.ind_ud_fram = (v_slip.ind_ud_fram + 1) % v_slip.N_FRAME; 
+  
+  // --- 2. ИСПОЛНИТЕЛЬНОЕ СОБЫТИЕ ---
+  if (v_slip.wait_for_event) {
+    // Проверяем пришло ли время события
+    if (v_slip.tick_wait >= v_slip.target_tick) { 
+      v_slip.slip_event = true;
+      v_slip.wait_for_event = false; 
+    }
+  }
+  
+  // --- 3. Отрицательная область ---
+  if (v_slip.sum_ud_frame < 0) { 
+    v_slip.neg_samples++;                      
+    v_slip.neg_wave = true;         
+  } 
+  
+  // --- 4. Переход через ноль (из - в +) ---
+  else if (v_slip.neg_wave) {
+    // Если полуволна была достаточно длинной (защита от шума)
+    if (v_slip.neg_samples > 15) { 
+      
+      // Считаем реальное скольжение по ЗАВЕРШЕННОМУ периоду
+      v_slip.slip_value = 6.0f / static_cast<float>(v_slip.nT_slip);
+      
+      // Рассчитываем желаемую глубину захода в + (например, заход на 30 градусов)
+      // Полный период = nT_slip. 30 градусов от начала полуволны — это 1/12 (60гр -> 1/6)
+      signed short  pure_target = 0;//v_slip.nT_slip / v_slip.Depth; // Depth = 360 / Depth_DEG;
+      // Вычитаем задержку кадра (половина N_FRAME). Например для N = 8 будет 4 тика (13ms)
+      // и задержку RC фильтра (на частотах 2...10Гц примерно 12ms/3.333ms = 4 тика)
+      signed short  filter_delay = v_slip.N_FRAME / 2;
+      signed short  final_target = pure_target - filter_delay - v_slip.delay_rc;      
+      
+      // Анализируем результат
+      if (final_target <= 0) {
+        // Если задержка фильтров больше, чем нужная глубина, событие должно произойти ПРЯМО СЕЙЧАС 
+        v_slip.target_tick = 0;
+        v_slip.slip_event = true;
+        v_slip.wait_for_event = false; 
+      } else {
+        v_slip.target_tick = static_cast<unsigned short>(final_target);
+        v_slip.tick_wait = 0; // Сбрасываем счетчик для отсчета ПАУЗЫ
+        v_slip.wait_for_event = true;       
+      }
+      v_slip.nT_slip = 0;       // Сброс для измерения следующего периода
+      v_slip.u0_event = true;   // Сообщаем системе, что ноль пройден успешно
+    }
+    
+    // Очистка накопителей статистики минуса
+    v_slip.neg_samples = 0;
+    v_slip.neg_wave = false; 
+  }
+}
 // --- Алгоритм определения перехода напряжения ротора через ноль 
 // (с минус в плюс), вычисление скольжения и угла подачи возбуждения ---
+/*
 void CPULSCALC::detectRotorPhaseFixed() {
   
   if(!v_slip.Permission) { return; }
@@ -102,7 +167,7 @@ void CPULSCALC::detectRotorPhaseFixed() {
     v_slip.nT_slip = 0;       // Сброс для следующего периода
   }
 }
-
+*/
 // ---Восстановление синусоидальных сигналов по двум измерениям и углу.
 void CPULSCALC::sin_restoration() {
   /*
