@@ -1,4 +1,5 @@
 #include "CurrentReg.hpp" 
+#include "dIOStorage.hpp"
 
 CCurrentReg::CCurrentReg(CEEPSettings& rSet) : pAdc(CADC_STORAGE::getInstance()), rSet(rSet) {}
 

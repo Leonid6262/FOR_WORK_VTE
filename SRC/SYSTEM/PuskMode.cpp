@@ -49,6 +49,7 @@ void CPuskMode::CheckISctrlPK() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
     PK_Status = switching_check_pk(Check::CHECK);
+    if(rDinStr.ControlPusk()) { rDinStr.Relay_Ex_Applied(State::ON); }
     return;
   }
    
@@ -172,6 +173,10 @@ void CPuskMode::StartEx() {
   rSIFU.rPulsCalc.stopDetectRotorPhase(); 
   rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
   rSIFU.forcing_bridge_pulses_On();
+  rSIFU.rReg_manager.rCurrent_reg.bResConnect = true;
+  if(rDinStr.ControlPusk()) {
+     rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
+  }
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);    
   phases_pusk = EPhasesPusk::Forcing;
@@ -203,6 +208,7 @@ void CPuskMode::Pause() {
 void CPuskMode::ClosingKey() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) { 
+    rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
     if(!rDinStr.CU_from_testing()) {
       SFault::setMessage(EFaultId::PK_NOT_CLOSED);
       pSys_manager->rFault_ctrl.fault_stop();
@@ -218,12 +224,15 @@ void CPuskMode::ClosingKey() {
 // ---Штатная остановка Пуска---
 void CPuskMode::StopPusk(){
   SWork::clrMessage(EWorkId::PUSK);
+  SWork::clrMessage(EWorkId::CONTROL_PUSK);
+  SWork::clrMessage(EWorkId::PUSK_WEX);
   rDinStr.Relay_Ex_Applied(State::OFF);  
   pSys_manager->set_bsPuskMotor(State::OFF);
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
   rSIFU.all_bridge_pulses_Off();
   rSIFU.rPulsCalc.stopDetectRotorPhase();
+  rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
 }
 
 void CPuskMode::setSysManager(CSystemManager* pSys_manager) {

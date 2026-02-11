@@ -112,8 +112,8 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("I-Cycles",  {},  &rSysMgr.rAdj_mode.reqADJmode, "",      cd::one,    p0, vt::eb_3,   nm::Ed1V),
           o("KpCr",      {},  &set.set_reg.KpCr,             "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
           o("KiCr",      {},  &set.set_reg.KiCr,             "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),
-          o("KpCrR",     {},  &set.set_reg.KpCr,             "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
-          o("KiCrR",     {},  &set.set_reg.KiCr,             "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
+          o("KpCrR",     {},  &set.set_reg.KpCrR,            "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
+          o("KiCrR",     {},  &set.set_reg.KiCrR,            "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
       o("PHASING",{
           o("Phasing mode", {}, &rSysMgr.rAdj_mode.reqADJmode,"",     cd::one,  p0,vt::eb_4,  nm::Ed1V),
           o("60deg shift",  {}, &set.set_sifu.d_power_shift,  "",     cd::one,  p0,vt::ushort,nm::Ed1V, 0, (sfc.N_PULSES-1)),
@@ -123,6 +123,8 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o(Mn.CURRENT[l],{
               o("KpCr",   {}, &set.set_reg.KpCr, "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
               o("KiCr",   {}, &set.set_reg.KiCr, "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),
+              o("KpCrR",  {}, &set.set_reg.KpCrR,"",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
+              o("KiCrR",  {}, &set.set_reg.KiCrR,"",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),
               o("Alpha-0",{}, &set.set_reg.A0,   un::Deg, cd::Alpha,  p0, vt::sshort, nm::Ed1V, 90, 120)}),
           o(Mn.COS_PHI[l],{
               o("KpCos", {}, &set.set_reg.KpCos, "", cd::one, p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
