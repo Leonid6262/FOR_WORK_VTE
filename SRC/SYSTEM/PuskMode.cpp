@@ -56,7 +56,7 @@ void CPuskMode::CheckISctrlPK() {
   // В режиме пуска без возбуждения контролируем Is и slip
   if(WithoutExMode) {
     SWork::setMessage(EWorkId::PUSK_WEX);
-    rSIFU.rPulsCalc.startDetectRotorPhase();
+    rSIFU.rPulsCalc.clearDetectRotorPhase();
     phases_pusk = EPhasesPusk::SelfSync;
     return;
   }  
@@ -85,7 +85,7 @@ void CPuskMode::CheckISctrlPK() {
   // Всё Ок. Переход к фазе WaitISdrop
   if(!pSys_manager->USystemStatus.sFault) {
     StartingSlip = 1.0f;
-    rSIFU.rPulsCalc.startDetectRotorPhase();
+    rSIFU.rPulsCalc.clearDetectRotorPhase();
     phases_pusk = EPhasesPusk::WaitISdrop;
     prev_TC0_Phase = LPC_TIM0->TC;
   }

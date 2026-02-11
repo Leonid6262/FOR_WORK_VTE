@@ -25,7 +25,7 @@ class CPULSCALC {
   inline void resSlipEvent()      { v_slip.slip_event = false; }
   inline void resU0Event()        { v_slip.u0_event = false; }
   
-  inline void startDetectRotorPhase() { 
+  inline void clearDetectRotorPhase() { 
     v_slip.Permission = true;    
     for(char i = 0; i < v_slip.N_FRAME; i++) v_slip.ud_frame[i] = 0;
     v_slip.slip_value = 1.0f;
@@ -34,13 +34,16 @@ class CPULSCALC {
     v_slip.ind_ud_fram = 0;    
     v_slip.tick_wait = 0;
     v_slip.target_tick = 0;
+    
+    v_slip.sum_pos_wave = 0;
+    v_slip.sum_neg_wave = 0;
+    
     v_slip.neg_wave = false; 
     v_slip.u0_event = false;      
     v_slip.wait_for_event = false;
     v_slip.slip_event = false;
     v_slip.u0_event = false; 
     
-v_slip.neg_samples = 0;    
   }
   
   inline void stopDetectRotorPhase() { v_slip.Permission = false; }
@@ -103,9 +106,11 @@ v_slip.neg_samples = 0;
     unsigned short tick_wait = 0;
     unsigned short target_tick = 0;
     
-unsigned short neg_samples = 0;
-    
-    static constexpr char min_nT_slip = 15;            // Минимальная длина полуволны
+    unsigned short sum_pos_wave = 0;
+    unsigned short sum_neg_wave = 0;
+        
+    static constexpr unsigned short min_nT_slip = 30;  // Минимальная длина периода (10Hz)
+    static constexpr unsigned short max_nT_slip = 300; // Максимольная длина периода (1Hz)   
     static constexpr unsigned char delay_rc = 4;       // Задержка RC фильтра
     static constexpr unsigned char DepthDeg = 30;      // Глубина в градусах
 
