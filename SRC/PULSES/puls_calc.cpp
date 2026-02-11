@@ -23,7 +23,7 @@ void CPULSCALC::conv_Id() {
 void CPULSCALC::conv_and_calc() {
   // Измерение всех используемых (в ВТЕ) аналоговых сигналов (внешнее ADC)
   rAdc.conv_tnf({
-    CADC_STORAGE::ROTOR_CURRENT, 
+    //CADC_STORAGE::ROTOR_CURRENT, 
     CADC_STORAGE::STATOR_VOLTAGE, 
     CADC_STORAGE::STATOR_CURRENT,
     CADC_STORAGE::ROTOR_VOLTAGE, 

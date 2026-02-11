@@ -68,6 +68,8 @@ class CEEPSettings {
     struct {                                                    // 12 Параметры регуляторов
       float KpCr;
       float KiCr;
+      float KpCrR;
+      float KiCrR;
       signed short A0;
       float KpCos;
       float KiCos;
@@ -124,8 +126,10 @@ class CEEPSettings {
     .din_Pi_invert = {0, 0, 0, 0},
     .dout_spi_invert = {0, 0, 0},
     .set_reg = {
-      .KpCr = 1.0f,
-      .KiCr = 0.01f,
+      .KpCr = 7.0f,
+      .KiCr = 0.10f,
+      .KpCrR = 4.0f,
+      .KiCrR = 0.10f,
       .A0 = static_cast<signed short>(120.0f/cd::Alpha),
       .KpCos = 1.0f,
       .KiCos = 0.001f,

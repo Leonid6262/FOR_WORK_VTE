@@ -16,7 +16,7 @@ public:
  bool bStart_reg = false;
  
  signed short Imeas_0;
- bool Res_connected = false;
+ bool bResConnect = false;
  
  inline unsigned short* getPointerIset() { return &Iset; }
 

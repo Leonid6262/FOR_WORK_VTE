@@ -101,16 +101,19 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o::Dual("I-Rotor",  pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::cdr.Id, p0, vt::sshort,
                     "Alpha",  &rSysMgr.rAdj_mode.AlphaAdj,           un::Deg, cd::Alpha,  p1, vt::sshort, nm::IE2V, sfc.AMin*0.018, sfc.AMax*0.018),}),
       o("I-REG",{
-          o("I-Regulator",{}, &rSysMgr.rAdj_mode.reqADJmode,         "",      cd::one,    p0, vt::eb_2,   nm::Ed1V),
-          o::Dual("I-Rotor",  pAdc.getEPointer(sadc::ROTOR_CURRENT), un::Amp, cd::cdr.Id, p0, vt::sshort,
-                    "I-set",  &rSysMgr.rAdj_mode.IsetAdj,            un::Amp, cd::cdr.Id, p0, vt::sshort, nm::IE2V, 0, 200),}),
+          o("I-Regulator",{}, &rSysMgr.rAdj_mode.reqADJmode,                 "",      cd::one,    p0, vt::eb_2,   nm::Ed1V),
+          o::Dual("I-Rotor",  pAdc.getEPointer(sadc::ROTOR_CURRENT),         un::Amp, cd::cdr.Id, p0, vt::sshort,
+                    "I-set",  &rSysMgr.rAdj_mode.IsetAdj,                    un::Amp, cd::cdr.Id, p0, vt::sshort, nm::IE2V, 0, 200),
+          o("RCon",       {}, &rSysMgr.rReg_manager.rCurrent_reg.bResConnect,"",      cd::one,    p0, vt::vbool,  nm::Ed1V, 0, 1),}),
       o("I-CYCLES",{
           o("Iset cyc1", {},  &rSysMgr.rAdj_mode.IsetCyc_1,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.params.IdNom),
           o("Iset cyc2", {},  &rSysMgr.rAdj_mode.IsetCyc_2,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.params.IdNom),
           o("Npulses",   {},  &rSysMgr.rAdj_mode.NpulsCyc,   "",      cd::one,    p0, vt::ushort, nm::Ed1V, 1, 1000),
           o("I-Cycles",  {},  &rSysMgr.rAdj_mode.reqADJmode, "",      cd::one,    p0, vt::eb_3,   nm::Ed1V),
           o("KpCr",      {},  &set.set_reg.KpCr,             "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
-          o("KiCr",      {},  &set.set_reg.KiCr,             "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
+          o("KiCr",      {},  &set.set_reg.KiCr,             "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),
+          o("KpCrR",     {},  &set.set_reg.KpCr,             "",      cd::one,    p1, vt::vfloat, nm::Ed1V, 0, 10.0f),
+          o("KiCrR",     {},  &set.set_reg.KiCr,             "",      cd::one,    p3, vt::vfloat, nm::Ed1V, 0, 1.0f),}),
       o("PHASING",{
           o("Phasing mode", {}, &rSysMgr.rAdj_mode.reqADJmode,"",     cd::one,  p0,vt::eb_4,  nm::Ed1V),
           o("60deg shift",  {}, &set.set_sifu.d_power_shift,  "",     cd::one,  p0,vt::ushort,nm::Ed1V, 0, (sfc.N_PULSES-1)),
