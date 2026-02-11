@@ -166,7 +166,7 @@ void CPULSCALC::sin_restoration() {
   float icos = std::cos(i_theta);
   float isin = std::sin(i_theta);
 
-  // Скользящее среднее
+  // --- Скользящее среднее ---
   v_rest.ind_d_avr = (v_rest.ind_d_avr + 1) % v_rest.PULS_AVR;
   float cur_u_stat = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * ucos)) / (usin * usin));
   v_rest.u_stat[v_rest.ind_d_avr] = cur_u_stat;
@@ -190,6 +190,8 @@ void CPULSCALC::sin_restoration() {
   avr = avr / v_rest.PULS_AVR;
   i_stator_rms = avr/v_rest.sqrt_2;
   I_STATOR_RMS = static_cast<unsigned short>((avr/v_rest.sqrt_2) + 0.5f);
+  
+  // ------–---------–-------
   
   float u_phi = std::atan2((v_rest.u_stator_2*ucos - v_rest.u_stator_1),  v_rest.u_stator_2*usin);
   float i_phi = std::atan2((v_rest.i_stator_2*icos - v_rest.i_stator_1),  v_rest.i_stator_2*isin);
