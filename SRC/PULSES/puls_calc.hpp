@@ -55,6 +55,9 @@ class CPULSCALC {
   unsigned short I_STATOR_RMS;
   float phi;
   float cos_phi;
+  float cos_phi_avg;
+  float sin_phi;
+  float sin_phi_avg;
   unsigned short COS_PHI;
   float p;
   unsigned short P;
@@ -82,6 +85,15 @@ class CPULSCALC {
     unsigned int timing_istator_1;
     unsigned int timing_istator_2;
     unsigned int dT_istator;
+    
+    
+unsigned int ind_phi_avr = 0;
+float cos_phi_buf[PULS_AVR];
+float sin_phi_buf[PULS_AVR];
+float cos_buf[PULS_AVR];    
+float sin_buf[PULS_AVR];    
+    
+    
 
   } v_rest;
   

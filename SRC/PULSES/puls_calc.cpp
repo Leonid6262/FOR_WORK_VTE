@@ -41,6 +41,11 @@ void CPULSCALC::conv_and_calc() {
   
 }
 
+float u_phi;
+float i_phi;
+float cross_product; 
+float dot_product; 
+
 // --- Алгоритм определения перехода напряжения ротора через ноль 
 // (с минус в плюс), вычисление скольжения и угла подачи возбуждения ---
 void CPULSCALC::detectRotorPhaseFixed() {
@@ -191,13 +196,50 @@ void CPULSCALC::sin_restoration() {
   i_stator_rms = avr/v_rest.sqrt_2;
   I_STATOR_RMS = static_cast<unsigned short>((avr/v_rest.sqrt_2) + 0.5f);
   
-  // ------–---------–-------
-  
-  float u_phi = std::atan2((v_rest.u_stator_2*ucos - v_rest.u_stator_1),  v_rest.u_stator_2*usin);
-  float i_phi = std::atan2((v_rest.i_stator_2*icos - v_rest.i_stator_1),  v_rest.i_stator_2*isin);
-  phi = u_phi - i_phi;
-  
-  cos_phi = std::cos(phi);  
+  // ==============================
+// ==============================
+// --- Фаза напряжения ---
+float u_phi_cos = (v_rest.u_stator_2 * ucos - v_rest.u_stator_1) / cur_u_stat;
+float u_phi_sin = (v_rest.u_stator_2 * usin) / cur_u_stat;
+
+// --- Фаза тока ---
+float i_phi_cos = (v_rest.i_stator_2 * icos - v_rest.i_stator_1) / cur_i_stat;
+float i_phi_sin = (v_rest.i_stator_2 * isin) / cur_i_stat;
+
+// --- Разность фаз ---
+float cos_dphi = (u_phi_cos * i_phi_cos + u_phi_sin * i_phi_sin) * 2.0f; // поправка масштаба
+float sin_dphi = (u_phi_cos * i_phi_sin - u_phi_sin * i_phi_cos);
+
+// --- Скользящее усреднение для угла ---
+v_rest.ind_phi_avr = (v_rest.ind_phi_avr + 1) % v_rest.PULS_AVR;
+v_rest.cos_buf[v_rest.ind_phi_avr] = cos_dphi;
+v_rest.sin_buf[v_rest.ind_phi_avr] = sin_dphi;
+
+float cos_sum = 0.0f, sin_sum = 0.0f;
+for(char k = 0; k < v_rest.PULS_AVR; k++) {
+    cos_sum += v_rest.cos_buf[k];
+    sin_sum += v_rest.sin_buf[k];
+}
+float cos_avg = cos_sum / v_rest.PULS_AVR;
+float sin_avg = sin_sum / v_rest.PULS_AVR;
+
+// --- Угол ---
+float dphi = std::atan2(sin_avg, cos_avg);
+phi = dphi;
+
+// --- Отдельное усреднение для коэффициента мощности ---
+v_rest.cos_phi_buf[v_rest.ind_phi_avr] = cos_dphi;
+float cos_sum_phi = 0.0f;
+for(char k = 0; k < v_rest.PULS_AVR; k++) {
+    cos_sum_phi += v_rest.cos_phi_buf[k];
+}
+cos_phi = cos_sum_phi / v_rest.PULS_AVR;
+cos_phi_avg = cos_avg; 
+sin_phi_avg = sin_avg;
+
+
+  // ==============================
+ 
   p = cur_u_stat * cur_i_stat * cos_phi / 2.0f;
   q = cur_u_stat * cur_i_stat * std::sin(phi) / 2.0f;
   
