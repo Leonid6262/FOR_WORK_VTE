@@ -112,7 +112,7 @@ class CPULSCALC {
     static constexpr unsigned short min_nT_slip = 30;  // Минимальная длина периода (10Hz)
     static constexpr unsigned short max_nT_slip = 300; // Максимольная длина периода (1Hz)   
     static constexpr unsigned char delay_rc = 4;       // Задержка RC фильтра
-    static constexpr unsigned char DepthDeg = 30;      // Глубина в градусах
+    static constexpr unsigned char Depth_30deg = 30;   // Глубина 30 градусов
 
   } v_slip; 
   

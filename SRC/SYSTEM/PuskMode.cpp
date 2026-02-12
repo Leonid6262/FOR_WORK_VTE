@@ -120,16 +120,21 @@ void CPuskMode::SelfSync() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   
   bool isNewSlipData = rSIFU.rPulsCalc.getSlipEvent();
+  bool isNewU0Data = rSIFU.rPulsCalc.getU0Event();
   
   // 0. Пуск без возбуждения
   if(WithoutExMode) {
+    if (isNewU0Data) {
+      CDIN_STORAGE::UserLedOn();
+      rSIFU.rPulsCalc.resU0Event();
+    }
     if (isNewSlipData) {
       c_slip_ev++;
       if(c_slip_ev > 3) {
         c_slip_ev = 0;
         slip_ev = !slip_ev;
       }    
-      CDIN_STORAGE::UserLedToggle();
+      CDIN_STORAGE::UserLedOff();
       StartingSlip = rSIFU.rPulsCalc.getSlipValue();
       rSIFU.rPulsCalc.resSlipEvent();
     }
