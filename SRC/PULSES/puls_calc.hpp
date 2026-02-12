@@ -90,9 +90,6 @@ class CPULSCALC {
 unsigned int ind_phi_avr = 0;
 float cos_phi_buf[PULS_AVR];
 float sin_phi_buf[PULS_AVR];
-float cos_buf[PULS_AVR];    
-float sin_buf[PULS_AVR];    
-    
     
 
   } v_rest;
