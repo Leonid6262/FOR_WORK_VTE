@@ -17,7 +17,10 @@ class CPULSCALC {
   inline unsigned short* getPointer_ISTATOR_RMS() { return &I_STATOR_RMS; }
   inline float* getPointer_ustator_rms() { return &u_stator_rms; }
   inline float* getPointer_istator_rms() { return &i_stator_rms; }
-
+  inline float* getPointer_S_Power()     { return &S_Power;      }
+  inline float* getPointer_P_Power()     { return &P_Power;      }  
+  inline float* getPointer_Q_Power()     { return &Q_Power;      }
+  
   inline bool getSlipEvent()      { return v_slip.slip_event; } 
   inline bool getU0Event()        { return v_slip.u0_event; }
   inline float getSlipValue()     { return v_slip.slip_value; }
@@ -50,19 +53,20 @@ class CPULSCALC {
   
  private:
   float u_stator_rms; 
-  unsigned short U_STATOR_RMS;
   float i_stator_rms;
-  unsigned short I_STATOR_RMS;
-  float phi;
   float cos_phi;
   float sin_phi;
-  signed short DPHI_DEG;
+
+  float P_Power;
+  float Q_Power; 
+  float S_Power; 
+  
   unsigned short COS_PHI;
-  signed short SIN_PHI;
-  float p;
-  unsigned short P;
-  float q;
-  signed short Q;
+  unsigned short U_STATOR_RMS;
+  unsigned short I_STATOR_RMS;
+  unsigned short S_POWER;
+  unsigned short P_POWER;
+    signed short Q_POWER;
 
   struct RestorationState {
     static constexpr char PULS_AVR = 12;  // Пульсов усреднения
@@ -71,7 +75,8 @@ class CPULSCALC {
     static constexpr float sqrt_2 = 1.414213562373095;
 
     float u_stat[PULS_AVR];
-    float i_stat[PULS_AVR];   
+    float i_stat[PULS_AVR];
+    float phi_buf[PULS_AVR];
     char ind_d_avr = 0;
     
     float u_stator_1;
@@ -79,21 +84,16 @@ class CPULSCALC {
     unsigned int timing_ustator_1;
     unsigned int timing_ustator_2;
     unsigned int dT_ustator;
+    float Um;
 
     float i_stator_1;
     float i_stator_2;
     unsigned int timing_istator_1;
     unsigned int timing_istator_2;
     unsigned int dT_istator;
+    float Im;
     
-    
-unsigned int ind_phi_avr = 0;
-float phi_buf[PULS_AVR];
-
-
-
-float Im;
-float Um;
+    float phi_deg;
 
   } v_rest;
   

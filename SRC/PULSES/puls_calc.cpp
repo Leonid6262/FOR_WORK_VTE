@@ -10,8 +10,8 @@ CPULSCALC::CPULSCALC(CADC& rAdc, CProxyPointerVar& PPV, CDAC_PWM& dac_cos, CRegM
   // Регистрация в реестре указателей
   PPV.registerVar(NProxyVar::ProxyVarID::Ustat,  &U_STATOR_RMS,  cd::cdr.US, NProxyVar::Unit::Volt);
   PPV.registerVar(NProxyVar::ProxyVarID::Istat,  &I_STATOR_RMS,  cd::cdr.IS, NProxyVar::Unit::Amp);
-  PPV.registerVar(NProxyVar::ProxyVarID::P,      &P,             cd::cdr.P,  NProxyVar::Unit::kW);
-  PPV.registerVar(NProxyVar::ProxyVarID::Q,      &Q,             cd::cdr.Q,  NProxyVar::Unit::kVAR);
+  PPV.registerVar(NProxyVar::ProxyVarID::P,      &P_POWER,       cd::cdr.P,  NProxyVar::Unit::kW);
+  PPV.registerVar(NProxyVar::ProxyVarID::Q,      &Q_POWER,       cd::cdr.Q,  NProxyVar::Unit::kVAR);
   PPV.registerVar(NProxyVar::ProxyVarID::CosPhi, &COS_PHI,       0.01f,      "");
 }
 
@@ -162,6 +162,7 @@ void CPULSCALC::sin_restoration() {
 
   // --- Скользящее среднее ---
   v_rest.ind_d_avr = (v_rest.ind_d_avr + 1) % v_rest.PULS_AVR;
+  
   float cur_u_stat = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * ucos)) / (usin * usin));
   v_rest.u_stat[v_rest.ind_d_avr] = cur_u_stat;
   
@@ -169,8 +170,8 @@ void CPULSCALC::sin_restoration() {
   for(char u = 0; u < v_rest.PULS_AVR; u++) {
     v_rest.Um += v_rest.u_stat[u];
   }
-  v_rest.Um = v_rest.Um / v_rest.PULS_AVR;
   
+  v_rest.Um = v_rest.Um / v_rest.PULS_AVR;  
   u_stator_rms = v_rest.Um / v_rest.sqrt_2;
   U_STATOR_RMS = static_cast<unsigned short>((v_rest.Um/v_rest.sqrt_2) + 0.5f);
   
@@ -181,6 +182,7 @@ void CPULSCALC::sin_restoration() {
   for(char i = 0; i < v_rest.PULS_AVR; i++) {
     v_rest.Im += v_rest.i_stat[i];
   }
+  
   v_rest.Im = v_rest.Im / v_rest.PULS_AVR;
   i_stator_rms = v_rest.Im / v_rest.sqrt_2;
   I_STATOR_RMS = static_cast<unsigned short>((v_rest.Im/v_rest.sqrt_2) + 0.5f);
@@ -211,30 +213,37 @@ void CPULSCALC::sin_restoration() {
   while (phi > v_rest.pi) phi -= 2.0f * v_rest.pi; 
   while (phi < -v_rest.pi) phi += 2.0f * v_rest.pi;
   
-  // --- Скользящее среднее для phi --- 
-  v_rest.ind_phi_avr = (v_rest.ind_phi_avr + 1) % v_rest.PULS_AVR; 
-  v_rest.phi_buf[v_rest.ind_phi_avr] = phi; 
+  // --- Скользящее среднее для phi ---  
+  v_rest.phi_buf[v_rest.ind_d_avr] = phi; 
   float phi_sum = 0.0f; 
   for (char k = 0; k < v_rest.PULS_AVR; k++) { 
     phi_sum += v_rest.phi_buf[k];  
   } 
   float phi_avg = phi_sum / v_rest.PULS_AVR;
-
+  v_rest.phi_deg = phi_avg * 180.0f / v_rest.pi;
+  
+  cos_phi = cosf(phi_avg);
+  
+  // --- Полная мощность ---
+  S_Power = (v_rest.Um * v_rest.Im) / 2.0f;
+  
+  // --- Активная мощность --- 
+  P_Power = S_Power * cos_phi;
+  
+  // --- Реактивная мощность через остаток --- 
+  float g_power = sqrtf(fmaxf(0.0f, S_Power*S_Power - P_Power*P_Power));
+  if (phi_avg < 0) Q_Power = -g_power;
+  else Q_Power = g_power;
+  
+  S_POWER = static_cast<unsigned short>(S_Power + 0.5f);
+  P_POWER = static_cast<unsigned short>(P_Power + 0.5f); 
+  Q_POWER = static_cast<signed short>(Q_Power + 0.5f);  
+  COS_PHI = static_cast<unsigned short>((cos_phi * 100.0f) + 0.5f);
+  
   // обновляем предыдущие выборки
   v_rest.u_stator_1 = v_rest.u_stator_2;
   v_rest.timing_ustator_1 = v_rest.timing_ustator_2;
   v_rest.i_stator_1 = v_rest.i_stator_2;
   v_rest.timing_istator_1 = v_rest.timing_istator_2;
-  
-  cos_phi = cosf(phi_avg);
-  sin_phi = sinf(phi_avg);
-  COS_PHI = static_cast<unsigned short>((cos_phi*100) + 0.5f);
-  SIN_PHI = static_cast<signed short>((sin_phi*100) + 0.5f);
-  
-  DPHI_DEG = static_cast<signed short>((phi_avg * 18000.0f / v_rest.pi) + 0.5f);
-  p = v_rest.Um * cd::cdr.US * v_rest.Im * cd::cdr.IS * cos_phi / 2.0f; 
-  q = v_rest.Um * cd::cdr.US * v_rest.Im * cd::cdr.IS * sin_phi / 2.0f;
-  P = static_cast<unsigned short>(p + 0.5f);
-  Q = static_cast<signed short>(q + 0.5f);
 
 }
