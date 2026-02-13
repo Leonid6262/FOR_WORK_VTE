@@ -55,10 +55,10 @@ class CPULSCALC {
   unsigned short I_STATOR_RMS;
   float phi;
   float cos_phi;
-  float cos_phi_avg;
   float sin_phi;
-  float sin_phi_avg;
+  signed short DPHI_DEG;
   unsigned short COS_PHI;
+  signed short SIN_PHI;
   float p;
   unsigned short P;
   float q;
@@ -88,9 +88,12 @@ class CPULSCALC {
     
     
 unsigned int ind_phi_avr = 0;
-float cos_phi_buf[PULS_AVR];
-float sin_phi_buf[PULS_AVR];
-    
+float phi_buf[PULS_AVR];
+
+
+
+float Im;
+float Um;
 
   } v_rest;
   

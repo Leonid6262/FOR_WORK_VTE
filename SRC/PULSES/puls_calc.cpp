@@ -41,11 +41,6 @@ void CPULSCALC::conv_and_calc() {
   
 }
 
-float u_phi;
-float i_phi;
-float cross_product; 
-float dot_product; 
-
 // --- Алгоритм определения перехода напряжения ротора через ноль 
 // (с минус в плюс), вычисление скольжения и угла подачи возбуждения ---
 void CPULSCALC::detectRotorPhaseFixed() {
@@ -145,9 +140,6 @@ void CPULSCALC::sin_restoration() {
 
   v_rest.dT_ustator = v_rest.timing_ustator_2 - v_rest.timing_ustator_1;
 
-  v_rest.u_stator_1 = v_rest.u_stator_2;
-  v_rest.timing_ustator_1 = v_rest.timing_ustator_2;
-
   float u_theta = (2.0f * v_rest.pi * v_rest.freq * v_rest.dT_ustator) / 1000000.0f;
 
   float ucos = std::cos(u_theta);
@@ -163,9 +155,6 @@ void CPULSCALC::sin_restoration() {
 
   v_rest.dT_istator = v_rest.timing_istator_2 - v_rest.timing_istator_1;
 
-  v_rest.i_stator_1 = v_rest.i_stator_2;
-  v_rest.timing_istator_1 = v_rest.timing_istator_2;
-
   float i_theta = (2.0f * v_rest.pi * v_rest.freq * v_rest.dT_istator) / 1000000.0f;
 
   float icos = std::cos(i_theta);
@@ -176,55 +165,76 @@ void CPULSCALC::sin_restoration() {
   float cur_u_stat = sqrt(((us1us1 + us2us2) - (us1us2 * 2 * ucos)) / (usin * usin));
   v_rest.u_stat[v_rest.ind_d_avr] = cur_u_stat;
   
-  float avr = 0;
+  v_rest.Um = 0;
   for(char u = 0; u < v_rest.PULS_AVR; u++) {
-    avr += v_rest.u_stat[u];
+    v_rest.Um += v_rest.u_stat[u];
   }
-  avr = avr / v_rest.PULS_AVR;
+  v_rest.Um = v_rest.Um / v_rest.PULS_AVR;
   
-  u_stator_rms = avr/v_rest.sqrt_2;
-  U_STATOR_RMS = static_cast<unsigned short>((avr/v_rest.sqrt_2) + 0.5f);
+  u_stator_rms = v_rest.Um / v_rest.sqrt_2;
+  U_STATOR_RMS = static_cast<unsigned short>((v_rest.Um/v_rest.sqrt_2) + 0.5f);
   
   float cur_i_stat = sqrt(((is1is1 + is2is2) - (is1is2 * 2 * icos)) / (isin * isin));
   v_rest.i_stat[v_rest.ind_d_avr] = cur_i_stat;
   
-  avr = 0;
+  v_rest.Im = 0;
   for(char i = 0; i < v_rest.PULS_AVR; i++) {
-    avr += v_rest.i_stat[i];
+    v_rest.Im += v_rest.i_stat[i];
   }
-  avr = avr / v_rest.PULS_AVR;
-  i_stator_rms = avr/v_rest.sqrt_2;
-  I_STATOR_RMS = static_cast<unsigned short>((avr/v_rest.sqrt_2) + 0.5f);
+  v_rest.Im = v_rest.Im / v_rest.PULS_AVR;
+  i_stator_rms = v_rest.Im / v_rest.sqrt_2;
+  I_STATOR_RMS = static_cast<unsigned short>((v_rest.Im/v_rest.sqrt_2) + 0.5f);
   
   // ============================================
-  // --- Фаза напряжения ---
-  float u_phi_cos = (v_rest.u_stator_2 * ucos - v_rest.u_stator_1) / cur_u_stat;
-  float u_phi_sin = (v_rest.u_stator_2 * usin) / cur_u_stat;
   
-  // --- Фаза тока ---
-  float i_phi_cos = (v_rest.i_stator_2 * icos - v_rest.i_stator_1) / cur_i_stat;
-  float i_phi_sin = (v_rest.i_stator_2 * isin) / cur_i_stat;
+  float u_norm = v_rest.u_stator_2 / v_rest.Um;
+  float i_norm = v_rest.i_stator_2 / v_rest.Im;
   
-  // --- Разность фаз ---
-  float cos_dphi = (u_phi_cos * i_phi_cos + u_phi_sin * i_phi_sin) * 2.0f; // поправка масштаба
-  float sin_dphi = (u_phi_cos * i_phi_sin - u_phi_sin * i_phi_cos);
+  // ограничение [-1, +1]
+  u_norm = fmaxf(-1.0f, fminf(1.0f, u_norm));
+  i_norm = fmaxf(-1.0f, fminf(1.0f, i_norm));
   
-  // --- Скользящее среднее для угла ---
+  // синусная компонента
+  float phi_u = asinf(u_norm);
+  float phi_i = asinf(i_norm);
+  
+  // косинусная компонента (берём соседнюю выборку или вычисляем через фазовый сдвиг)
+  float u_cos = v_rest.u_stator_1 / v_rest.Um; // например, предыдущая точка
+  float i_cos = v_rest.i_stator_1 / v_rest.Im;
+  
+  // корректировка знака
+  if (u_cos < 0) phi_u = v_rest.pi - phi_u;
+  if (i_cos < 0) phi_i = v_rest.pi - phi_i;
+  
+  float phi = phi_u - phi_i;
+  
+  while (phi > v_rest.pi) phi -= 2.0f * v_rest.pi; 
+  while (phi < -v_rest.pi) phi += 2.0f * v_rest.pi;
+  
+  // --- Скользящее среднее для phi --- 
   v_rest.ind_phi_avr = (v_rest.ind_phi_avr + 1) % v_rest.PULS_AVR; 
-  v_rest.cos_phi_buf[v_rest.ind_phi_avr] = cos_dphi; 
-  
-  float cos_sum_phi = 0.0f; 
-  for(char k = 0; k < v_rest.PULS_AVR; k++) { 
-    cos_sum_phi += v_rest.cos_phi_buf[k]; 
+  v_rest.phi_buf[v_rest.ind_phi_avr] = phi; 
+  float phi_sum = 0.0f; 
+  for (char k = 0; k < v_rest.PULS_AVR; k++) { 
+    phi_sum += v_rest.phi_buf[k];  
   } 
+  float phi_avg = phi_sum / v_rest.PULS_AVR;
+
+  // обновляем предыдущие выборки
+  v_rest.u_stator_1 = v_rest.u_stator_2;
+  v_rest.timing_ustator_1 = v_rest.timing_ustator_2;
+  v_rest.i_stator_1 = v_rest.i_stator_2;
+  v_rest.timing_istator_1 = v_rest.timing_istator_2;
   
-  cos_phi = cos_sum_phi / v_rest.PULS_AVR; 
-  signed char sign_Q = (sin_dphi >= 0.0f) ? +1 : -1;
+  cos_phi = cosf(phi_avg);
+  sin_phi = sinf(phi_avg);
+  COS_PHI = static_cast<unsigned short>((cos_phi*100) + 0.5f);
+  SIN_PHI = static_cast<signed short>((sin_phi*100) + 0.5f);
   
-  p = cur_u_stat * cur_i_stat * cos_phi / 2.0f;
-  q = cur_u_stat * cur_i_stat * std::sin(phi) / 2.0f;
-  
-  COS_PHI = static_cast<int>((cos_phi*100) + 0.5f);
+  DPHI_DEG = static_cast<signed short>((phi_avg * 18000.0f / v_rest.pi) + 0.5f);
+  p = v_rest.Um * cd::cdr.US * v_rest.Im * cd::cdr.IS * cos_phi / 2.0f; 
+  q = v_rest.Um * cd::cdr.US * v_rest.Im * cd::cdr.IS * sin_phi / 2.0f;
   P = static_cast<unsigned short>(p + 0.5f);
   Q = static_cast<signed short>(q + 0.5f);
+
 }
