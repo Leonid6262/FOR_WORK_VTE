@@ -13,7 +13,6 @@ public:
 
  void step(bool, CSIFU*);
  void set_Iset(unsigned short);
- bool bStart_reg = false;
  
  signed short Imeas_0;
  bool bResConnect = false;
@@ -31,4 +30,5 @@ private:
  float I_part_max;
  unsigned short Iset;
  
+ bool bStart_reg = false;
 };

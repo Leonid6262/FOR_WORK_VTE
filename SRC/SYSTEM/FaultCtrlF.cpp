@@ -22,15 +22,18 @@ void CFaultCtrlF::control(bool Permission) {
 void CFaultCtrlF::fault_stop() {
   pSys_manager->USystemStatus.all = 0;
   pSys_manager->set_bsFault(State::ON);
+  
   pSys_manager->rReg_manager.setCurrent(State::OFF);
   pSys_manager->rReg_manager.setQPower(State::OFF);
   pSys_manager->rReg_manager.setCosPhi(State::OFF);
+  
   pSys_manager->rSIFU.all_bridge_pulses_Off();
   pSys_manager->rSIFU.rPulsCalc.stopDetectRotorPhase();
+  
   rDinStr.Relay_FAULT(State::ON);
   rDinStr.Relay_Premission(State::OFF);
   rDinStr.Relay_Ex_Applied(State::OFF);
-  pSys_manager->rReg_manager.rCurrent_reg.bResConnect = false;
+  pSys_manager->rReg_manager.rCurrent_reg.bResConnect = true;
 }
 
 void CFaultCtrlF::setSysManager(CSystemManager* pSys_manager) {

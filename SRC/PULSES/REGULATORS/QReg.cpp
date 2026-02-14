@@ -7,11 +7,15 @@ void CQReg::start(CSIFU* pSIFU) {
 
 }
 
-void CQReg::step(bool mode, CSIFU* pSIFU) {
+void CQReg::step(bool Permission, CSIFU* pSIFU) {
   
-  if(!mode) { return;}
-  
-  auto set = rSet.getSettings();
+  if(!Permission) { bStart_reg = false; return;}
+  if(pSIFU->N_Pulse != 1) { return;}
+   
+  signed short Qmeas = *pSIFU->rPulsCalc.getPointer_Q_Power();
+  float delta = static_cast<float>(Qset - Qmeas);
+  float P_part = rSet.getSettings().set_reg.KpQ * delta; 
+  Q_part += rSet.getSettings().set_reg.KiQ * delta;
   
 }
 

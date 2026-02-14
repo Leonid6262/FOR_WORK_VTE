@@ -48,9 +48,11 @@ void CTestingMode::test(bool Permission) {
 void CTestingMode::StartPhase() {
   rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
   rSIFU.forcing_bridge_pulses_On();
+
   rSIFU.rReg_manager.rCurrent_reg.bResConnect = true;
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);
+
   phases_test = EPhasesTest::Forcing;
   PK_STATUS = StatusRet::SUCCESS;
   prev_TC0_Phase = LPC_TIM0->TC;  
@@ -147,11 +149,14 @@ void CTestingMode::Regulation() {
 void CTestingMode::StopTest(){
   SWork::clrMessage(EWorkId::TESTING);
   SWork::clrMessage(EWorkId::TESTING_OK);
+
   rDinStr.Relay_Ex_Applied(State::OFF);
   pSys_manager->set_bsWorkTest(State::OFF);
+
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
   rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
+ 
   rSIFU.all_bridge_pulses_Off();
 }
 

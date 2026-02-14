@@ -19,7 +19,6 @@ void CCurrentReg::step(bool Permission, CSIFU* pSIFU) {
   
   signed short Imeas = *pAdc.getEPointer(CADC_STORAGE::ROTOR_CURRENT);
   if(bResConnect) { Imeas = Imeas_0;}
- 
   
   float delta = static_cast<float>(Iset - Imeas);
   
@@ -35,7 +34,6 @@ void CCurrentReg::step(bool Permission, CSIFU* pSIFU) {
   } else {
     I_part += rSet.getSettings().set_reg.KiCr * delta;
   }
-
 
   if (I_part < I_part_min) I_part = I_part_min; 
   if (I_part > I_part_max) I_part = I_part_max;

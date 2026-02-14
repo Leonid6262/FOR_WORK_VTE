@@ -49,11 +49,10 @@ void CPuskMode::CheckISctrlPK() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
     PK_Status = switching_check_pk(Check::CHECK);
-    if(rDinStr.ControlPusk()) { rDinStr.Relay_Ex_Applied(State::ON); }
     return;
   }
    
-  // В режиме пуска без возбуждения контролируем Is и slip
+  // В режиме пуска без возбуждения фиксируем минимальный Is и slip
   if(WithoutExMode) {
     SWork::setMessage(EWorkId::PUSK_WEX);
     rSIFU.rPulsCalc.clearDetectRotorPhase();
@@ -70,7 +69,7 @@ void CPuskMode::CheckISctrlPK() {
   
   SWork::setMessage(EWorkId::PUSK);
   
-  // Не тока статора
+  // Нет тока статора
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk*0.5f) {
     SFault::setMessage(EFaultId::NOT_IS);
     pSys_manager->rFault_ctrl.fault_stop();
@@ -122,7 +121,7 @@ void CPuskMode::SelfSync() {
   bool isNewSlipData = rSIFU.rPulsCalc.getSlipEvent();
   bool isNewU0Data = rSIFU.rPulsCalc.getU0Event();
   
-  // 0. Пуск без возбуждения
+  // 0. Пуск без возбуждения. Зацикливаемся до отключения HVS
   if(WithoutExMode) {
     if (isNewU0Data) {
       CDIN_STORAGE::UserLedOn();
@@ -172,18 +171,20 @@ void CPuskMode::SelfSync() {
 // ---Подача возбуждения---
 void CPuskMode::StartEx() { 
   rDinStr.Relay_Ex_Applied(State::ON);
+
   StartingSlip = rSIFU.rPulsCalc.getSlipValue();
   StartingIS = *rSIFU.rPulsCalc.getPointer_istator_rms();
+
   rSIFU.rPulsCalc.resSlipEvent();
   rSIFU.rPulsCalc.stopDetectRotorPhase(); 
+
   rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
   rSIFU.forcing_bridge_pulses_On();
+
   rSIFU.rReg_manager.rCurrent_reg.bResConnect = true;
-  if(rDinStr.ControlPusk()) {
-     rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
-  }
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);    
+
   phases_pusk = EPhasesPusk::Forcing;
   prev_TC0_Phase = LPC_TIM0->TC;
 }
@@ -231,13 +232,17 @@ void CPuskMode::StopPusk(){
   SWork::clrMessage(EWorkId::PUSK);
   SWork::clrMessage(EWorkId::CONTROL_PUSK);
   SWork::clrMessage(EWorkId::PUSK_WEX);
+
   rDinStr.Relay_Ex_Applied(State::OFF);  
   pSys_manager->set_bsPuskMotor(State::OFF);
+  
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
+  rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
+  
   rSIFU.all_bridge_pulses_Off();
   rSIFU.rPulsCalc.stopDetectRotorPhase();
-  rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
+
 }
 
 void CPuskMode::setSysManager(CSystemManager* pSys_manager) {
