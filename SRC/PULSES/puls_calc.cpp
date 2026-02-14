@@ -122,7 +122,7 @@ void CPULSCALC::detectRotorPhaseFixed() {
 
 
 // --- Восстановление синусоидальных сигналов по двум измерениям и углу, 
-//     расчёт мощностей и косинуса. ---
+//     расчёт мощностей и косинуса. Алгоритмом Ширли ---
 void CPULSCALC::sin_restoration() {
   /*
     Восстановление сигналов произвадится по двум мгновенным значениям и углу (Theta) между ними:
@@ -223,8 +223,7 @@ void CPULSCALC::sin_restoration() {
   float phi_u = asinf(u_norm);
   float phi_i = asinf(i_norm);
   
-  // 2. Восстановление косинусной компоненты (проекция на 90 градусов)
-  // Мы вычисляем значение, которое было бы ровно в пике косинуса
+  // 2. Восстановление косинусной компоненты (ортогональный вектор)
   float u_cos_val = (v_rest.u_stator_1 - v_rest.u_stator_2 * ucos) / usin;
   float i_cos_val = (v_rest.i_stator_1 - v_rest.i_stator_2 * icos) / isin;
   
@@ -244,6 +243,17 @@ void CPULSCALC::sin_restoration() {
   else if (i_norm < 0.0f) {
       phi_i = 2.0f * v_rest.pi + phi_i;
   }  
+  
+  //Вариант через проекции
+  /*
+  // Косинусная компонента для напряжения (ортогональный вектор)
+  float u_ortho = (v_rest.u_stator_1 - v_rest.u_stator_2 * ucos) / usin;
+  float i_ortho = (v_rest.i_stator_1 - v_rest.i_stator_2 * icos) / isin;
+
+  // Получаем углы для каждого канала одним махом
+  float phi_u = atan2f(v_rest.u_stator_2, u_ortho);
+  float phi_i = atan2f(v_rest.i_stator_2, i_ortho);
+  */
 
   float phi = phi_u - phi_i;
   
