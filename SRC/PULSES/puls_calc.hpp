@@ -62,7 +62,7 @@ class CPULSCALC {
   float Q_Power; 
   float S_Power; 
   
-  unsigned short COS_PHI;
+    signed short COS_PHI;
   unsigned short U_STATOR_RMS;
   unsigned short I_STATOR_RMS;
   unsigned short S_POWER;

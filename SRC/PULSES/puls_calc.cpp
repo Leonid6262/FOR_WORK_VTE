@@ -121,11 +121,12 @@ void CPULSCALC::detectRotorPhaseFixed() {
 
 
 
-// ---Восстановление синусоидальных сигналов по двум измерениям и углу.
+// --- Восстановление синусоидальных сигналов по двум измерениям и углу, 
+//     расчёт мощностей и косинуса. ---
 void CPULSCALC::sin_restoration() {
   /*
-  Восстановление сигналов произвадится по двум мгновенным значениям и углу (Theta) между ними:
-  A = sqrt( (u1*u1 + u2*u2 - 2 * u1*u2 * cos(Theta)) / (sin(Theta) * sin(Theta)) );
+    Восстановление сигналов произвадится по двум мгновенным значениям и углу (Theta) между ними:
+    A = sqrt( (u1*u1 + u2*u2 - 2 * u1*u2 * cos(Theta)) / (sin(Theta) * sin(Theta)) );
   */
 
   auto& pStorage = CADC_STORAGE::getInstance();
@@ -187,8 +188,11 @@ void CPULSCALC::sin_restoration() {
   i_stator_rms = v_rest.Im / v_rest.sqrt_2;
   I_STATOR_RMS = static_cast<unsigned short>((v_rest.Im/v_rest.sqrt_2) + 0.5f);
   
-  // ============================================
+  /*
+      Расчёт S_POWER, P_POWER, Q_POWER и COS_PHI 
+  */
   
+  /* Рабочий за 13.02.26
   float u_norm = v_rest.u_stator_2 / v_rest.Um;
   float i_norm = v_rest.i_stator_2 / v_rest.Im;
   
@@ -207,7 +211,40 @@ void CPULSCALC::sin_restoration() {
   // корректировка знака
   if (u_cos < 0) phi_u = v_rest.pi - phi_u;
   if (i_cos < 0) phi_i = v_rest.pi - phi_i;
+  */
   
+// Уточнённый
+// --- Расчет фаз через арксинус с исправленной косинусной компонентой ---
+  
+  // 1. Нормализация синуса (текущее мгновенное значение)
+  float u_norm = fmaxf(-1.0f, fminf(1.0f, v_rest.u_stator_2 / v_rest.Um));
+  float i_norm = fmaxf(-1.0f, fminf(1.0f, v_rest.i_stator_2 / v_rest.Im));
+  
+  float phi_u = asinf(u_norm);
+  float phi_i = asinf(i_norm);
+  
+  // 2. Восстановление косинусной компоненты (проекция на 90 градусов)
+  // Мы вычисляем значение, которое было бы ровно в пике косинуса
+  float u_cos_val = (v_rest.u_stator_1 - v_rest.u_stator_2 * ucos) / usin;
+  float i_cos_val = (v_rest.i_stator_1 - v_rest.i_stator_2 * icos) / isin;
+  
+  // 3. Корректировка угла по знаку восстановленного косинуса
+  // Если косинус отрицательный — мы во 2-й или 3-й четверти (от 90 до 270 град)
+  if (u_cos_val < 0.0f) {
+      phi_u = v_rest.pi - phi_u;
+  } 
+  // Если косинус положительный, а синус отрицательный — мы в 4-й четверти
+  else if (u_norm < 0.0f) {
+      phi_u = 2.0f * v_rest.pi + phi_u; 
+  }
+
+  if (i_cos_val < 0.0f) {
+      phi_i = v_rest.pi - phi_i;
+  } 
+  else if (i_norm < 0.0f) {
+      phi_i = 2.0f * v_rest.pi + phi_i;
+  }  
+
   float phi = phi_u - phi_i;
   
   while (phi > v_rest.pi) phi -= 2.0f * v_rest.pi; 
@@ -230,16 +267,21 @@ void CPULSCALC::sin_restoration() {
   // --- Активная мощность --- 
   P_Power = S_Power * cos_phi;
   
-  // --- Реактивная мощность через остаток --- 
+  // --- Реактивная мощность --- 
   float g_power = sqrtf(fmaxf(0.0f, S_Power*S_Power - P_Power*P_Power));
-  if (phi_avg < 0) Q_Power = -g_power;
-  else Q_Power = g_power;
+  if (phi_avg < 0) {
+    Q_Power = -g_power;
+    COS_PHI = -static_cast<signed short>((cos_phi * 100.0f) + 0.5f);
+  }
+  else {
+    Q_Power = g_power;
+    COS_PHI = static_cast<signed short>((cos_phi * 100.0f) + 0.5f);
+  }
   
   S_POWER = static_cast<unsigned short>(S_Power + 0.5f);
   P_POWER = static_cast<unsigned short>(P_Power + 0.5f); 
   Q_POWER = static_cast<signed short>(Q_Power + 0.5f);  
-  COS_PHI = static_cast<unsigned short>((cos_phi * 100.0f) + 0.5f);
-  
+    
   // обновляем предыдущие выборки
   v_rest.u_stator_1 = v_rest.u_stator_2;
   v_rest.timing_ustator_1 = v_rest.timing_ustator_2;
