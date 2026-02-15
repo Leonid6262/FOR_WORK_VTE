@@ -1,8 +1,8 @@
 #include "WorkMode.hpp" 
 #include "_SystemManager.hpp"
 
-CWorkMode::CWorkMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet) : 
-  rDinStr(rDinStr), rSIFU(rSIFU), rSet(rSet), cur_status(State::OFF), pSys_manager(nullptr) {
+CWorkMode::CWorkMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet, CDAC_PWM& rDacCos) : 
+  rDinStr(rDinStr), rSIFU(rSIFU), rSet(rSet), rDacCos(rDacCos), cur_status(State::OFF), pSys_manager(nullptr) {
   // Приращение задания dIset = Iset'*dT
   dIset = static_cast<unsigned short>((rSet.getSettings().work_set.derivIset * ChangeInterval) + 0.5f); 
 }
@@ -18,6 +18,7 @@ void CWorkMode::work(bool Permission) {
     SWork::clrMessage(EWorkId::CONTROL_PUSK);
     SWork::clrMessage(EWorkId::PUSK_WEX);
     Iset = rSet.getSettings().work_set.Iset_0;
+    rDacCos.conv(rDacCos.DAC_PWM_MAX_VAL / 2);
     return; 
   }
   
@@ -46,7 +47,6 @@ void CWorkMode::work(bool Permission) {
     StopWork();
     return;
   }
-  
 }
 
 // Задание тока

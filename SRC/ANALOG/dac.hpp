@@ -39,8 +39,8 @@ class CDAC_PWM {
   unsigned short LER;
 
  public:
-  static constexpr signed short _DAC_PWM_MAX_VAL = _DAC_PWM_T - 1;  // Максимальное значение DAC_PWM
-  static constexpr signed short _DAC_PWM_MIN_VAL = 0;               // Минимальное значение DAC_PWM
+  static constexpr signed short DAC_PWM_MAX_VAL = _DAC_PWM_T - 1;  // Максимальное значение DAC_PWM
+  static constexpr signed short DAC_PWM_MIN_VAL = 0;               // Минимальное значение DAC_PWM
 
   enum class EPWM_DAC { PWM_DAC1, PWM_DAC2 };
 

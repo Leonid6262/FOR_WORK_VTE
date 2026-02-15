@@ -42,6 +42,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   // --- СИФУ и его окружение ---
   static CADC adc(CSET_SPI::config(ESPI::SPI_1), CADC_STORAGE::getInstance());
   static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance());
+  dac_cos.conv(dac_cos.DAC_PWM_MAX_VAL / 2);
   static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos, reg_manager, CADC_STORAGE::getInstance()); 
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), ESET::getInstance());                      
   CSET_SPI::config(ESPI::SPI_2);
@@ -58,7 +59,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static CTestingMode test_mode( CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CDryingMode drying_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CPuskMode pusk_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
-  static CWorkMode work_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
+  static CWorkMode work_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance(), dac_cos);
   static CWarningMode warning_ctrl;
   
   static CSystemManager sys_manager(sifu,      adjustment, ready_check, fault_ctrl_f, 

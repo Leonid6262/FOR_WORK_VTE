@@ -18,7 +18,7 @@ CDAC_PWM::CDAC_PWM(EPWM_DAC DN, CEEPSettings& rSet) : rSet(rSet){
     case EPWM_DAC::PWM_DAC1:
       pMR = &LPC_PWM1->MR5;
       LER = _MAT5LATCHEN;  // Обновление MR5
-      *pMR = _DAC_PWM_MIN_VAL;
+      *pMR = DAC_PWM_MIN_VAL;
       LPC_IOCON->P2_4 = _PORT_PWM;          // P2_4 -> PWM1:5
       LPC_PWM1->PCR |= _PWMENA5;            // Включение PWM1:5 в стационарном режиме
       LPC_PWM1->MR0 = _DAC_PWM_T;           // Период ШИМ. Канал  PWM5, стационарный. MR0 - включение
@@ -28,7 +28,7 @@ CDAC_PWM::CDAC_PWM(EPWM_DAC DN, CEEPSettings& rSet) : rSet(rSet){
     case EPWM_DAC::PWM_DAC2:
       pMR = &LPC_PWM1->MR4;
       LER = _MAT4LATCHEN;  // Обновление MR4
-      *pMR = _DAC_PWM_MIN_VAL;
+      *pMR = DAC_PWM_MIN_VAL;
       LPC_IOCON->P2_3 = _PORT_PWM;          // P2_3 -> PWM1:4
       LPC_PWM1->PCR |= _PWMENA4;            // Включение PWM1:4 в стационарном режиме
       LPC_PWM1->MR0 = _DAC_PWM_T;           // Период ШИМ. Канал  PWM4, стационарный. MR0 - включение
@@ -49,8 +49,8 @@ void CDAC0::conv(signed short data) { // dac0_min_val...dac0_max_val -> -5V...+5
 }
 
 void CDAC_PWM::conv(unsigned short data) { // dac1_min_val...dac1_max_val -> 0V...+3V
-  if (data > _DAC_PWM_MAX_VAL) {
-    data = _DAC_PWM_MAX_VAL;
+  if (data > DAC_PWM_MAX_VAL) {
+    data = DAC_PWM_MAX_VAL;
   }
   *pMR = data;
   LPC_PWM1->LER |= LER;
