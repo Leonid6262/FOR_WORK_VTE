@@ -8,6 +8,7 @@ enum class R            { NOT_READY  = 0, READY   = 1 };
 enum class F            { NOT_FAULT  = 0, FAULT   = 1 };
 enum class PulsPhase    { RISING     = 0, _13DEG  = 1 };
 enum class RPusk        { DISCONNECT = 0, CONNECT = 1 };
+enum class StartIS      { NO         = 0, YES     = 1 };
 
 enum class StatusHVS 
 { 

@@ -21,7 +21,9 @@ void CPuskMode::pusk(bool Permission) {
     switching_check_pk(Check::RESET);
     phases_pusk = EPhasesPusk::CheckISctrlPK;
     PK_Status = false;
-    StartIS = false;
+    PuskIS = StartIS::NO;
+    last_processed_ind = -1;
+    is_confirm_cnt = 0;
     rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
     prev_TC0_Phase = LPC_TIM0->TC;
     return;
@@ -45,16 +47,31 @@ void CPuskMode::pusk(bool Permission) {
   }
 }
 
-// ---Ожидание тока статора и проверка работы ПК (Пускового ключа)--- 
+// --- Контроль наличия тока статора, проверка работы ПК и датчика напряжения --- 
 void CPuskMode::CheckISctrlPK() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
     PK_Status = switching_check_pk(Check::CHECK);
+    // Достаем текущий индекс из расчета IS
+    char current_ind = rSIFU.rPulsCalc.get_ind_d_avr();
+    // Если это новый замер - контролируем
+    if (current_ind != last_processed_ind) {
+      last_processed_ind = current_ind; // Замер учтён
+      if(*rSIFU.rPulsCalc.getPointer_istator_rms() > rSet.getSettings().set_pusk.ISPusk * 0.3f) {
+        is_confirm_cnt++;
+      } 
+    }    
+    // Порог принятия решения - 2 периода
+    if(is_confirm_cnt >= 12) {
+      PuskIS = StartIS::YES;
+    } else {
+      PuskIS = StartIS::NO;
+    }
     return;
   }
    
   // В режиме пуска без возбуждения фиксируем минимальный Is и slip
-  if(WithoutExMode) {
+  if(WithoutExMode & PK_Status) {
     SWork::setMessage(EWorkId::PUSK_WEX);
     rSIFU.rPulsCalc.clearDetectRotorPhase();
     phases_pusk = EPhasesPusk::SelfSync;
@@ -62,16 +79,15 @@ void CPuskMode::CheckISctrlPK() {
   }  
   
   // В режиме контрольного пуска сразу подаём возбуждение
-  if(rDinStr.ControlPusk()) {
+  // еслии НЕТ тока статора. ПК не проверяем.
+  if(rDinStr.ControlPusk() && PuskIS == StartIS::NO) {
     SWork::setMessage(EWorkId::CONTROL_PUSK);
     StartEx();
     return;
   }
   
-  SWork::setMessage(EWorkId::PUSK);
-  
   // Нет тока статора
-  if(*rSIFU.rPulsCalc.getPointer_istator_rms() < rSet.getSettings().set_pusk.ISPusk*0.5f) {
+  if(PuskIS == StartIS::NO) {
     SFault::setMessage(EFaultId::NOT_IS);
     pSys_manager->rFault_ctrl.fault_stop();
     rSIFU.rPulsCalc.stopDetectRotorPhase();
@@ -87,8 +103,10 @@ void CPuskMode::CheckISctrlPK() {
     StartingSlip = 1.0f;
     rSIFU.rPulsCalc.clearDetectRotorPhase();
     phases_pusk = EPhasesPusk::WaitISdrop;
+    SWork::setMessage(EWorkId::PUSK);
     prev_TC0_Phase = LPC_TIM0->TC;
   }
+  
 }
 
 // ---Ожидание снижения тока статора до уставки подачи возбуждения---

@@ -15,12 +15,13 @@ class CPULSCALC {
 
   inline unsigned short* getPointer_USTATOR_RMS() { return &U_STATOR_RMS; }
   inline unsigned short* getPointer_ISTATOR_RMS() { return &I_STATOR_RMS; }
-  inline float* getPointer_ustator_rms() { return &u_stator_rms; }
-  inline float* getPointer_istator_rms() { return &i_stator_rms; }
-  inline float* getPointer_S_Power()     { return &S_Power;      }
-  inline float* getPointer_P_Power()     { return &P_Power;      }  
-  inline float* getPointer_Q_Power()     { return &Q_Power;      }
-  inline float* getPointer_CosPhi()      { return &cos_phi;      }  
+  inline float* getPointer_ustator_rms() { return &u_stator_rms;    }
+  inline float* getPointer_istator_rms() { return &i_stator_rms;    }
+  inline float* getPointer_S_Power()     { return &S_Power;         }
+  inline float* getPointer_P_Power()     { return &P_Power;         }  
+  inline float* getPointer_Q_Power()     { return &Q_Power;         }
+  inline float* getPointer_CosPhi()      { return &cos_phi;         }
+  inline char   get_ind_d_avr()          { return v_rest.ind_d_avr; }  
   
   inline bool getSlipEvent()      { return v_slip.slip_event; } 
   inline bool getU0Event()        { return v_slip.u0_event; }

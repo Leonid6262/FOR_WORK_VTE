@@ -33,7 +33,9 @@ private:
   float StartingIS   = 0.0f;    // Ток статора при котором осуществлён пуск (информационно)
   float StartingSlip = 1.0f;    // Скольжение при котором осуществлён пуск (информационно)  
   bool PK_Status = false;       // Статус ПК
-  bool StartIS = false;         // Наличие IS при пуске
+  StartIS PuskIS = StartIS::NO; // Наличие IS при пуске
+  char last_processed_ind = -1; // Храним индекс последнего обработанного замера IS
+  char is_confirm_cnt = 0;
   
   bool WithoutExMode = false;   // Режим пуска без подачи возбуждения
   bool slip_ev = false;         // Индикатор события - скольжение измеренно, глубина достигнута
