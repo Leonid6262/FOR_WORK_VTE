@@ -21,6 +21,7 @@ void CPuskMode::pusk(bool Permission) {
     switching_check_pk(Check::RESET);
     phases_pusk = EPhasesPusk::CheckISctrlPK;
     PK_Status = false;
+    StartIS = false;
     rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
     prev_TC0_Phase = LPC_TIM0->TC;
     return;
@@ -93,7 +94,7 @@ void CPuskMode::CheckISctrlPK() {
 // ---Ожидание снижения тока статора до уставки подачи возбуждения---
 void CPuskMode::WaitISdrop() {
   
-  // Сброс флага за ненадобностью в этой фазе
+  // Сброс флага скольжения за ненадобностью в этой фазе
   if (rSIFU.rPulsCalc.getSlipEvent()) rSIFU.rPulsCalc.resSlipEvent();
   
   // Ток не снизился. Затянувшийся пуск
@@ -170,7 +171,6 @@ void CPuskMode::SelfSync() {
 
 // ---Подача возбуждения---
 void CPuskMode::StartEx() { 
-  rDinStr.Relay_Ex_Applied(State::ON);
 
   StartingSlip = rSIFU.rPulsCalc.getSlipValue();
   StartingIS = *rSIFU.rPulsCalc.getPointer_istator_rms();
@@ -181,7 +181,7 @@ void CPuskMode::StartEx() {
   rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
   rSIFU.forcing_bridge_pulses_On();
 
-  rSIFU.rReg_manager.rCurrent_reg.bResConnect = true;
+  rSIFU.rReg_manager.rCurrent_reg.ResPusk = RPusk::CONNECT;
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);    
 
@@ -203,6 +203,7 @@ void CPuskMode::Forcing() {
 // ---Пауза перед закрытием ПК---
 void CPuskMode::Pause() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  rDinStr.Relay_Ex_Applied(State::ON);
   if (dTrsPhase >= PAUSE) { 
     rSIFU.execute_mode_Wone();
     phases_pusk = EPhasesPusk::ClosingKey;
@@ -214,16 +215,16 @@ void CPuskMode::Pause() {
 void CPuskMode::ClosingKey() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) { 
-    rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
     if(!rDinStr.CU_from_testing()) {
       SFault::setMessage(EFaultId::PK_NOT_CLOSED);
       pSys_manager->rFault_ctrl.fault_stop();
       return;
     }
+    rSIFU.rReg_manager.rCurrent_reg.ResPusk = RPusk::DISCONNECT;    
     SWork::clrMessage(EWorkId::PUSK);
     SWork::clrMessage(EWorkId::CONTROL_PUSK);
     pSys_manager->set_bsPuskMotor(State::OFF);
-    pSys_manager->set_bsWorkNormal(State::ON);
+    pSys_manager->set_bsWorkNormal(State::ON); // Переход в режим "Работа"
   }  
 }
 
@@ -233,12 +234,13 @@ void CPuskMode::StopPusk(){
   SWork::clrMessage(EWorkId::CONTROL_PUSK);
   SWork::clrMessage(EWorkId::PUSK_WEX);
 
-  rDinStr.Relay_Ex_Applied(State::OFF);  
+  rDinStr.Relay_Ex_Applied(State::OFF);
+  rSIFU.rReg_manager.rCurrent_reg.ResPusk = RPusk::CONNECT;
+  
   pSys_manager->set_bsPuskMotor(State::OFF);
   
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
-  rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
   
   rSIFU.all_bridge_pulses_Off();
   rSIFU.rPulsCalc.stopDetectRotorPhase();

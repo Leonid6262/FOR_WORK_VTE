@@ -32,8 +32,9 @@ void CFaultCtrlF::fault_stop() {
   
   rDinStr.Relay_FAULT(State::ON);
   rDinStr.Relay_Premission(State::OFF);
+  
   rDinStr.Relay_Ex_Applied(State::OFF);
-  pSys_manager->rReg_manager.rCurrent_reg.bResConnect = true;
+  pSys_manager->rReg_manager.rCurrent_reg.ResPusk = RPusk::CONNECT;
 }
 
 void CFaultCtrlF::setSysManager(CSystemManager* pSys_manager) {

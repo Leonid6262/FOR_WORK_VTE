@@ -108,7 +108,7 @@ inline std::vector<menu_alias::o> MENU_Factory(CADC_STORAGE& pAdc, CEEPSettings&
           o("I-Regulator",{}, &rSysMgr.rAdj_mode.reqADJmode,                 "",      cd::one,    p0, vt::eb_2,   nm::Ed1V),
           o::Dual("I-Rotor",  pAdc.getEPointer(sadc::ROTOR_CURRENT),         un::Amp, cd::cdr.Id, p0, vt::sshort,
                     "I-set",  &rSysMgr.rAdj_mode.IsetAdj,                    un::Amp, cd::cdr.Id, p0, vt::sshort, nm::IE2V, 0, 200),
-          o("RCon",       {}, &rSysMgr.rReg_manager.rCurrent_reg.bResConnect,"",      cd::one,    p0, vt::vbool,  nm::Ed1V, 0, 1),}),
+          o("RCon",       {}, &rSysMgr.rReg_manager.rCurrent_reg.ResPusk,    "",      cd::one,    p0, vt::vbool,  nm::Ed1V, 0, 1),}),
       o("I-CYCLES",{
           o("Iset cyc1", {},  &rSysMgr.rAdj_mode.IsetCyc_1,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.params.IdNom),
           o("Iset cyc2", {},  &rSysMgr.rAdj_mode.IsetCyc_2,  un::Amp, cd::cdr.Id, p0, vt::ushort, nm::Ed1V, 0, 1.5f*set.params.IdNom),

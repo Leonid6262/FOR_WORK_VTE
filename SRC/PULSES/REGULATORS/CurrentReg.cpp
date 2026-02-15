@@ -18,18 +18,18 @@ void CCurrentReg::step(bool Permission, CSIFU* pSIFU) {
   if(!bStart_reg) { bStart_reg = true; init_reg(pSIFU); }
   
   signed short Imeas = *pAdc.getEPointer(CADC_STORAGE::ROTOR_CURRENT);
-  if(bResConnect) { Imeas = Imeas_0;}
+  if(ResPusk == RPusk::CONNECT) { Imeas = Imeas_0;}
   
   float delta = static_cast<float>(Iset - Imeas);
   
   float P_part;
-  if(bResConnect) { 
+  if(ResPusk == RPusk::CONNECT) { 
     P_part = rSet.getSettings().set_reg.KpCrR * delta; 
   } else {
     P_part = rSet.getSettings().set_reg.KpCr * delta;
   }
   
-  if(bResConnect) {
+  if(ResPusk == RPusk::CONNECT) {
     I_part += rSet.getSettings().set_reg.KiCrR * delta;
   } else {
     I_part += rSet.getSettings().set_reg.KiCr * delta;

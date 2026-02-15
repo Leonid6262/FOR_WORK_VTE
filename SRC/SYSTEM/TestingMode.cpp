@@ -49,7 +49,7 @@ void CTestingMode::StartPhase() {
   rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
   rSIFU.forcing_bridge_pulses_On();
 
-  rSIFU.rReg_manager.rCurrent_reg.bResConnect = true;
+  rSIFU.rReg_manager.rCurrent_reg.ResPusk = RPusk::CONNECT;
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().set_pusk.IFors);
   rSIFU.rReg_manager.setCurrent(State::ON);
 
@@ -97,7 +97,7 @@ void CTestingMode::RelayPause() {
 void CTestingMode::ClosingKey() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) {
-    rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
+    rSIFU.rReg_manager.rCurrent_reg.ResPusk = RPusk::DISCONNECT; 
     phases_test = EPhasesTest::ControlKey;
     if(!rDinStr.CU_from_testing()) {
       SWarning::setMessage(EWarningId::PK_NOT_CLOSE);
@@ -151,11 +151,13 @@ void CTestingMode::StopTest(){
   SWork::clrMessage(EWorkId::TESTING_OK);
 
   rDinStr.Relay_Ex_Applied(State::OFF);
+  rSIFU.rReg_manager.rCurrent_reg.ResPusk = RPusk::CONNECT;  
+  
   pSys_manager->set_bsWorkTest(State::OFF);
 
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
-  rSIFU.rReg_manager.rCurrent_reg.bResConnect = false;
+
  
   rSIFU.all_bridge_pulses_Off();
 }

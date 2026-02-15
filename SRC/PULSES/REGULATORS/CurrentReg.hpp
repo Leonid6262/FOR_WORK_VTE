@@ -15,7 +15,7 @@ public:
  void set_Iset(unsigned short);
  
  signed short Imeas_0;
- bool bResConnect = false;
+ RPusk ResPusk = RPusk::DISCONNECT;
  
  inline unsigned short* getPointerIset() { return &Iset; }
 
