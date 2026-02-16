@@ -192,29 +192,7 @@ void CPULSCALC::sin_restoration() {
       Расчёт S_POWER, P_POWER, Q_POWER и COS_PHI 
   */
   
-  /* Рабочий за 13.02.26
-  float u_norm = v_rest.u_stator_2 / v_rest.Um;
-  float i_norm = v_rest.i_stator_2 / v_rest.Im;
-  
-  // ограничение [-1, +1]
-  u_norm = fmaxf(-1.0f, fminf(1.0f, u_norm));
-  i_norm = fmaxf(-1.0f, fminf(1.0f, i_norm));
-  
-  // синусная компонента
-  float phi_u = asinf(u_norm);
-  float phi_i = asinf(i_norm);
-  
-  // косинусная компонента (берём соседнюю выборку или вычисляем через фазовый сдвиг)
-  float u_cos = v_rest.u_stator_1 / v_rest.Um; // например, предыдущая точка
-  float i_cos = v_rest.i_stator_1 / v_rest.Im;
-  
-  // корректировка знака
-  if (u_cos < 0) phi_u = v_rest.pi - phi_u;
-  if (i_cos < 0) phi_i = v_rest.pi - phi_i;
-  */
-  
-// Уточнённый
-// --- Расчет фаз через арксинус с исправленной косинусной компонентой ---
+// --- Расчет фаз через арксинус с косинусной компонентой ---
   
   // 1. Нормализация синуса (текущее мгновенное значение)
   float u_norm = fmaxf(-1.0f, fminf(1.0f, v_rest.u_stator_2 / v_rest.Um));
