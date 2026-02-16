@@ -112,13 +112,14 @@ private:
     if (prev_capture != cur_capture) {
       unsigned int dt = cur_capture - prev_capture;
       prev_capture = cur_capture;
-      if (dt > (HALF_NET_PERIOD * 1.8f)) {
+      if (dt > (HALF_NET_PERIOD * 0.8f)) {
         n_switch++;
-        if(pAdc.getExternal(CADC_STORAGE::ROTOR_VOLTAGE) > 0) u_rotor_p++;
-        if(pAdc.getExternal(CADC_STORAGE::ROTOR_VOLTAGE) < 0) u_rotor_n++;
+        //if(pAdc.getExternal(CADC_STORAGE::ROTOR_VOLTAGE) > 0) u_rotor_p++;
+        //if(pAdc.getExternal(CADC_STORAGE::ROTOR_VOLTAGE) < 0) u_rotor_n++;
       }      
     }    
-    if((n_switch > MIN_TOGGLE) && (u_rotor_p  > MIN_TOGGLE) && (u_rotor_n  > MIN_TOGGLE)) {
+    //if((n_switch > MIN_TOGGLE) && (u_rotor_p  > MIN_TOGGLE) && (u_rotor_n  > MIN_TOGGLE)) {
+    if(n_switch > MIN_TOGGLE) {
       return true;
     }
     return false;    
