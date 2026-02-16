@@ -73,6 +73,7 @@ void CWorkMode::StopWork(){
   rSIFU.rReg_manager.rCurrent_reg.set_Iset(0);
   rSIFU.rReg_manager.setCurrent(State::OFF);
   rSIFU.all_bridge_pulses_Off();
+  CategoryUtils::clearMessages(ECategory::WORK);
 }
 
 

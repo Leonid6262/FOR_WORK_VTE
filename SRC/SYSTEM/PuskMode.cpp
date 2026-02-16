@@ -19,12 +19,12 @@ void CPuskMode::pusk(bool Permission) {
     pSys_manager->set_bsPuskMotor(State::ON);    
     cur_status = State::ON;
     switching_check_pk(Check::RESET);
-    phases_pusk = EPhasesPusk::CheckISctrlPK;
     PK_Status = false;
     PuskIS = StartIS::NO;
     last_processed_ind = -1;
     is_confirm_cnt = 0;
     rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
+    phases_pusk = EPhasesPusk::CheckISctrlPK;
     prev_TC0_Phase = LPC_TIM0->TC;
     return;
   } 
@@ -52,52 +52,47 @@ void CPuskMode::CheckISctrlPK() {
   dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
     PK_Status = switching_check_pk(Check::CHECK);
-    // Достаем текущий индекс из расчета IS
-    char current_ind = rSIFU.rPulsCalc.get_ind_d_avr();
-    // Если это новый замер - контролируем
-    if (current_ind != last_processed_ind) {
-      last_processed_ind = current_ind; // Замер учтён
-      if(*rSIFU.rPulsCalc.getPointer_istator_rms() > rSet.getSettings().set_pusk.ISPusk * 0.3f) {
-        is_confirm_cnt++;
-      } 
-    }    
-    // Порог принятия решения - 2 периода
-    if(is_confirm_cnt >= 12) {
-      PuskIS = StartIS::YES;
-    } else {
-      PuskIS = StartIS::NO;
-    }
+    PuskIS = control_IS();
     return;
   }
    
-  // В режиме пуска без возбуждения фиксируем минимальный Is и slip
-  if(WithoutExMode & PK_Status) {
+  // В режиме пуска без возбуждения (Режим снятия пусковой характеристики) 
+  // фиксируем минимальный Is и slip. Сразу переходим к фазе SelfSync
+  if(WithoutExMode && PK_Status && (PuskIS == StartIS::YES)) {
     SWork::setMessage(EWorkId::PUSK_WEX);
     rSIFU.rPulsCalc.clearDetectRotorPhase();
     phases_pusk = EPhasesPusk::SelfSync;
     return;
   }  
   
-  // В режиме контрольного пуска сразу подаём возбуждение
-  // еслии НЕТ тока статора. ПК не проверяем.
-  if(rDinStr.ControlPusk() && PuskIS == StartIS::NO) {
+  // В режиме контрольного пуска сразу подаём возбуждение, еслии НЕТ IS.
+  // ПК не проверяем, без IS он не переключается.
+  if(rDinStr.ControlPusk() && (PuskIS == StartIS::NO)) {
     SWork::setMessage(EWorkId::CONTROL_PUSK);
     StartEx();
     return;
   }
   
-  // Нет тока статора
+  // Стоп. Несанкционированный Пуск. В режиме контрольного пуска есть IS 
+  if(rDinStr.ControlPusk() && (PuskIS == StartIS::YES)) {   
+    SFault::setMessage(EFaultId::UNAUTHORIZED_PUSK); 
+    pSys_manager->rFault_ctrl.fault_stop();
+    rSIFU.rPulsCalc.stopDetectRotorPhase();
+  }
+  // Стоп. Нет тока статора
   if(PuskIS == StartIS::NO) {
     SFault::setMessage(EFaultId::NOT_IS);
     pSys_manager->rFault_ctrl.fault_stop();
     rSIFU.rPulsCalc.stopDetectRotorPhase();
   }
-  // ПК не переключался
+  // Стоп. ПК не переключался, или не было 
+  // зарегистрировано двухполярное напряжение на роторе.
   if(!PK_Status) { 
     SFault::setMessage(EFaultId::PK_FAULT);
     pSys_manager->rFault_ctrl.fault_stop();
     rSIFU.rPulsCalc.stopDetectRotorPhase();
   }
+  
   // Всё Ок. Переход к фазе WaitISdrop
   if(!pSys_manager->USystemStatus.sFault) {
     StartingSlip = 1.0f;
@@ -148,7 +143,7 @@ void CPuskMode::SelfSync() {
     }
     if (isNewSlipData) {
       c_slip_ev++;
-      if(c_slip_ev > 3) {
+      if(c_slip_ev > EVENT_INDICAT) {
         c_slip_ev = 0;
         slip_ev = !slip_ev;
       }    
@@ -179,7 +174,7 @@ void CPuskMode::SelfSync() {
   if (isNewSlipData) rSIFU.rPulsCalc.resSlipEvent();
   
   // 3. По току в случайный момент времени. Жесткий таймаут (TSelfSync + 2сек).
-  if (dTrsPhase >= (rSet.getSettings().set_pusk.TSelfSync + 2) * TICK_SEC) {
+  if (dTrsPhase >= (rSet.getSettings().set_pusk.TSelfSync + HARD_TIMEOUT) * TICK_SEC) {
     SWork::setMessage(EWorkId::PUSK_ON_TIMEOUT); 
     StartEx();
     return;

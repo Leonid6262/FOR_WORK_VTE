@@ -35,7 +35,7 @@ private:
   bool PK_Status = false;       // Статус ПК
   StartIS PuskIS = StartIS::NO; // Наличие IS при пуске
   char last_processed_ind = -1; // Храним индекс последнего обработанного замера IS
-  char is_confirm_cnt = 0;
+  unsigned short is_confirm_cnt = 0;
   
   bool WithoutExMode = false;   // Режим пуска без подачи возбуждения
   bool slip_ev = false;         // Индикатор события - скольжение измеренно, глубина достигнута
@@ -74,6 +74,25 @@ private:
     NVIC_EnableIRQ(TIMER2_IRQn);
   }
     
+  
+  inline StartIS control_IS() { 
+    // Достаем текущий индекс из расчета IS
+    char current_ind = rSIFU.rPulsCalc.get_ind_d_avr();
+    // Если это новый замер - контролируем
+    if (current_ind != last_processed_ind) {
+      last_processed_ind = current_ind; // Замер учтён
+      if(*rSIFU.rPulsCalc.getPointer_istator_rms() > rSet.getSettings().set_pusk.ISPusk * 0.3f) {
+        is_confirm_cnt++;
+      } 
+    }    
+    // Порог принятия решения - 2 периода
+    if(is_confirm_cnt >= 12) {
+      return StartIS::YES;
+    } else {
+      return StartIS::NO;
+    }
+  }
+  
   inline bool switching_check_pk(Check mode) { 
     static unsigned int prev_capture;
     static unsigned short n_switch = 0;
@@ -105,11 +124,13 @@ private:
     return false;    
   }
   
-  static constexpr unsigned int  TICK_SEC        = 10000000;  
-  static constexpr unsigned int  CHECK_IS        = 10000000; // 1,0 сек  
-  static constexpr unsigned int  BRIDGE_CHANGAE  = 1000000;  // 0,1 сек
-  static constexpr unsigned int  PAUSE           = 5000000;  // 0,5 сек
-  static constexpr unsigned int  CLOSING_KEY     = 5000000;  // 0,5 сек
+  static constexpr unsigned int   TICK_SEC        = 10000000;  
+  static constexpr unsigned int   CHECK_IS        = 10000000; // 1,0 сек  
+  static constexpr unsigned int   BRIDGE_CHANGAE  = 1000000;  // 0,1 сек
+  static constexpr unsigned int   PAUSE           = 5000000;  // 0,5 сек
+  static constexpr unsigned int   CLOSING_KEY     = 5000000;  // 0,5 сек
+  static constexpr unsigned short EVENT_INDICAT   = 3; // Пропусков события для индикации 
+  static constexpr unsigned char  HARD_TIMEOUT    = 2; // сек
   
   static constexpr unsigned int DELAY_TIME       = 2000000;  // 2 сек
   

@@ -105,7 +105,7 @@ class CPULSCALC {
     
     static constexpr char N_FRAME = 8;  // Длина бегущего кадра
     signed short ud_frame[N_FRAME];     // Бегущий кадр
-    unsigned char ind_ud_fram = 0;      // Индекс бегущего кадра           
+    unsigned short ind_ud_fram = 0;      // Индекс бегущего кадра           
     signed int sum_ud_frame = 0;        // Бегущая сумма
     
     bool neg_wave = false;              // Отрицательная полуволна 
@@ -124,7 +124,7 @@ class CPULSCALC {
     unsigned short sum_neg_wave = 0;
         
     static constexpr unsigned short min_nT_slip = 30;  // Минимальная длина периода (10Hz)
-    static constexpr unsigned short max_nT_slip = 300; // Максимольная длина периода (1Hz)   
+    static constexpr unsigned short max_nT_slip = 600; // Максимольная длина периода (0.5Hz)   
     static constexpr unsigned char delay_rc = 4;       // Задержка RC фильтра
     static constexpr unsigned char Depth_30deg = 30;   // Глубина 30 градусов
 
