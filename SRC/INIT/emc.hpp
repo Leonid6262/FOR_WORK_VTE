@@ -45,12 +45,21 @@ public:
 #else
     LPC_EMC->StaticConfig0 = 0x81; // 16 bits
 #endif
-    LPC_EMC->StaticWaitWen0 = 0x00;     // Задержка разрешения записи. 0 - задержка в один цикл EMCCLK
-    LPC_EMC->StaticWaitOen0 = 0x01;     // Задержка включения выхода. 0 - нет задержки
-    LPC_EMC->StaticWaitRd0 = 0x03;      // Задержка чтения. 0 - задержка в один цикл EMCCLK
-    LPC_EMC->StaticWaitPage0 = 0x00;    // Ожидане чтения в асинхронном режиме страниц. 0 - задержка в один цикл EMCCLK
-    LPC_EMC->StaticWaitWr0 = 0x00;      // Ожидание записи. 0 - задержка в два цикла EMCCLK
-    LPC_EMC->StaticWaitTurn0 = 0x00;    // Циклов реверсирования шины. 0 - задержка в один цикл EMCCLK
+    LPC_EMC->StaticWaitWen0  = 0x00;     // Задержка разрешения записи. 0 - задержка в один цикл EMCCLK
+    LPC_EMC->StaticWaitOen0  = 0x01;     // Задержка включения выхода. 0 - нет задержки
+    LPC_EMC->StaticWaitRd0   = 0x03;     // Задержка чтения. 0 - задержка в один цикл EMCCLK
+    LPC_EMC->StaticWaitPage0 = 0x00;     // Ожидане чтения в асинхронном режиме страниц. 0 - задержка в один цикл EMCCLK
+    LPC_EMC->StaticWaitWr0   = 0x00;     // Ожидание записи. 0 - задержка в два цикла EMCCLK
+    LPC_EMC->StaticWaitTurn0 = 0x00;     // Циклов реверсирования шины. 0 - задержка в один цикл EMCCLK
+    
+    //---------------   Конфигурация адресного пространства Jockey   -------------------------
+    LPC_EMC->StaticConfig1   = 0x81;   // 16-bit
+    LPC_EMC->StaticWaitWen1  = 0;
+    LPC_EMC->StaticWaitOen1  = 0;    
+    LPC_EMC->StaticWaitRd1   = 0x7;    
+    LPC_EMC->StaticWaitPage1 = 0;
+    LPC_EMC->StaticWaitWr1   = 0x5;
+    LPC_EMC->StaticWaitTurn1 = 0;
     //-------------------------------------------------------------------------------------
     
     unsigned int Counter_Err_RAM;

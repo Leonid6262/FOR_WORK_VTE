@@ -58,8 +58,8 @@ void CREM_OSC::start_dma_transfer() {
 /* Конфигурирование используемых каналов DMA (карту каналов с.м. в controllerDMA.hpp) */
 /* BurstSize = 4. При EWidth::Short → 16 бит → 4 × 2 байта = 8 байт, при FIFO = 16 байт, с запасом */
 void CREM_OSC::init_dma() {
-  // Конфигурация канала записи
-  CDMAcontroller::SChannelConfig cfg_ch_tx{
+    // Конфигурация канала записи
+    CDMAcontroller::SChannelConfig cfg_ch_tx {
     CDMAcontroller::ChannelMap::SPI2_Tx_Channel,  // Номер канала
     CDMAcontroller::ETransferType::TYPE_M2P,      // Тип канала
     CDMAcontroller::EConnNumber::SSP2_Tx,         // Номер периферийного подключения
