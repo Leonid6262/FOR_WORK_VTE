@@ -11,6 +11,11 @@ using ESET = CEEPSettings;
 using EUART = CSET_UART::EUartInstance;
 using ESPI = CSET_SPI::ESPIInstance;
 
+void CFactory::init_ports() {
+    CSET_PORTS csp; 
+    csp.initDOutputs();
+}
+
 CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                 // For the control class
 CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance()); }  // DAC0. For system test
  

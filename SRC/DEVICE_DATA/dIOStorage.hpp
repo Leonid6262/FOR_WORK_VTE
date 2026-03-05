@@ -2,6 +2,7 @@
 
 #include "bool_name.hpp"
 #include "settings_eep.hpp"
+#include "Peripherals.hpp"
 
 class CDIN_STORAGE {
  public:
@@ -112,14 +113,14 @@ class CDIN_STORAGE {
   static CDIN_STORAGE& getInstance() {
     static CDIN_STORAGE instance;
     return instance;
-  }
+  }    
 
-  static inline void UserLedOn() { LPC_GPIO0->CLR = (1UL << B_ULED); }   // Вкл. ULED
-  static inline void UserLedOff() { LPC_GPIO0->SET = (1UL << B_ULED); }  // Выкл.ULED
-  static inline void UserLedToggle() {
-    if (LPC_GPIO0->PIN & (1UL << B_ULED)) { LPC_GPIO0->CLR = (1UL << B_ULED); } 
-    else { LPC_GPIO0->SET = (1UL << B_ULED); }
-  } 
+  static inline void UserLedOn() { gpio0.clr(1UL << B_ULED); }   // Вкл. ULED
+  static inline void UserLedOff() { gpio0.set(1UL << B_ULED); }  // Выкл.ULED
+  //static inline void UserLedToggle() {
+  //  if (LPC_GPIO0->PIN & (1UL << B_ULED)) { LPC_GPIO0->CLR = (1UL << B_ULED); } 
+  //  else { LPC_GPIO0->SET = (1UL << B_ULED); }
+  //} 
   static inline void Q1VF_On() { LPC_GPIO1->CLR = (1UL << B_Q1VF); }     // Вкл. Q1VF
   static inline void Q1VF_Off() { LPC_GPIO1->SET = (1UL << B_Q1VF); }    // Выкл.Q1VF
 
@@ -173,6 +174,9 @@ class CDIN_STORAGE {
   }
   
  private:
+   
+  static CGPIO gpio0;   
+  
   static constexpr unsigned int SWITCHING_TIME = 2000000; // 200ms
    
   static constexpr unsigned short B_ULED = 9;        // Бит U-LED

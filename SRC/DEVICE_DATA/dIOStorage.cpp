@@ -24,6 +24,8 @@ CDIN_STORAGE::CDIN_STORAGE() {
      NProxyVar::Unit::bits);
 };
 
+CGPIO CDIN_STORAGE::gpio0(LPC_GPIO0);
+
 void CDIN_STORAGE::filter(unsigned char data_din_Pi, unsigned int dT, unsigned char n_port, CEEPSettings& rSet) {
   // Входные данные порта  с учётом инверсии
   unsigned char data_din_invert = data_din_Pi ^ rSet.getSettings().din_Pi_invert[n_port];

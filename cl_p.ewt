@@ -2899,6 +2899,12 @@
             </file>
         </group>
         <group>
+            <name>PERIPHERIALS</name>
+            <file>
+                <name>$PROJ_DIR$\SRC\PERIPHERIALS\Peripherals.hpp</name>
+            </file>
+        </group>
+        <group>
             <name>PULSES</name>
             <group>
                 <name>REGULATORS</name>

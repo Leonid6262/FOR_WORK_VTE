@@ -353,6 +353,7 @@
                     <state>$PROJ_DIR$\SRC\DEVICE_DATA\</state>
                     <state>$PROJ_DIR$\SRC\TERMINAL\TERMINAL_DATA\</state>
                     <state>$PROJ_DIR$\SRC\TERMINAL\TERMINAL_CODE\</state>
+                    <state>$PROJ_DIR$\SRC\PERIPHERIALS\</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -668,7 +669,7 @@
             <data>
                 <extensions></extensions>
                 <cmdline></cmdline>
-                <hasPrio>48</hasPrio>
+                <hasPrio>1</hasPrio>
                 <buildSequence>inputOutputBased</buildSequence>
             </data>
         </settings>
@@ -2179,6 +2180,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\INIT\Timers_init.hpp</name>
+            </file>
+        </group>
+        <group>
+            <name>PERIPHERIALS</name>
+            <file>
+                <name>$PROJ_DIR$\SRC\PERIPHERIALS\Peripherals.hpp</name>
             </file>
         </group>
         <group>

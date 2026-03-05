@@ -30,9 +30,13 @@
 #include "_SystemManager.hpp"
 #include "mb_slave.hpp" 
 #include "iso_meas.hpp" 
+#include "Ports_init.hpp"
 
 class CFactory {
 public:    
+  
+  static void init_ports(); 
+  
   static StatusRet load_settings();
   static CDAC0 createDAC0();    
   static CIADC createIADC();  
