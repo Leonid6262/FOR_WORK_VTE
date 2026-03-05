@@ -78,21 +78,3 @@ void CCAN::setBaudrate(unsigned int baudrate, unsigned int PClock) {
   CAN_N->BTR = (TSEG2 << 20) | (TSEG1 << 16) | (3 << 14) | BRP;
   CAN_N->MOD = 0;
 }
-
-/*-- transfer_short и  receive_short - Тестовые методы! --*/
-
-void CCAN::transfer_short(unsigned short data) {
-  if (CAN_N->SR & CAN_SR_TBS1) {
-    CAN_N->TDA1 = data;
-    CAN_N->CMR = CAN_CMR_STB1 | CAN_CMR_TR;  //(For normal Mode)
-    // CAN_N->CMR = CAN_CMR_STB1 | CAN_CMR_SRR;    //(For Self Test Mode)
-  }
-}
-
-unsigned short CCAN::receive_short() {
-  if (CAN_N->GSR & CAN_GSR_RBS) {
-    CAN_N->CMR |= CAN_CMR_RRB;
-    return static_cast<unsigned short>(CAN_N->RDA);
-  }
-  return 0;
-}

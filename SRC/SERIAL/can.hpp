@@ -7,8 +7,6 @@ class CCAN {
   enum class ECAN_Id_Instance { CAN1_Id = 0, CAN2_Id = 1 };
 
   CCAN(ECAN_Id_Instance);
-  void transfer_short(unsigned short);
-  unsigned short receive_short();
 
  private:
   static constexpr unsigned int baudrate_can1 = 125000;  // [bps]
