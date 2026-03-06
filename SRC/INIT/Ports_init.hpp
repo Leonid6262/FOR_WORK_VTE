@@ -66,6 +66,11 @@ public:
     
     static constexpr unsigned int IOCON_T2_CAP1 = 0x23;
     
+    static constexpr unsigned int IOCON_CAN1 = 0x01;
+    static constexpr unsigned int IOCON_CAN2 = 0x02;    
+    
+    static constexpr unsigned int IOCON_EINT2 = 0x01;
+    
     void initIOCON() {
       iocon.base->P0_26 = DAC0_EN;      // DAC-0
       iocon.base->P2_4  = PORT_PWM;     // P2_4 -> PWM1:5 PWM_DAC1
@@ -83,10 +88,10 @@ public:
       iocon.base->P4_22 = D_MODE_PULLUP | IOCON_SPI1;  // MISO1
       iocon.base->P4_23 = D_MODE_PULLUP | IOCON_SPI1;  // MOSI1
       
-      iocon.base->P5_2 = IOCON_SPI2;          // SCK2
-                                              // SSEL2 - не проведен, не используется
-      iocon.base->P5_1 = IOCON_SPI2;          // MISO2
-      iocon.base->P5_0 = IOCON_SPI2;          // MOSI2
+      iocon.base->P5_2 = IOCON_SPI2;           // SCK2
+                                               // SSEL2 - не проведен, не используется
+      iocon.base->P5_1 = IOCON_SPI2;           // MISO2
+      iocon.base->P5_0 = IOCON_SPI2;           // MOSI2
       
       iocon.base->P0_2 = IOCON_U0_TXD;         // U0_TXD
       iocon.base->P0_3 = IOCON_U0_RXD;         // U0_RXD
@@ -100,6 +105,14 @@ public:
       iocon.base->P4_29 = IOCON_U3_RXD;        // U3_RXD
       
       iocon.base->P2_15 = IOCON_T2_CAP1;       // T2 CAP1
+      
+      iocon.base->P0_0 = IOCON_CAN1;  // CAN0.RX
+      iocon.base->P0_1 = IOCON_CAN1;  // CAN0.TX
+      
+      iocon.base->P0_4 = IOCON_CAN2;  // CAN1.RX
+      iocon.base->P0_5 = IOCON_CAN2;  // CAN1.TX 
+      
+      iocon.base->P2_12 = IOCON_EINT2;   // Прерывание EINT2  
       
     }
     

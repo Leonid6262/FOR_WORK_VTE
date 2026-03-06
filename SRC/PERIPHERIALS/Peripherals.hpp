@@ -29,14 +29,12 @@ namespace P {
             
 }
 
+// Инициализация IOCON
 class CIOCON {
-private:  
-  
 public:
   LPC_IOCON_TypeDef* base;
   CIOCON(LPC_IOCON_TypeDef* base) : base(base) {}
 };
-
 
 // Управление GPIO
 class CGPIO { 

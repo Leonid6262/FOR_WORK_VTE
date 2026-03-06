@@ -19,7 +19,6 @@ public:
   void control(bool);
   void fault_stop();
   
-  static constexpr unsigned int IOCON_EINT2 = 0x01;
   static constexpr unsigned int LineEINT2 = 2;
   static constexpr unsigned int EINT2_BIT_MARK = 0x04;
   

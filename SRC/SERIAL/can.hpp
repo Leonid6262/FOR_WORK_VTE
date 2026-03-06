@@ -18,6 +18,4 @@ class CCAN {
 
   LPC_CAN_TypeDef* CAN_N;
 
-  static constexpr unsigned int IOCON_CAN1 = 0x01;
-  static constexpr unsigned int IOCON_CAN2 = 0x02;
 };

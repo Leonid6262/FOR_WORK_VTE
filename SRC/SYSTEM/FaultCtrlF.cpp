@@ -63,8 +63,7 @@ extern "C" {
 
 // Инициализация прерывания EINT2
 void CFaultCtrlF::initEINT2() {
-  
-  P::IOCON->P2_12  = IOCON_EINT2;        
+     
   P::SC->EXTMODE |= (1 << LineEINT2);      // EDGE
   P::SC->EXTPOLAR &= ~(1 << LineEINT2);    // FALLING 
   P::SC->EXTINT |= 0x0F;

@@ -8,8 +8,6 @@ CCAN::CCAN(ECAN_Id_Instance CAN_Id) {
   switch (CAN_Id) {
     case ECAN_Id_Instance::CAN1_Id:
       CAN_N = LPC_CAN1;
-      P::IOCON->P0_0 = IOCON_CAN1;  // CAN0.RX
-      P::IOCON->P0_1 = IOCON_CAN1;  // CAN0.TX
 
       P::SC->PCONP |= CLKPWR_PCONP_PCAN1;
       resetController();
@@ -19,8 +17,6 @@ CCAN::CCAN(ECAN_Id_Instance CAN_Id) {
       break;
     case ECAN_Id_Instance::CAN2_Id:
       CAN_N = LPC_CAN2;
-      P::IOCON->P0_4 = IOCON_CAN2;  // CAN1.RX
-      P::IOCON->P0_5 = IOCON_CAN2;  // CAN1.TX
 
       P::SC->PCONP |= CLKPWR_PCONP_PCAN2;
       resetController();
