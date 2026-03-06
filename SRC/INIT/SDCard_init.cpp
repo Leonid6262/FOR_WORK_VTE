@@ -1,4 +1,5 @@
 #include "SDCard_init.hpp"
+#include "Peripherals.hpp"
 
 #include <string.h>
 
@@ -6,13 +7,13 @@
 #include "pause_us.hpp"
 
 StatusRet CSDCard::init() {
-  LPC_IOCON->P0_19 = IOCON_SD_CLK;
-  LPC_IOCON->P0_20 = IOCON_SD_CMD;
-  LPC_IOCON->P1_5 = IOCON_SD_PWR;
-  LPC_IOCON->P1_6 = IOCON_SD_DAT0;
-  LPC_IOCON->P1_7 = IOCON_SD_DAT1;
-  LPC_IOCON->P1_11 = IOCON_SD_DAT2;
-  LPC_IOCON->P1_12 = IOCON_SD_DAT3;
+  P::IOCON->P0_19 = IOCON_SD_CLK;
+  P::IOCON->P0_20 = IOCON_SD_CMD;
+  P::IOCON->P1_5 = IOCON_SD_PWR;
+  P::IOCON->P1_6 = IOCON_SD_DAT0;
+  P::IOCON->P1_7 = IOCON_SD_DAT1;
+  P::IOCON->P1_11 = IOCON_SD_DAT2;
+  P::IOCON->P1_12 = IOCON_SD_DAT3;
 
   LPC_SC->PCONP |= PCONP_PCSDC;  // Включаем питание модуля
 

@@ -3,10 +3,11 @@
 #include <math.h>
 #include "LPC407x_8x_177x_8x.h"
 #include "system_LPC177x.h"
+#include "Peripherals.hpp"
 
-CIADC::CIADC(CADC_STORAGE& adstr) : adstr(adstr) {
-  LPC_IOCON->P0_23 = CH_ADC_IOCON;  // ch0
-  LPC_IOCON->P0_24 = CH_ADC_IOCON;  // ch1
+CIADC::CIADC(CADC_STORAGE& adstr, LPC_IOCON_TypeDef* IOCON) : adstr(adstr) {
+  IOCON->P0_23 = CH_ADC_IOCON;  // ch0
+  IOCON->P0_24 = CH_ADC_IOCON;  // ch1
 
   LPC_SC->PCONP |= CLKPWR_PCONP_PCADC;
   LPC_ADC->CNR = (((PeripheralClock / OSC_CLK) - 1) << SB_CLKDIV) | PDN;

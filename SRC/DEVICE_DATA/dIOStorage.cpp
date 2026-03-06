@@ -24,7 +24,9 @@ CDIN_STORAGE::CDIN_STORAGE() {
      NProxyVar::Unit::bits);
 };
 
-CGPIO CDIN_STORAGE::gpio0(LPC_GPIO0);
+CGPIO CDIN_STORAGE::gpio0(P::G0);
+CGPIO CDIN_STORAGE::gpio1(P::G1);
+CGPIO CDIN_STORAGE::gpio2(P::G2);
 
 void CDIN_STORAGE::filter(unsigned char data_din_Pi, unsigned int dT, unsigned char n_port, CEEPSettings& rSet) {
   // Входные данные порта  с учётом инверсии

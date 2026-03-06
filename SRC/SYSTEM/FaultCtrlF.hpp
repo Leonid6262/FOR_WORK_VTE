@@ -1,6 +1,7 @@
 #pragma once 
 #include "bool_name.hpp"
 #include "message_factory.hpp"
+#include "Peripherals.hpp"
 
 class CSystemManager;
 class CDIN_STORAGE;

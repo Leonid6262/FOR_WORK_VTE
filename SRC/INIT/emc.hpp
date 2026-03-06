@@ -24,20 +24,20 @@ public:
 
     // Настройка выводов данных EMC.D0..D15 
     for (int i = 0; i < 16; i++) { 
-      *(&LPC_IOCON->P3_0 + i) = D_MODE_PULLUP | 0x1; 
+      *(&P::IOCON->P3_0 + i) = D_MODE_PULLUP | 0x1; 
     }
     // Настройка выводов адреса EMC.A0..A19 
     for (int i = 0; i < 20; i++) { 
-      *(&LPC_IOCON->P4_0 + i) = D_MODE_PULLUP | 0x1; 
+      *(&P::IOCON->P4_0 + i) = D_MODE_PULLUP | 0x1; 
     }
 
-    LPC_IOCON->P4_24 = D_MODE_PULLUP | 0x1;  // EMC.OE
-    LPC_IOCON->P4_25 = D_MODE_PULLUP | 0x1;  // EMC.WR
-    LPC_IOCON->P4_26 = D_MODE_PULLUP | 0x1;  // EMC.BLS0
-    LPC_IOCON->P4_27 = D_MODE_PULLUP | 0x1;  // EMC.BLS1
+    P::IOCON->P4_24 = D_MODE_PULLUP | 0x1;  // EMC.OE
+    P::IOCON->P4_25 = D_MODE_PULLUP | 0x1;  // EMC.WR
+    P::IOCON->P4_26 = D_MODE_PULLUP | 0x1;  // EMC.BLS0
+    P::IOCON->P4_27 = D_MODE_PULLUP | 0x1;  // EMC.BLS1
     
-    LPC_IOCON->P4_30 = D_MODE_PULLUP | 0x1;  // EMC.CS0
-    LPC_IOCON->P4_31 = D_MODE_PULLUP | 0x1;  // EMC.CS1
+    P::IOCON->P4_30 = D_MODE_PULLUP | 0x1;  // EMC.CS0
+    P::IOCON->P4_31 = D_MODE_PULLUP | 0x1;  // EMC.CS1
     
     //---------------   Конфигурация адресного пространства RAM   ------------------------- 
 #ifdef CM3

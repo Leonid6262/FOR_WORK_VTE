@@ -7,17 +7,21 @@
 #include "RegManager.hpp"
 #include "FaultCtrlP.hpp" 
 #include "bool_name.hpp"
+#include "Peripherals.hpp"
 
 class CRegManager;
 
 class CSIFU {
  public:
-  CSIFU(CPULSCALC&, CRegManager&, CFaultCtrlP&, CEEPSettings&, CREM_OSC&);
+  CSIFU(CPULSCALC&, CRegManager&, CFaultCtrlP&, CEEPSettings&, CREM_OSC&, CGPIO&, CGPIO&, LPC_IOCON_TypeDef*);
 
   CPULSCALC& rPulsCalc;
   CRegManager& rReg_manager;
   CFaultCtrlP& rFault_p;
   CREM_OSC& rRemOsc;
+  CGPIO& gpio_sum;
+  CGPIO& gpio_puls;
+  LPC_IOCON_TypeDef* IOCON;
 
   void forcing_bridge_pulses_On();  // Подать импульсы на форсировочный мост
   void main_bridge_pulses_On();     // Подать импульсы на основной мост
@@ -78,17 +82,15 @@ class CSIFU {
    unsigned char N_Pulse = 1;
 
 private:
-  static constexpr unsigned int FIRST_PULS_PORT = 16;               // 1-й импульс в порту
-  static constexpr unsigned int OFF_PULSES = 0x3F<<FIRST_PULS_PORT; // Все импульсы 
   
   static constexpr unsigned int pulsesAllP[] = { 
     0x00, 
-    0x21 << FIRST_PULS_PORT, 
-    0x03 << FIRST_PULS_PORT, 
-    0x06 << FIRST_PULS_PORT, 
-    0x0C << FIRST_PULS_PORT, 
-    0x18 << FIRST_PULS_PORT,
-    0x30 << FIRST_PULS_PORT 
+    0x21 << P::FIRST_PULS_PORT, 
+    0x03 << P::FIRST_PULS_PORT, 
+    0x06 << P::FIRST_PULS_PORT, 
+    0x0C << P::FIRST_PULS_PORT, 
+    0x18 << P::FIRST_PULS_PORT,
+    0x30 << P::FIRST_PULS_PORT 
   }; 
   
   static constexpr unsigned int pulsesWone[] = {
@@ -111,12 +113,12 @@ private:
   inline void StartMainBridgePWM0() {
     
     if(!wone_reg) {
-      LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
+      gpio_puls.clr(pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1]);
     } else{
-      LPC_GPIO3->CLR = pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
+      gpio_puls.clr(pulsesWone[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1]);
     }    
     
-    LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0;
+    P::SC->PCONP |= CLKPWR_PCONP_PCPWM0;
     
     LPC_PWM0->PR  = PWM_div_0 - 1;
     LPC_PWM0->MCR = MR0R; // Reset TC on MR0
@@ -130,16 +132,16 @@ private:
     LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
     
     // Настройка вывода
-    LPC_IOCON->P1_2 = IOCON_P_PWM; // P1_2 -> PWM
+    IOCON->P1_2 = IOCON_P_PWM; // P1_2 -> PWM
     
     LPC_PWM0->TCR = COUNTER_START; // Запуск
   }
   
   inline void StartForsingBridgePWM0() {
     
-    LPC_GPIO3->CLR = pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1];
+    gpio_puls.clr(pulsesAllP[(((N_Pulse - 1) + v_sync.d_power_shift) % s_const.N_PULSES) + 1]);
     
-    LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
+    P::SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
     
     LPC_PWM0->PR = PWM_div_0 - 1;
     LPC_PWM0->MCR = MR0R; // Reset TC on MR0
@@ -151,7 +153,7 @@ private:
     LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
     LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
     // ----
-    LPC_IOCON->P1_3 = IOCON_P_PWM; // P1_3 -> PWM
+    IOCON->P1_3 = IOCON_P_PWM; // P1_3 -> PWM
     LPC_PWM0->TCR = COUNTER_START; // Запускаем
   }
   
@@ -214,8 +216,7 @@ private:
 
   static constexpr unsigned int IOCON_P_PWM = 0x03;   // Тип портов - PWM
   static constexpr unsigned int IOCON_P_PORT = 0x00;  // Тип портов - Port
-  static constexpr unsigned int P1_2 = 0x02;          // Port1:2
-  static constexpr unsigned int P1_3 = 0x03;          // Port1:3
+
 
   static constexpr unsigned int PWM_WIDTH = 10;                    // us
 

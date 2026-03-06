@@ -1,5 +1,5 @@
 #include "factory.hpp"
-
+#include "LPC407x_8x_177x_8x.h"
 #pragma data_section=".dma_buffers"
 __root signed short CREM_OSC::tx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
 __root signed short CREM_OSC::rx_dma_buffer[CREM_OSC::TRANSACTION_LENGTH];
@@ -14,15 +14,26 @@ using ESPI = CSET_SPI::ESPIInstance;
 void CFactory::init_ports() {
     CSET_PORTS csp; 
     csp.initDOutputs();
+    // Сброс настроек и флагов EXTINT
+    P::SC->EXTINT = 0xF; 
+    P::SC->EXTMODE = 0x0;
+    P::SC->EXTPOLAR = 0x0;
 }
 
-CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                 // For the control class
-CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance()); }  // DAC0. For system test
+CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                                    // For the control class
+CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance(), LPC_IOCON, LPC_DAC); } // DAC0. For system test
  
-CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance()); }        // Внутренее ADC.
-StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }        // Загрузка уставок
-CDin_cpu CFactory::createDINcpu()     { return CDin_cpu(); }                                // Дискретные входы контроллера
-CSPI_ports CFactory::createSPIports() { return CSPI_ports(CSET_SPI::config(ESPI::SPI_0)); } // R/W  dIO доступные по SPI
+CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance(), LPC_IOCON); }  // Внутренее ADC.
+StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }             // Загрузка уставок
+
+CDin_cpu CFactory::createDINcpu() {    // Дискретные входы контроллера
+  static CGPIO gpio(P::G2);
+  return CDin_cpu(gpio); 
+}                                
+CSPI_ports CFactory::createSPIports() { // R/W  dIO доступные по SPI
+  static CGPIO gpio(P::G0);
+  return CSPI_ports(CSET_SPI::config(ESPI::SPI_0, LPC_IOCON), gpio); 
+} 
 CIsoMeas CFactory::createIsoMeas()    { return CIsoMeas(); }                                // Измерение сопротивления изоляции 
 
 // Создание регуляторов и их менеджера
@@ -36,7 +47,7 @@ CRegManager CFactory::createRegManager() {
 // ModBus slave
 CMBSLAVE CFactory::create_MBslave() {
   static CDMAcontroller cont_dma;     // Управление каналами DMA
-  return CMBSLAVE(cont_dma, CSET_UART::configure(EUART::UART_1));
+  return CMBSLAVE(cont_dma, CSET_UART::configure(EUART::UART_1, LPC_IOCON));
 }
 
 // Запуск всей системы: System Manager + СИФУ 
@@ -45,14 +56,16 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static auto reg_manager = CFactory::createRegManager();
   
   // --- СИФУ и его окружение ---
-  static CADC adc(CSET_SPI::config(ESPI::SPI_1), CADC_STORAGE::getInstance());
-  static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance());
+  static CADC adc(CSET_SPI::config(ESPI::SPI_1, LPC_IOCON), CADC_STORAGE::getInstance());
+  static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance(), LPC_IOCON, LPC_PWM1);
   dac_cos.conv(dac_cos.DAC_PWM_MAX_VAL / 2);
   static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos, reg_manager, CADC_STORAGE::getInstance()); 
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), ESET::getInstance());                      
-  CSET_SPI::config(ESPI::SPI_2);
-  static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance()); 
-  static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, ESET::getInstance(), rem_osc); 
+  CSET_SPI::config(ESPI::SPI_2, LPC_IOCON);
+  static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance());
+  static CGPIO gpio_sum(P::G1);
+  static CGPIO gpio_puls(P::G3);
+  static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, ESET::getInstance(), rem_osc, gpio_sum, gpio_puls, LPC_IOCON); 
   reg_manager.getSIFU(&sifu);   
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu);
   sifu.init_and_start(CProxyPointerVar::getInstance());
@@ -63,7 +76,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static CFaultCtrlF fault_ctrl_f(CDIN_STORAGE::getInstance());
   static CTestingMode test_mode( CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CDryingMode drying_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
-  static CPuskMode pusk_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
+  static CPuskMode pusk_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance(), LPC_IOCON);
   static CWorkMode work_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance(), dac_cos);
   static CWarningMode warning_ctrl;
   
@@ -79,7 +92,6 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   drying_mode.setSysManager(&sys_manager);
   fault_ctrl_f.setSysManager(&sys_manager);
                        
-
   CProxyHandlerEINT2::getInstance().set_pFaultCtrl(&fault_ctrl_f);
   fault_ctrl_p.setSysManager(&sys_manager); 
   
@@ -91,7 +103,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
 CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {   
   // Конфигурация и инициализация UART-0 - пультовый терминал 
   auto& udrv = CTerminalUartDriver::getInstance();
-  udrv.init(CSET_UART::configure(EUART::UART_0), UART0_IRQn);                       
+  udrv.init(CSET_UART::configure(EUART::UART_0, LPC_IOCON), UART0_IRQn);                       
   
   // Вычисление коэффициентов отображения в системе СИ
   auto& set = ESET::getInstance().getSettings();

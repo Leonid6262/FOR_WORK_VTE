@@ -2,15 +2,16 @@
 
 #include "lpc177x_8x_can.h"
 #include "system_LPC177x.h"
+#include "Peripherals.hpp"
 
 CCAN::CCAN(ECAN_Id_Instance CAN_Id) {
   switch (CAN_Id) {
     case ECAN_Id_Instance::CAN1_Id:
       CAN_N = LPC_CAN1;
-      LPC_IOCON->P0_0 = IOCON_CAN1;  // CAN0.RX
-      LPC_IOCON->P0_1 = IOCON_CAN1;  // CAN0.TX
+      P::IOCON->P0_0 = IOCON_CAN1;  // CAN0.RX
+      P::IOCON->P0_1 = IOCON_CAN1;  // CAN0.TX
 
-      LPC_SC->PCONP |= CLKPWR_PCONP_PCAN1;
+      P::SC->PCONP |= CLKPWR_PCONP_PCAN1;
       resetController();
       clearAFTable();
       setBaudrate(baudrate_can1, PeripheralClock);
@@ -18,10 +19,10 @@ CCAN::CCAN(ECAN_Id_Instance CAN_Id) {
       break;
     case ECAN_Id_Instance::CAN2_Id:
       CAN_N = LPC_CAN2;
-      LPC_IOCON->P0_4 = IOCON_CAN2;  // CAN1.RX
-      LPC_IOCON->P0_5 = IOCON_CAN2;  // CAN1.TX
+      P::IOCON->P0_4 = IOCON_CAN2;  // CAN1.RX
+      P::IOCON->P0_5 = IOCON_CAN2;  // CAN1.TX
 
-      LPC_SC->PCONP |= CLKPWR_PCONP_PCAN2;
+      P::SC->PCONP |= CLKPWR_PCONP_PCAN2;
       resetController();
       clearAFTable();
       setBaudrate(baudrate_can2, PeripheralClock);

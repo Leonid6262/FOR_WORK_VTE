@@ -1,10 +1,11 @@
 #pragma once
 
 #include "settings_eep.hpp"
+#include "Peripherals.hpp"
 
 class CSPI_ports {
  public:
-  CSPI_ports(LPC_SSP_TypeDef*);
+  CSPI_ports(LPC_SSP_TypeDef*, CGPIO&);
 
   unsigned char data_din[G_CONST::BYTES_RW_MAX];  // Входные данные din портов
 
@@ -12,10 +13,10 @@ class CSPI_ports {
 
  private:
   LPC_SSP_TypeDef* SSP;
+  CGPIO& gpio;
 
   unsigned int prev_TC0;  // Значение таймера на предыдыущем цикле
 
   static constexpr unsigned int TIC_ms = 10000;
-  static constexpr unsigned int OUT_E = 1UL << 8;
-  static constexpr unsigned int HOLD = 1UL << 7;
+
 };

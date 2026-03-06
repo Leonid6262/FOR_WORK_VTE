@@ -1,19 +1,20 @@
 #include "emac.hpp"
+#include "Peripherals.hpp"
 
 #include <stdio.h>
 
 CEMAC_DRV::CEMAC_DRV() {
   // Настройка RMII пинов
-  LPC_IOCON->P1_0 = FUNC_ENET;                  // ENET_TXD0
-  LPC_IOCON->P1_1 = FUNC_ENET;                  // ENET_TXD1
-  LPC_IOCON->P1_4 |= FUNC_ENET | MODE_PULLUP;   // ENET_TX_EN
-  LPC_IOCON->P1_8 |= FUNC_ENET | MODE_PULLUP;   // ENET_CRS_DV
-  LPC_IOCON->P1_9 = FUNC_ENET;                  // ENET_RXD0
-  LPC_IOCON->P1_10 = FUNC_ENET;                 // ENET_RXD1
-  LPC_IOCON->P1_14 |= FUNC_ENET | MODE_PULLUP;  // RXER
-  LPC_IOCON->P1_15 |= FUNC_ENET | MODE_PULLUP;  // RXCK
-  LPC_IOCON->P1_16 |= FUNC_ENET | MODE_PULLUP;  // MDC
-  LPC_IOCON->P1_17 |= FUNC_ENET | MODE_PULLUP;  // MDIO
+  P::IOCON->P1_0 = FUNC_ENET;                  // ENET_TXD0
+  P::IOCON->P1_1 = FUNC_ENET;                  // ENET_TXD1
+  P::IOCON->P1_4 |= FUNC_ENET | MODE_PULLUP;   // ENET_TX_EN
+  P::IOCON->P1_8 |= FUNC_ENET | MODE_PULLUP;   // ENET_CRS_DV
+  P::IOCON->P1_9 = FUNC_ENET;                  // ENET_RXD0
+  P::IOCON->P1_10 = FUNC_ENET;                 // ENET_RXD1
+  P::IOCON->P1_14 |= FUNC_ENET | MODE_PULLUP;  // RXER
+  P::IOCON->P1_15 |= FUNC_ENET | MODE_PULLUP;  // RXCK
+  P::IOCON->P1_16 |= FUNC_ENET | MODE_PULLUP;  // MDC
+  P::IOCON->P1_17 |= FUNC_ENET | MODE_PULLUP;  // MDIO
 }
 
 // MAC адрес контроллера

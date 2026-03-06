@@ -31,19 +31,19 @@ void CSPI_ports::rw() {
   }
 
   // Захват din и обновление dout (1->0->1 HOLD bit).
-  LPC_GPIO0->CLR = HOLD;
+  gpio.clr(P::HOLD);
   for (short Counter = 0x10; Counter > 0; Counter--) {
   }
-  LPC_GPIO0->SET = HOLD;
+  gpio.set(P::HOLD);
 }
 
-CSPI_ports::CSPI_ports(LPC_SSP_TypeDef* SSP) : SSP(SSP) {
+CSPI_ports::CSPI_ports(LPC_SSP_TypeDef* SSP, CGPIO& gpio) : SSP(SSP), gpio(gpio) {  
   // Обнуление случайных значений в выходных регистрах.
   for (char byte = 0; byte < G_CONST::BYTES_RW_MAX; byte++) {
     CDIN_STORAGE::getInstance().UData_dout[byte].all = 0;
   }
   rw();
   // Активизация выходных регистров (перевод из 3-го состояния в активное)
-  LPC_GPIO0->CLR = OUT_E;
+  gpio.set(P::OUT_E);
   prev_TC0 = LPC_TIM0->TC;
 }

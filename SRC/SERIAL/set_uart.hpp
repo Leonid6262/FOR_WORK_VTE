@@ -11,7 +11,7 @@ public:
     UART_2              
   };
   
-  static LPC_UART_TypeDef* configure(EUartInstance);
+  static LPC_UART_TypeDef* configure(EUartInstance, LPC_IOCON_TypeDef*);
   
 private: 
     // Настройки скорости

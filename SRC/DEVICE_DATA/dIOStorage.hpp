@@ -115,23 +115,19 @@ class CDIN_STORAGE {
     return instance;
   }    
 
-  static inline void UserLedOn() { gpio0.clr(1UL << B_ULED); }   // Вкл. ULED
-  static inline void UserLedOff() { gpio0.set(1UL << B_ULED); }  // Выкл.ULED
-  //static inline void UserLedToggle() {
-  //  if (LPC_GPIO0->PIN & (1UL << B_ULED)) { LPC_GPIO0->CLR = (1UL << B_ULED); } 
-  //  else { LPC_GPIO0->SET = (1UL << B_ULED); }
-  //} 
-  static inline void Q1VF_On() { LPC_GPIO1->CLR = (1UL << B_Q1VF); }     // Вкл. Q1VF
-  static inline void Q1VF_Off() { LPC_GPIO1->SET = (1UL << B_Q1VF); }    // Выкл.Q1VF
+  static inline void UserLedOn()  { gpio0.clr(1UL << P::B_ULED); }   // Вкл. ULED
+  static inline void UserLedOff() { gpio0.set(1UL << P::B_ULED); }   // Выкл.ULED
+  static inline void Q1VF_On()    { gpio1.clr(1UL << P::B_Q1VF); }   // Вкл. Q1VF
+  static inline void Q1VF_Off()   { gpio1.set(1UL << P::B_Q1VF); }   // Выкл.Q1VF
 
   static inline void edit_bit(char bit_number, State state) {
     switch (state) {
       case State::ON: {
-        LPC_GPIO2->SET = static_cast<unsigned int>(1UL << (B0_PORT_OUT + (bit_number & 0x07)));
+        gpio2.set(static_cast<unsigned int>(1UL << (P::B0_PORT_OUT + (bit_number & 0x07))));       
       }  // dout-on
       break;
       case State::OFF: {
-        LPC_GPIO2->CLR = static_cast<unsigned int>(1UL << (B0_PORT_OUT + (bit_number & 0x07)));
+        gpio2.clr(static_cast<unsigned int>(1UL << (P::B0_PORT_OUT + (bit_number & 0x07))));
       }  // dout-off
       break;
     }
@@ -175,14 +171,11 @@ class CDIN_STORAGE {
   
  private:
    
-  static CGPIO gpio0;   
+  static CGPIO gpio0;
+  static CGPIO gpio1;
+  static CGPIO gpio2;
   
   static constexpr unsigned int SWITCHING_TIME = 2000000; // 200ms
-   
-  static constexpr unsigned short B_ULED = 9;        // Бит U-LED
-  static constexpr unsigned short B_Q1VF = 13;       // Бит Q1VF
-  static constexpr unsigned short B0_PORT_OUT = 24;  // 1-й бит порта
-
   static constexpr unsigned short N_BITS = 8;  // Количество бит в портах
   static constexpr unsigned int TIC_ms = 10000;
 

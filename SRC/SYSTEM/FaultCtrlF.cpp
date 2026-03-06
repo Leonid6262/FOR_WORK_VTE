@@ -2,7 +2,7 @@
 #include "LPC407x_8x_177x_8x.h"
 #include "_SystemManager.hpp"
 
-CFaultCtrlF::CFaultCtrlF(CDIN_STORAGE& rDinStr) : rDinStr(rDinStr), pSys_manager(nullptr) {}
+CFaultCtrlF::CFaultCtrlF(CDIN_STORAGE& rDinStr) : rDinStr(rDinStr), pSys_manager(nullptr) {}  
 
 void CFaultCtrlF::control(bool Permission) {  
   
@@ -55,7 +55,7 @@ void CProxyHandlerEINT2::set_pFaultCtrl(CFaultCtrlF* pFaultCtrl) {
 // Handler EINT2
 extern "C" {  
   void  EINT2_IRQHandler( void ) {
-    LPC_SC->EXTINT |= CFaultCtrlF::EINT2_BIT_MARK;
+    P::SC->EXTINT |= CFaultCtrlF::EINT2_BIT_MARK;
     SFault::setMessage(EFaultId::ID_MAX_HARD);
     CProxyHandlerEINT2::getInstance().pFaultCtrl->fault_stop();
   }
@@ -64,11 +64,10 @@ extern "C" {
 // Инициализация прерывания EINT2
 void CFaultCtrlF::initEINT2() {
   
-  LPC_IOCON->P2_12  = IOCON_EINT2;    
-  
-  LPC_SC->EXTMODE |= (1 << LineEINT2);     // EDGE
-  LPC_SC->EXTPOLAR &= ~(1 << LineEINT2);   // FALLING 
-  LPC_SC->EXTINT |= 0x0F;
+  P::IOCON->P2_12  = IOCON_EINT2;        
+  P::SC->EXTMODE |= (1 << LineEINT2);      // EDGE
+  P::SC->EXTPOLAR &= ~(1 << LineEINT2);    // FALLING 
+  P::SC->EXTINT |= 0x0F;
   
   NVIC_EnableIRQ(EINT2_IRQn);
 

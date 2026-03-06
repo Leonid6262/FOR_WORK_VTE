@@ -10,7 +10,7 @@ class CDAC0 {
   static constexpr unsigned int START_BITS_VALUE = 6;
 
  public:
-  CDAC0(CEEPSettings&);
+  CDAC0(CEEPSettings&, LPC_IOCON_TypeDef*, LPC_DAC_TypeDef*);
   CEEPSettings& rSet;
   static constexpr signed short DAC0_MAX_VAL = 511;   // Максимальное значение DAC0
   static constexpr signed short DAC0_MIN_VAL = -512;  // Минимальное значение DAC0
@@ -21,6 +21,8 @@ class CDAC0 {
 // DAC на бпзе PWM
 class CDAC_PWM {
  private:
+  LPC_PWM_TypeDef* PWM_DAC;
+   
   static constexpr unsigned int PWM_div_1 = 6;  // Делитель частоты
 
   static constexpr unsigned int _MAT0LATCHEN = 1UL << 0;
@@ -44,7 +46,7 @@ class CDAC_PWM {
 
   enum class EPWM_DAC { PWM_DAC1, PWM_DAC2 };
 
-  CDAC_PWM(EPWM_DAC, CEEPSettings&);
+  CDAC_PWM(EPWM_DAC, CEEPSettings&, LPC_IOCON_TypeDef*, LPC_PWM_TypeDef*);
   CEEPSettings& rSet;
   void conv(unsigned short);
 };

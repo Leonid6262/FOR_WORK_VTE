@@ -1,12 +1,12 @@
 #include "main.hpp"
 
-void UserStartInit() {  
-  CFactory::init_ports();     // Инициализация дискретных выходов микроконтроллера (pins)  
-  CDIN_STORAGE::UserLedOn();  // Визуальный контроль начала инициализации   
+void UserStartInit() {   
   CSET_EMC::initAndCheck();   // Инициализации ext RAM и шины расширения. Контроль ext RAM
 }
 
 void main(void) {
+  CFactory::init_ports();                               // Инициализация дискретных выходов микроконтроллера (pins) 
+  CDIN_STORAGE::UserLedOn();                            // Визуальный контроль начала инициализации   
   Priorities::initPriorities();                         // Распределение векторов по группам. см. в файле IntPriority.h
   CSET_TIMER::initTimers();                             // Инициализация таймеров.
   

@@ -28,7 +28,7 @@ private:
  
 public:
   
-  CIADC(CADC_STORAGE&);
+  CIADC(CADC_STORAGE&, LPC_IOCON_TypeDef*);
   
   float P5_cur;
   float N5_cur;

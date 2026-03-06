@@ -6,10 +6,10 @@ class CSET_TIMER {
 public:
   static void initTimers() {
     // Включение clock
-    LPC_SC->PCONP |= CLKPWR_PCONP_PCTIM0;
-    LPC_SC->PCONP |= CLKPWR_PCONP_PCTIM1;
-    LPC_SC->PCONP |= CLKPWR_PCONP_PCTIM2;
-    LPC_SC->PCONP |= CLKPWR_PCONP_PCTIM3;
+    P::SC->PCONP |= CLKPWR_PCONP_PCTIM0;
+    P::SC->PCONP |= CLKPWR_PCONP_PCTIM1;
+    P::SC->PCONP |= CLKPWR_PCONP_PCTIM2;
+    P::SC->PCONP |= CLKPWR_PCONP_PCTIM3;
     
     // Частота
     LPC_TIM0->PR =  6 - 1;  // 10 МГц, 1 тик = 0.1 мкс
