@@ -47,10 +47,24 @@ public:
     static constexpr unsigned int DAC0_EN = 0x00010002;
     static constexpr unsigned int PORT_PWM = 1;
     static constexpr unsigned int CH_ADC_IOCON = 1;
+    
     static constexpr unsigned int IOCON_SPI0 = 0x02;
     static constexpr unsigned int IOCON_SPI1 = 0x03;
     static constexpr unsigned int IOCON_SPI2 = 0x02;
-    static constexpr unsigned int D_MODE_PULLUP = 0x02 << 3;    
+    static constexpr unsigned int D_MODE_PULLUP = 0x02 << 3;
+
+    static constexpr unsigned int IOCON_U0_TXD  = 0x1;  
+    static constexpr unsigned int IOCON_U0_RXD  = 0x1;
+  
+    static constexpr unsigned int IOCON_U2_TXD  = 0x2;  
+    static constexpr unsigned int IOCON_U2_RXD  = 0x2;
+    static constexpr unsigned int IOCON_U2_OE   = 0x4;
+  
+    static constexpr unsigned int IOCON_U3_TXD  = 0x2;  
+    static constexpr unsigned int IOCON_U3_RXD  = 0x2;
+    static constexpr unsigned int IOCON_U3_OE   = 0x5;   
+    
+    static constexpr unsigned int IOCON_T2_CAP1 = 0x23;
     
     void initIOCON() {
       iocon.base->P0_26 = DAC0_EN;      // DAC-0
@@ -73,6 +87,19 @@ public:
                                               // SSEL2 - не проведен, не используется
       iocon.base->P5_1 = IOCON_SPI2;          // MISO2
       iocon.base->P5_0 = IOCON_SPI2;          // MOSI2
+      
+      iocon.base->P0_2 = IOCON_U0_TXD;         // U0_TXD
+      iocon.base->P0_3 = IOCON_U0_RXD;         // U0_RXD
+      
+      iocon.base->P2_6 = IOCON_U2_OE;          // U2_OE
+      iocon.base->P2_8 = IOCON_U2_TXD;         // U2_TXD
+      iocon.base->P2_9 = IOCON_U2_RXD;         // U2_RXD
+      
+      iocon.base->P1_30 = IOCON_U3_OE;         // U3_OE
+      iocon.base->P4_28 = IOCON_U3_TXD;        // U3_TXD
+      iocon.base->P4_29 = IOCON_U3_RXD;        // U3_RXD
+      
+      iocon.base->P2_15 = IOCON_T2_CAP1;       // T2 CAP1
       
     }
     

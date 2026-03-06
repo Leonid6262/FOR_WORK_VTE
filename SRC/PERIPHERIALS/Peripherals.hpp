@@ -24,10 +24,8 @@ namespace P {
   static constexpr unsigned int FIRST_PULS_PORT = 16;               // 1-й импульс в порту
   static constexpr unsigned int OFF_PULSES = 0x3F<<FIRST_PULS_PORT; // Все импульсы 
     
-  // Указатель на структур регистров IOCON
-  constexpr LPC_IOCON_TypeDef* IOCON = LPC_IOCON;
-  // System Control
-  constexpr LPC_SC_TypeDef* SC = LPC_SC;
+  constexpr LPC_IOCON_TypeDef* IOCON = LPC_IOCON;  // IOCON 
+  constexpr LPC_SC_TypeDef* SC = LPC_SC;           // System Control
             
 }
 

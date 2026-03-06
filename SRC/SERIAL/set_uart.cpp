@@ -1,14 +1,12 @@
 #include "set_uart.hpp"
 #include "Peripherals.hpp"
 
-LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN, LPC_IOCON_TypeDef* IOCON) {
+LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN) {
   LPC_UART_TypeDef* UART = nullptr;
 
   switch (UN) {
     case EUartInstance::UART_0:
       UART = LPC_UART0;
-      IOCON->P0_2 = IOCON_U0_TXD;         // U0_TXD
-      IOCON->P0_3 = IOCON_U0_RXD;         // U0_RXD
       P::SC->PCONP |= CLKPWR_PCONP_PCUART0;  // Включение питания UART0
       /* Настройка частоты */
       UART->TER = 0x00;         // Запрет передачи на момент настройки
@@ -19,9 +17,6 @@ LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN, LPC_IOCON_TypeDef* IOCO
       break;
     case EUartInstance::UART_1:
       UART = LPC_UART2;
-      IOCON->P2_6 = IOCON_U2_OE;          // U2_OE
-      IOCON->P2_8 = IOCON_U2_TXD;         // U2_TXD
-      IOCON->P2_9 = IOCON_U2_RXD;         // U2_RXD
       P::SC->PCONP |= CLKPWR_PCONP_PCUART2;  // Включение питания UART2
       UART->RS485CTRL = DCTRL;                // Автоматическое переключение OE
       UART->RS485CTRL |= OINV;                // Инверсия OE
@@ -34,9 +29,6 @@ LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN, LPC_IOCON_TypeDef* IOCO
       break;
     case EUartInstance::UART_2:
       UART = LPC_UART3;
-      IOCON->P1_30 = IOCON_U3_OE;         // U3_OE
-      IOCON->P4_28 = IOCON_U3_TXD;        // U3_TXD
-      IOCON->P4_29 = IOCON_U3_RXD;        // U3_RXD
       P::SC->PCONP |= CLKPWR_PCONP_PCUART3;  // Включение питания UART3
       UART->RS485CTRL = DCTRL;                // Автоматическое переключение OE
       UART->RS485CTRL |= OINV;                // Инверсия OE

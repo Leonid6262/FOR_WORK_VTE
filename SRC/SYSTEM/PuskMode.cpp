@@ -1,8 +1,8 @@
 #include "PuskMode.hpp"
 #include "_SystemManager.hpp"
 
-CPuskMode::CPuskMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet, LPC_IOCON_TypeDef* IOCON)
-: rDinStr(rDinStr), rSIFU(rSIFU), rSet(rSet), IOCON(IOCON), pAdc(CADC_STORAGE::getInstance()) {
+CPuskMode::CPuskMode(CDIN_STORAGE& rDinStr, CSIFU& rSIFU, CEEPSettings& rSet)
+: rDinStr(rDinStr), rSIFU(rSIFU), rSet(rSet), pAdc(CADC_STORAGE::getInstance()) {
   INIT_CAPTURE1_TIM2();
 }
 

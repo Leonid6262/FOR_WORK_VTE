@@ -11,7 +11,7 @@ public:
     UART_2              
   };
   
-  static LPC_UART_TypeDef* configure(EUartInstance, LPC_IOCON_TypeDef*);
+  static LPC_UART_TypeDef* configure(EUartInstance);
   
 private: 
     // Настройки скорости
@@ -32,18 +32,6 @@ private:
         .DLL = 21,
         .FDR = 0x95     // MulVal = 9, DivAddVal = 5
     };
-  
-  // Пины  
-  static constexpr unsigned int IOCON_U0_TXD  = 0x1;  
-  static constexpr unsigned int IOCON_U0_RXD  = 0x1;
-  
-  static constexpr unsigned int IOCON_U2_TXD  = 0x2;  
-  static constexpr unsigned int IOCON_U2_RXD  = 0x2;
-  static constexpr unsigned int IOCON_U2_OE   = 0x4;
-  
-  static constexpr unsigned int IOCON_U3_TXD  = 0x2;  
-  static constexpr unsigned int IOCON_U3_RXD  = 0x2;
-  static constexpr unsigned int IOCON_U3_OE   = 0x5;
 
   // Битовые масоки
   enum RegisterFlags {

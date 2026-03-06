@@ -8,7 +8,7 @@ class CSystemManager;
 
 class CPuskMode {
 public:
-  CPuskMode(CDIN_STORAGE&, CSIFU&, CEEPSettings&, LPC_IOCON_TypeDef*);
+  CPuskMode(CDIN_STORAGE&, CSIFU&, CEEPSettings&);
   
   void setSysManager(CSystemManager*);
   void pusk(bool Permission);   // основной цикл автомата
@@ -25,8 +25,7 @@ private:
   CEEPSettings& rSet;
   CADC_STORAGE& pAdc;
   CSystemManager* pSys_manager;
-  LPC_IOCON_TypeDef* IOCON;
-  
+    
   State cur_status = State::OFF;
   unsigned int prev_TC0_Phase;
   unsigned int dTrsPhase;
@@ -65,7 +64,6 @@ private:
   void StartEx();
   
   inline void INIT_CAPTURE1_TIM2() { 
-    IOCON->P2_15 = IOCON_T2_CAP1;       // T2 CAP1
     LPC_TIM2->MCR = 0x00000000;         // disabled
     LPC_TIM2->IR = 0xFFFFFFFF;          // Очистка флагов прерываний
     LPC_TIM2->TCR |= TIM2_TCR_START;    // Старт таймера TIM3 
@@ -140,6 +138,6 @@ private:
   
   static constexpr unsigned int TIM2_TCR_START = 0x01;
   static constexpr unsigned int TIM2_CAPTURE_RI = 0x10;
-  static constexpr unsigned int IOCON_T2_CAP1 = 0x23;
+
 };
 

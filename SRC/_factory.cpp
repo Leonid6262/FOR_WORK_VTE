@@ -48,7 +48,7 @@ CRegManager CFactory::createRegManager() {
 // ModBus slave
 CMBSLAVE CFactory::create_MBslave() {
   static CDMAcontroller cont_dma;     // Управление каналами DMA
-  return CMBSLAVE(cont_dma, CSET_UART::configure(EUART::UART_1, LPC_IOCON));
+  return CMBSLAVE(cont_dma, CSET_UART::configure(EUART::UART_1));
 }
 
 // Запуск всей системы: System Manager + СИФУ 
@@ -77,7 +77,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static CFaultCtrlF fault_ctrl_f(CDIN_STORAGE::getInstance());
   static CTestingMode test_mode( CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CDryingMode drying_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
-  static CPuskMode pusk_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance(), LPC_IOCON);
+  static CPuskMode pusk_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance());
   static CWorkMode work_mode(CDIN_STORAGE::getInstance(), sifu, ESET::getInstance(), dac_cos);
   static CWarningMode warning_ctrl;
   
@@ -104,7 +104,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
 CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {   
   // Конфигурация и инициализация UART-0 - пультовый терминал 
   auto& udrv = CTerminalUartDriver::getInstance();
-  udrv.init(CSET_UART::configure(EUART::UART_0, LPC_IOCON), UART0_IRQn);                       
+  udrv.init(CSET_UART::configure(EUART::UART_0), UART0_IRQn);                       
   
   // Вычисление коэффициентов отображения в системе СИ
   auto& set = ESET::getInstance().getSettings();
