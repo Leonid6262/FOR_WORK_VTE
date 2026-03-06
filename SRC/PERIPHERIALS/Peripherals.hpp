@@ -28,18 +28,26 @@ namespace P {
   constexpr LPC_IOCON_TypeDef* IOCON = LPC_IOCON;
   // System Control
   constexpr LPC_SC_TypeDef* SC = LPC_SC;
-  
+            
 }
 
+class CIOCON {
+private:  
+  
+public:
+  LPC_IOCON_TypeDef* base;
+  CIOCON(LPC_IOCON_TypeDef* base) : base(base) {}
+};
+
+
 // Управление GPIO
-class CGPIO
-{ 
+class CGPIO { 
 private:  
   LPC_GPIO_TypeDef* port;
    
 public:
   
-  CGPIO(LPC_GPIO_TypeDef* p) : port(p) {}
+  CGPIO(LPC_GPIO_TypeDef* port) : port(port) {}
   
   void set(unsigned int mask)   { port->SET = mask; }
   void clr(unsigned int mask)   { port->CLR = mask; }

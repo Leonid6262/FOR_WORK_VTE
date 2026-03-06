@@ -14,17 +14,18 @@ using ESPI = CSET_SPI::ESPIInstance;
 void CFactory::init_ports() {
     CSET_PORTS csp; 
     csp.initDOutputs();
+    csp.initIOCON();
     // Сброс настроек и флагов EXTINT
     P::SC->EXTINT = 0xF; 
     P::SC->EXTMODE = 0x0;
     P::SC->EXTPOLAR = 0x0;
 }
 
-CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                                    // For the control class
-CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance(), LPC_IOCON, LPC_DAC); } // DAC0. For system test
+CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                         // For the control class
+CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance(), LPC_DAC); } // DAC0. For system test
  
-CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance(), LPC_IOCON); }  // Внутренее ADC.
-StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }             // Загрузка уставок
+CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance()); }  // Внутренее ADC.
+StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }  // Загрузка уставок
 
 CDin_cpu CFactory::createDINcpu() {    // Дискретные входы контроллера
   static CGPIO gpio(P::G2);
@@ -32,7 +33,7 @@ CDin_cpu CFactory::createDINcpu() {    // Дискретные входы кон
 }                                
 CSPI_ports CFactory::createSPIports() { // R/W  dIO доступные по SPI
   static CGPIO gpio(P::G0);
-  return CSPI_ports(CSET_SPI::config(ESPI::SPI_0, LPC_IOCON), gpio); 
+  return CSPI_ports(CSET_SPI::config(ESPI::SPI_0), gpio); 
 } 
 CIsoMeas CFactory::createIsoMeas()    { return CIsoMeas(); }                                // Измерение сопротивления изоляции 
 
@@ -56,12 +57,12 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static auto reg_manager = CFactory::createRegManager();
   
   // --- СИФУ и его окружение ---
-  static CADC adc(CSET_SPI::config(ESPI::SPI_1, LPC_IOCON), CADC_STORAGE::getInstance());
-  static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance(), LPC_IOCON, LPC_PWM1);
+  static CADC adc(CSET_SPI::config(ESPI::SPI_1), CADC_STORAGE::getInstance());
+  static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance(), LPC_PWM1);
   dac_cos.conv(dac_cos.DAC_PWM_MAX_VAL / 2);
   static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos, reg_manager, CADC_STORAGE::getInstance()); 
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), ESET::getInstance());                      
-  CSET_SPI::config(ESPI::SPI_2, LPC_IOCON);
+  CSET_SPI::config(ESPI::SPI_2);
   static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance());
   static CGPIO gpio_sum(P::G1);
   static CGPIO gpio_puls(P::G3);

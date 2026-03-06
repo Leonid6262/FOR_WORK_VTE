@@ -3,14 +3,13 @@
 #include "system_LPC177x.h"
 #include "Peripherals.hpp"
 
-CDAC0::CDAC0(CEEPSettings& rSet, LPC_IOCON_TypeDef* IOCON, LPC_DAC_TypeDef* DAC)  : rSet(rSet) { 
-  IOCON->P0_26 = DAC0_EN;
+CDAC0::CDAC0(CEEPSettings& rSet, LPC_DAC_TypeDef* DAC)  : rSet(rSet) { 
   DAC->CNR = ((DAC0_MAX_VAL - DAC0_MIN_VAL) >> 1) << START_BITS_VALUE;
 }
 
-CDAC_PWM::CDAC_PWM(EPWM_DAC DN, CEEPSettings& rSet, LPC_IOCON_TypeDef* IOCON, LPC_PWM_TypeDef* PWM_DAC) : rSet(rSet), PWM_DAC(PWM_DAC) {
+CDAC_PWM::CDAC_PWM(EPWM_DAC DN, CEEPSettings& rSet, LPC_PWM_TypeDef* PWM_DAC) : rSet(rSet), PWM_DAC(PWM_DAC) {
   LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM1;  // PWM1 power/clock control bit.
-  PWM_DAC->PR = PWM_div_1 - 1;          // при PWM_div=6, F=60МГц/6=10МГц, 1тик=0.1мкс
+  PWM_DAC->PR = PWM_div_1 - 1;           // при PWM_div=6, F=60МГц/6=10МГц, 1тик=0.1мкс
 
   PWM_DAC->TCR = 0x000;  // Сброс регистра таймера
   PWM_DAC->TCR = 0x002;  // Сброс таймера
@@ -20,7 +19,6 @@ CDAC_PWM::CDAC_PWM(EPWM_DAC DN, CEEPSettings& rSet, LPC_IOCON_TypeDef* IOCON, LP
       pMR = &LPC_PWM1->MR5;
       LER = _MAT5LATCHEN;                   // Обновление MR5
       *pMR = DAC_PWM_MIN_VAL;
-      IOCON->P2_4 = _PORT_PWM;              // P2_4 -> PWM1:5
       PWM_DAC->PCR |= _PWMENA5;            // Включение PWM1:5 в стационарном режиме
       PWM_DAC->MR0 = _DAC_PWM_T;           // Период ШИМ. Канал  PWM5, стационарный. MR0 - включение
       PWM_DAC->LER |= LER | _MAT0LATCHEN;  // Обновление MR5 и MR0
@@ -30,7 +28,6 @@ CDAC_PWM::CDAC_PWM(EPWM_DAC DN, CEEPSettings& rSet, LPC_IOCON_TypeDef* IOCON, LP
       pMR = &LPC_PWM1->MR4;
       LER = _MAT4LATCHEN;  // Обновление MR4
       *pMR = DAC_PWM_MIN_VAL;
-      IOCON->P2_3 = _PORT_PWM;          // P2_3 -> PWM1:4
       PWM_DAC->PCR |= _PWMENA4;            // Включение PWM1:4 в стационарном режиме
       PWM_DAC->MR0 = _DAC_PWM_T;           // Период ШИМ. Канал  PWM4, стационарный. MR0 - включение
       PWM_DAC->LER |= LER | _MAT0LATCHEN;  // Обновление MR4 и MR0

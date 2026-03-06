@@ -6,11 +6,10 @@
 // DAC контроллера
 class CDAC0 {
  private:
-  static constexpr unsigned int DAC0_EN = 0x00010002;
   static constexpr unsigned int START_BITS_VALUE = 6;
 
  public:
-  CDAC0(CEEPSettings&, LPC_IOCON_TypeDef*, LPC_DAC_TypeDef*);
+  CDAC0(CEEPSettings&, LPC_DAC_TypeDef*);
   CEEPSettings& rSet;
   static constexpr signed short DAC0_MAX_VAL = 511;   // Максимальное значение DAC0
   static constexpr signed short DAC0_MIN_VAL = -512;  // Минимальное значение DAC0
@@ -29,7 +28,6 @@ class CDAC_PWM {
   static constexpr unsigned int _MAT4LATCHEN = 1UL << 4;
   static constexpr unsigned int _MAT5LATCHEN = 1UL << 5;
 
-  static constexpr unsigned int _PORT_PWM = 1;
   static constexpr unsigned int _CE_PWMEN = 0x09;
 
   static constexpr unsigned int _PWMENA4 = 1UL << 12;
@@ -46,7 +44,7 @@ class CDAC_PWM {
 
   enum class EPWM_DAC { PWM_DAC1, PWM_DAC2 };
 
-  CDAC_PWM(EPWM_DAC, CEEPSettings&, LPC_IOCON_TypeDef*, LPC_PWM_TypeDef*);
+  CDAC_PWM(EPWM_DAC, CEEPSettings&, LPC_PWM_TypeDef*);
   CEEPSettings& rSet;
   void conv(unsigned short);
 };

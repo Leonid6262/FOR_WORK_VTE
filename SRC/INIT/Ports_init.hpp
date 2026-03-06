@@ -11,9 +11,12 @@ private:
     CGPIO gpio4;
     CGPIO gpio5;
     
-public:
-  CSET_PORTS() : gpio0(P::G0), gpio1(P::G1), gpio2(P::G2), gpio3(P::G3), gpio4(P::G4), gpio5(P::G5) {}
+    CIOCON iocon;
     
+public:
+  CSET_PORTS() : gpio0(P::G0), gpio1(P::G1), gpio2(P::G2), gpio3(P::G3), 
+                 gpio4(P::G4), gpio5(P::G5), iocon(P::IOCON) {}
+          
     void initDOutputs() {
       
       // Дискретные выходы
@@ -39,7 +42,39 @@ public:
       gpio3.dirOut(0x3F3F0000);
       gpio4.dirOut(0x00000000);
       gpio5.dirOut(0x00000008);
+    }
       
-  }
+    static constexpr unsigned int DAC0_EN = 0x00010002;
+    static constexpr unsigned int PORT_PWM = 1;
+    static constexpr unsigned int CH_ADC_IOCON = 1;
+    static constexpr unsigned int IOCON_SPI0 = 0x02;
+    static constexpr unsigned int IOCON_SPI1 = 0x03;
+    static constexpr unsigned int IOCON_SPI2 = 0x02;
+    static constexpr unsigned int D_MODE_PULLUP = 0x02 << 3;    
+    
+    void initIOCON() {
+      iocon.base->P0_26 = DAC0_EN;      // DAC-0
+      iocon.base->P2_4  = PORT_PWM;     // P2_4 -> PWM1:5 PWM_DAC1
+      iocon.base->P2_3  = PORT_PWM;     // P2_3 -> PWM1:4 PWM_DAC2     
+      iocon.base->P0_23 = CH_ADC_IOCON; // Внутренее ADC ch0
+      iocon.base->P0_24 = CH_ADC_IOCON; // Внутренее ADC ch1
+      
+      iocon.base->P0_15 = IOCON_SPI0;           // SCK0
+                                                // SSEL0 - не проведен, не используется
+      iocon.base->P0_17 = IOCON_SPI0;           // MISO0
+      iocon.base->P0_18 = IOCON_SPI0;           // MOSI0
+      
+      iocon.base->P4_20 = D_MODE_PULLUP | IOCON_SPI1;  // SCK1
+      iocon.base->P4_21 = D_MODE_PULLUP | IOCON_SPI1;  // SSEL1
+      iocon.base->P4_22 = D_MODE_PULLUP | IOCON_SPI1;  // MISO1
+      iocon.base->P4_23 = D_MODE_PULLUP | IOCON_SPI1;  // MOSI1
+      
+      iocon.base->P5_2 = IOCON_SPI2;          // SCK2
+                                              // SSEL2 - не проведен, не используется
+      iocon.base->P5_1 = IOCON_SPI2;          // MISO2
+      iocon.base->P5_0 = IOCON_SPI2;          // MOSI2
+      
+    }
+    
 };
 

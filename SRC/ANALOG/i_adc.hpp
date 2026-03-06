@@ -11,7 +11,6 @@ private:
   static constexpr unsigned short CH_P5 = 0;           // +5V
   static constexpr unsigned short CH_N5 = 1;           // -5V 
   
-  static constexpr unsigned int CH_ADC_IOCON = 1;
   static constexpr unsigned int PDN = 1UL << 21;
   static constexpr unsigned int SB_CLKDIV = 8;
   static constexpr unsigned int CLEAR = ~(0x000000FF | (1UL << 24));
@@ -28,7 +27,7 @@ private:
  
 public:
   
-  CIADC(CADC_STORAGE&, LPC_IOCON_TypeDef*);
+  CIADC(CADC_STORAGE&);
   
   float P5_cur;
   float N5_cur;

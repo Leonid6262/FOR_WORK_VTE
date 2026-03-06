@@ -12,17 +12,14 @@ class CSET_SPI {
     SPI_2
   };
 
-  static LPC_SSP_TypeDef* config(ESPIInstance, LPC_IOCON_TypeDef*);
+  static LPC_SSP_TypeDef* config(ESPIInstance);
 
  private:
   static constexpr unsigned int Hz_SPI0 = 800000;
   static constexpr unsigned int Hz_SPI1 = 10000000;
   static constexpr unsigned int Hz_SPI2 = 1000000;
 
-  static constexpr unsigned int IOCON_SPI0 = 0x02;
-  static constexpr unsigned int IOCON_SPI1 = 0x03;
-  static constexpr unsigned int IOCON_SPI2 = 0x02;
-  static constexpr unsigned int D_MODE_PULLUP = 0x02 << 3;
+
 
   static constexpr unsigned int RXDMAE = 1UL << 0;
   static constexpr unsigned int TXDMAE = 1UL << 1;
