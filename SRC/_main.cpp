@@ -8,7 +8,6 @@ void main(void) {
   CFactory::Peripherals_init();                         // Инициализация периферии
   CDIN_STORAGE::UserLedOn();                            // Визуальный контроль начала инициализации   
   Priorities::initPriorities();                         // Распределение векторов по группам. см. в файле IntPriority.h
-  //CSET_TIMER::initTimers();                             // Инициализация таймеров.
   
   if (CFactory::load_settings() == StatusRet::ERROR) {  // Загрузка уставок (RAM <- EEPROM)   
     SWarning::setMessage(EWarningId::DEFAULT_SET);      // При ошибке - собщение: "Загружены дефолтные уставки" 

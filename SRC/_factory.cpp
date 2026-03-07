@@ -65,7 +65,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance());
   static CGPIO gpio_sum(P::G1);
   static CGPIO gpio_puls(P::G3);
-  static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, ESET::getInstance(), rem_osc, gpio_sum, gpio_puls, P::IOCON, P::puls_pwm); 
+  static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, ESET::getInstance(), rem_osc, gpio_sum, gpio_puls, P::IOCON, P::PULS_PWM); 
   reg_manager.getSIFU(&sifu);   
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu);
   sifu.init_and_start(CProxyPointerVar::getInstance());

@@ -15,51 +15,49 @@ public:
     constexpr unsigned short* ADR_TEST_55 = reinterpret_cast<unsigned short*>(0x80055555);
     constexpr unsigned short* ADR_TEST_AA = reinterpret_cast<unsigned short*>(0x800AAAAA);  
     
-    LPC_SC->PCONP |= CLKPWR_PCONP_PCEMC;
-    LPC_SC->EMCDLYCTL = 0x00001010;
-    LPC_EMC->Control = 0x00000001;
-    LPC_EMC->Config = 0x00000000;
+    P::SC->PCONP |= CLKPWR_PCONP_PCEMC;
+    P::SC->EMCDLYCTL = 0x00001010;
+    P::EMC->Control = 0x00000001;
+    P::EMC->Config = 0x00000000;
     
-    constexpr unsigned int D_MODE_PULLUP = 0x02 << 3;
-
     // Настройка выводов данных EMC.D0..D15 
     for (int i = 0; i < 16; i++) { 
-      *(&P::IOCON->P3_0 + i) = D_MODE_PULLUP | 0x1; 
+      *(&P::IOCON->P3_0 + i) = bf::D_MODE_PULLUP | 0x1; 
     }
     // Настройка выводов адреса EMC.A0..A19 
     for (int i = 0; i < 20; i++) { 
-      *(&P::IOCON->P4_0 + i) = D_MODE_PULLUP | 0x1; 
+      *(&P::IOCON->P4_0 + i) = bf::D_MODE_PULLUP | 0x1; 
     }
 
-    P::IOCON->P4_24 = D_MODE_PULLUP | 0x1;  // EMC.OE
-    P::IOCON->P4_25 = D_MODE_PULLUP | 0x1;  // EMC.WR
-    P::IOCON->P4_26 = D_MODE_PULLUP | 0x1;  // EMC.BLS0
-    P::IOCON->P4_27 = D_MODE_PULLUP | 0x1;  // EMC.BLS1
+    P::IOCON->P4_24 = bf::D_MODE_PULLUP | 0x1;  // EMC.OE
+    P::IOCON->P4_25 = bf::D_MODE_PULLUP | 0x1;  // EMC.WR
+    P::IOCON->P4_26 = bf::D_MODE_PULLUP | 0x1;  // EMC.BLS0
+    P::IOCON->P4_27 = bf::D_MODE_PULLUP | 0x1;  // EMC.BLS1
     
-    P::IOCON->P4_30 = D_MODE_PULLUP | 0x1;  // EMC.CS0
-    P::IOCON->P4_31 = D_MODE_PULLUP | 0x1;  // EMC.CS1
+    P::IOCON->P4_30 = bf::D_MODE_PULLUP | 0x1;  // EMC.CS0
+    P::IOCON->P4_31 = bf::D_MODE_PULLUP | 0x1;  // EMC.CS1
     
     //---------------   Конфигурация адресного пространства RAM   ------------------------- 
 #ifdef CM3
-    LPC_EMC->StaticConfig0 = 0x01; // 8 bits
+    P::EMC->StaticConfig0 = 0x01; // 8 bits
 #else
-    LPC_EMC->StaticConfig0 = 0x81; // 16 bits
+    P::EMC->StaticConfig0 = 0x81; // 16 bits
 #endif
-    LPC_EMC->StaticWaitWen0  = 0x00;     // Задержка разрешения записи. 0 - задержка в один цикл EMCCLK
-    LPC_EMC->StaticWaitOen0  = 0x01;     // Задержка включения выхода. 0 - нет задержки
-    LPC_EMC->StaticWaitRd0   = 0x03;     // Задержка чтения. 0 - задержка в один цикл EMCCLK
-    LPC_EMC->StaticWaitPage0 = 0x00;     // Ожидане чтения в асинхронном режиме страниц. 0 - задержка в один цикл EMCCLK
-    LPC_EMC->StaticWaitWr0   = 0x00;     // Ожидание записи. 0 - задержка в два цикла EMCCLK
-    LPC_EMC->StaticWaitTurn0 = 0x00;     // Циклов реверсирования шины. 0 - задержка в один цикл EMCCLK
+    P::EMC->StaticWaitWen0  = 0x00;     // Задержка разрешения записи. 0 - задержка в один цикл EMCCLK
+    P::EMC->StaticWaitOen0  = 0x01;     // Задержка включения выхода. 0 - нет задержки
+    P::EMC->StaticWaitRd0   = 0x03;     // Задержка чтения. 0 - задержка в один цикл EMCCLK
+    P::EMC->StaticWaitPage0 = 0x00;     // Ожидане чтения в асинхронном режиме страниц. 0 - задержка в один цикл EMCCLK
+    P::EMC->StaticWaitWr0   = 0x00;     // Ожидание записи. 0 - задержка в два цикла EMCCLK
+    P::EMC->StaticWaitTurn0 = 0x00;     // Циклов реверсирования шины. 0 - задержка в один цикл EMCCLK
     
     //---------------   Конфигурация адресного пространства Jockey   -------------------------
-    LPC_EMC->StaticConfig1   = 0x81;   // 16-bit
-    LPC_EMC->StaticWaitWen1  = 0;
-    LPC_EMC->StaticWaitOen1  = 0;    
-    LPC_EMC->StaticWaitRd1   = 0x7;    
-    LPC_EMC->StaticWaitPage1 = 0;
-    LPC_EMC->StaticWaitWr1   = 0x5;
-    LPC_EMC->StaticWaitTurn1 = 0;
+    P::EMC->StaticConfig1   = 0x81;   // 16-bit
+    P::EMC->StaticWaitWen1  = 0;
+    P::EMC->StaticWaitOen1  = 0;    
+    P::EMC->StaticWaitRd1   = 0x7;    
+    P::EMC->StaticWaitPage1 = 0;
+    P::EMC->StaticWaitWr1   = 0x5;
+    P::EMC->StaticWaitTurn1 = 0;
     //-------------------------------------------------------------------------------------
     
     unsigned int Counter_Err_RAM;
@@ -97,6 +95,7 @@ public:
       if (dat1 != dat2) {
         // Циклический тест, если была ошибка
         adr_ram = 0;
+        P::G0->DIR |= 1U << bg::B_ULED;
         while (true) {
           adr_ram = ADR_TEST_55;
           *adr_ram = 0x5555;
@@ -111,9 +110,9 @@ public:
           
           Counter_Err_RAM = (Counter_Err_RAM + 1) & 0x1FFFF;
           if (Counter_Err_RAM < 0x10000) {
-            CDIN_STORAGE::UserLedOn();
+            P::G0->CLR = 1UL << bg::B_ULED;
           } else {
-            CDIN_STORAGE::UserLedOff();
+            P::G0->SET = 1UL << bg::B_ULED;
           }
         }
       }

@@ -25,12 +25,13 @@ namespace P {
   constexpr LPC_SSP_TypeDef* SPI2 = LPC_SSP2;
     
   constexpr LPC_IOCON_TypeDef* IOCON = LPC_IOCON;  // IOCON 
-  constexpr LPC_SC_TypeDef* SC = LPC_SC;           // System Control  
+  constexpr LPC_SC_TypeDef* SC = LPC_SC;           // System Control
+  constexpr LPC_EMC_TypeDef* EMC = LPC_EMC;        // EMC
   
   constexpr LPC_DAC_TypeDef* DAC = LPC_DAC;        // DAC0
   constexpr LPC_PWM_TypeDef* PWM_DAC = LPC_PWM1;   // PWM1 DAC_PWM
   
-  constexpr LPC_PWM_TypeDef* puls_pwm = LPC_PWM0;  // PWM ИУ
+  constexpr LPC_PWM_TypeDef* PULS_PWM = LPC_PWM0;  // PWM ИУ
 
 }
 

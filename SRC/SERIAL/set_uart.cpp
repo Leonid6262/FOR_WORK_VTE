@@ -44,8 +44,7 @@ LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN) {
   while (UART->LSR & RDR) {
     unsigned int tmp = UART->RBR;  // Очистка приёмника
   }
-  while (!(UART->LSR & THRE)) {
-  };  // Очистка передатчика
+  while (!(UART->LSR & THRE)) {};  // Очистка передатчика  
   
   return UART;
 }
