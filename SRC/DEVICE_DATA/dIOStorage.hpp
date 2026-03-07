@@ -4,6 +4,7 @@
 #include "settings_eep.hpp"
 #include "Peripherals.hpp"
 
+
 class CDIN_STORAGE {
  public:
    
@@ -115,19 +116,19 @@ class CDIN_STORAGE {
     return instance;
   }    
 
-  static inline void UserLedOn()  { gpio0.clr(1UL << P::B_ULED); }   // Вкл. ULED
-  static inline void UserLedOff() { gpio0.set(1UL << P::B_ULED); }   // Выкл.ULED
-  static inline void Q1VF_On()    { gpio1.clr(1UL << P::B_Q1VF); }   // Вкл. Q1VF
-  static inline void Q1VF_Off()   { gpio1.set(1UL << P::B_Q1VF); }   // Выкл.Q1VF
+  static inline void UserLedOn()  { gpio0.clr(1UL << bg::B_ULED); }   // Вкл. ULED
+  static inline void UserLedOff() { gpio0.set(1UL << bg::B_ULED); }   // Выкл.ULED
+  static inline void Q1VF_On()    { gpio1.clr(1UL << bg::B_Q1VF); }   // Вкл. Q1VF
+  static inline void Q1VF_Off()   { gpio1.set(1UL << bg::B_Q1VF); }   // Выкл.Q1VF
 
   static inline void edit_bit(char bit_number, State state) {
     switch (state) {
       case State::ON: {
-        gpio2.set(static_cast<unsigned int>(1UL << (P::B0_PORT_OUT + (bit_number & 0x07))));       
+        gpio2.set(static_cast<unsigned int>(1UL << (bg::B0_PORT_OUT + (bit_number & 0x07))));       
       }  // dout-on
       break;
       case State::OFF: {
-        gpio2.clr(static_cast<unsigned int>(1UL << (P::B0_PORT_OUT + (bit_number & 0x07))));
+        gpio2.clr(static_cast<unsigned int>(1UL << (bg::B0_PORT_OUT + (bit_number & 0x07))));
       }  // dout-off
       break;
     }

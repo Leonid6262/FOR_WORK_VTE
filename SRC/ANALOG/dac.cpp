@@ -3,7 +3,7 @@
 #include "system_LPC177x.h"
 #include "Peripherals.hpp"
 
-CDAC0::CDAC0(CEEPSettings& rSet, LPC_DAC_TypeDef* DAC)  : rSet(rSet) { 
+CDAC0::CDAC0(CEEPSettings& rSet, LPC_DAC_TypeDef* DAC) : rSet(rSet) { 
   DAC->CNR = ((DAC0_MAX_VAL - DAC0_MIN_VAL) >> 1) << START_BITS_VALUE;
 }
 

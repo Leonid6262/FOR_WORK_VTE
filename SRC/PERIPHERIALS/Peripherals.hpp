@@ -1,5 +1,7 @@
 #pragma once
 #include "LPC407x_8x_177x_8x.h"
+#include "Peripherals.hpp"
+#include "ControlBits.hpp"
 
 namespace P {
   // Указатели на структуры регистров GPIO
@@ -9,24 +11,14 @@ namespace P {
   constexpr LPC_GPIO_TypeDef* G3 = LPC_GPIO3;
   constexpr LPC_GPIO_TypeDef* G4 = LPC_GPIO4;
   constexpr LPC_GPIO_TypeDef* G5 = LPC_GPIO5;
-
-  // Биты физических связей GPIO
-  static constexpr unsigned short B_ULED      = 9;        // Бит U-LED
-  static constexpr unsigned short B_Q1VF      = 13;       // Бит Q1VF
-  static constexpr unsigned short B0_PORT_OUT = 24;       // 1-й бит DOUT порта GPIO2  
-  static constexpr unsigned int B0_PORT_IN    = 15;       // 0-й бит порта. Начало Pi0 в PORT2 контроллера
-  
-  static constexpr unsigned int OUT_E = 1UL << 8;
-  static constexpr unsigned int HOLD = 1UL << 7;
-  
-  static constexpr unsigned int SUM1 = 0x02;              // Port1:2 PWM0:1
-  static constexpr unsigned int SUM2 = 0x03;              // Port1:3 PWM0:2
-  static constexpr unsigned int FIRST_PULS_PORT = 16;               // 1-й импульс в порту
-  static constexpr unsigned int OFF_PULSES = 0x3F<<FIRST_PULS_PORT; // Все импульсы 
     
   constexpr LPC_IOCON_TypeDef* IOCON = LPC_IOCON;  // IOCON 
-  constexpr LPC_SC_TypeDef* SC = LPC_SC;           // System Control
-            
+  constexpr LPC_SC_TypeDef* SC = LPC_SC;           // System Control  
+  
+  constexpr LPC_DAC_TypeDef* DAC = LPC_DAC;        // DAC0
+  constexpr LPC_PWM_TypeDef* PWM1 = LPC_PWM1;      // PWM1 DAC_PWM
+  
+  constexpr LPC_PWM_TypeDef* puls_pwm = LPC_PWM0;  // PWM ИУ
 }
 
 // Инициализация IOCON

@@ -13,7 +13,7 @@ class CRegManager;
 
 class CSIFU {
  public:
-  CSIFU(CPULSCALC&, CRegManager&, CFaultCtrlP&, CEEPSettings&, CREM_OSC&, CGPIO&, CGPIO&, LPC_IOCON_TypeDef*);
+  CSIFU(CPULSCALC&, CRegManager&, CFaultCtrlP&, CEEPSettings&, CREM_OSC&, CGPIO&, CGPIO&, LPC_IOCON_TypeDef*, LPC_PWM_TypeDef*);
 
   CPULSCALC& rPulsCalc;
   CRegManager& rReg_manager;
@@ -21,7 +21,8 @@ class CSIFU {
   CREM_OSC& rRemOsc;
   CGPIO& gpio_sum;
   CGPIO& gpio_puls;
-  LPC_IOCON_TypeDef* IOCON;
+  LPC_IOCON_TypeDef* iocon;
+  LPC_PWM_TypeDef* puls_pwm;
 
   void forcing_bridge_pulses_On();  // Подать импульсы на форсировочный мост
   void main_bridge_pulses_On();     // Подать импульсы на основной мост
@@ -85,12 +86,12 @@ private:
   
   static constexpr unsigned int pulsesAllP[] = { 
     0x00, 
-    0x21 << P::FIRST_PULS_PORT, 
-    0x03 << P::FIRST_PULS_PORT, 
-    0x06 << P::FIRST_PULS_PORT, 
-    0x0C << P::FIRST_PULS_PORT, 
-    0x18 << P::FIRST_PULS_PORT,
-    0x30 << P::FIRST_PULS_PORT 
+    0x21 << bg::FIRST_PULS_PORT, 
+    0x03 << bg::FIRST_PULS_PORT, 
+    0x06 << bg::FIRST_PULS_PORT, 
+    0x0C << bg::FIRST_PULS_PORT, 
+    0x18 << bg::FIRST_PULS_PORT,
+    0x30 << bg::FIRST_PULS_PORT 
   }; 
   
   static constexpr unsigned int pulsesWone[] = {
@@ -120,21 +121,21 @@ private:
     
     P::SC->PCONP |= CLKPWR_PCONP_PCPWM0;
     
-    LPC_PWM0->PR  = PWM_div_0 - 1;
-    LPC_PWM0->MCR = MR0R; // Reset TC on MR0
-    LPC_PWM0->MR0 = PWM_WIDTH * 2;
-    LPC_PWM0->MR1 = PWM_WIDTH;
-    LPC_PWM0->LER = LER_012;
-    LPC_PWM0->PCR |= PCR_PWMENA1;
+    puls_pwm->PR  = PWM_div_0 - 1;
+    puls_pwm->MCR = MR0R; // Reset TC on MR0
+    puls_pwm->MR0 = PWM_WIDTH * 2;
+    puls_pwm->MR1 = PWM_WIDTH;
+    puls_pwm->LER = LER_012;
+    puls_pwm->PCR |= PCR_PWMENA1;
     
     // Важно
-    LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
-    LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
+    puls_pwm->TCR = COUNTER_RESET; // Обнулили TC и PR
+    puls_pwm->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
     
     // Настройка вывода
-    IOCON->P1_2 = IOCON_P_PWM; // P1_2 -> PWM
+    iocon->P1_2 = IOCON_P_PWM; // P1_2 -> PWM
     
-    LPC_PWM0->TCR = COUNTER_START; // Запуск
+    puls_pwm->TCR = COUNTER_START; // Запуск
   }
   
   inline void StartForsingBridgePWM0() {
@@ -143,18 +144,18 @@ private:
     
     P::SC->PCONP |= CLKPWR_PCONP_PCPWM0; 
     
-    LPC_PWM0->PR = PWM_div_0 - 1;
-    LPC_PWM0->MCR = MR0R; // Reset TC on MR0
-    LPC_PWM0->MR0 = PWM_WIDTH * 2;
-    LPC_PWM0->MR2 = PWM_WIDTH;
-    LPC_PWM0->LER = LER_012; 
-    LPC_PWM0->PCR |= PCR_PWMENA2;
+    puls_pwm->PR = PWM_div_0 - 1;
+    puls_pwm->MCR = MR0R; // Reset TC on MR0
+    puls_pwm->MR0 = PWM_WIDTH * 2;
+    puls_pwm->MR2 = PWM_WIDTH;
+    puls_pwm->LER = LER_012; 
+    puls_pwm->PCR |= PCR_PWMENA2;
     // Важно
-    LPC_PWM0->TCR = COUNTER_RESET; // Обнулили TC и PR
-    LPC_PWM0->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
+    puls_pwm->TCR = COUNTER_RESET; // Обнулили TC и PR
+    puls_pwm->TC  = LPC_PWM0->MR0; // Вручную ставим счетчик в значение финиша
     // ----
-    IOCON->P1_3 = IOCON_P_PWM; // P1_3 -> PWM
-    LPC_PWM0->TCR = COUNTER_START; // Запускаем
+    iocon->P1_3 = IOCON_P_PWM; // P1_3 -> PWM
+    puls_pwm->TCR = COUNTER_START; // Запускаем
   }
   
   
@@ -234,5 +235,4 @@ private:
   static constexpr unsigned int TIM3_COMPARE_MR0 = 0x01;
   static constexpr unsigned int TIM3_COMPARE_MR1 = 0x08;
   static constexpr unsigned int TIM3_CAPTURE_RI = 0x08;
-  static constexpr unsigned int IOCON_T3_CAP1 = 0x23;
 };

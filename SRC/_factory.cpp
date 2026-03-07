@@ -22,7 +22,7 @@ void CFactory::init_ports() {
 }
 
 CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                         // For the control class
-CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance(), LPC_DAC); } // DAC0. For system test
+CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance(), P::DAC); }  // DAC0. For system test
  
 CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance()); }  // Внутренее ADC.
 StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }  // Загрузка уставок
@@ -58,7 +58,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   
   // --- СИФУ и его окружение ---
   static CADC adc(CSET_SPI::config(ESPI::SPI_1), CADC_STORAGE::getInstance());
-  static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance(), LPC_PWM1);
+  static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance(), P::PWM1);
   dac_cos.conv(dac_cos.DAC_PWM_MAX_VAL / 2);
   static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos, reg_manager, CADC_STORAGE::getInstance()); 
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), ESET::getInstance());                      
@@ -66,7 +66,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static CREM_OSC rem_osc(rModBusSlave.rDMAc, puls_calc, CADC_STORAGE::getInstance());
   static CGPIO gpio_sum(P::G1);
   static CGPIO gpio_puls(P::G3);
-  static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, ESET::getInstance(), rem_osc, gpio_sum, gpio_puls, LPC_IOCON); 
+  static CSIFU sifu(puls_calc, reg_manager, fault_ctrl_p, ESET::getInstance(), rem_osc, gpio_sum, gpio_puls, P::IOCON, P::puls_pwm); 
   reg_manager.getSIFU(&sifu);   
   CProxyHandlerTIMER::getInstance().set_pointers(&sifu);
   sifu.init_and_start(CProxyPointerVar::getInstance());

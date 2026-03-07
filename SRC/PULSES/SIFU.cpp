@@ -128,12 +128,12 @@ unsigned int CSIFU::timing_calc() {
 // Выключения портов и PWM при окончании ИУ
 void CSIFU::faling_puls() {
   
-  IOCON->P1_2 = IOCON_P_PORT;  // P1_2 -> Port
-  gpio_sum.clr(1UL << P::SUM1);
-  IOCON->P1_3 = IOCON_P_PORT;  // P1_3 -> Port
-  gpio_sum.clr(1UL << P::SUM2);
+  iocon->P1_2 = IOCON_P_PORT;  // P1_2 -> Port
+  gpio_sum.clr(1UL << bg::SUM1);
+  iocon->P1_3 = IOCON_P_PORT;  // P1_3 -> Port
+  gpio_sum.clr(1UL << bg::SUM2);
   
-  gpio_puls.set(P::OFF_PULSES);          // Выкл. импульсы          
+  gpio_puls.set(bg::OFF_PULSES);          // Выкл. импульсы          
   P::SC->PCONP &= ~CLKPWR_PCONP_PCPWM0; // Выкл. PWM
   
 }
@@ -309,9 +309,9 @@ float* CSIFU::get_Sync_Frequency() { return &v_sync.SYNC_FREQUENCY; }
 bool* CSIFU::get_pSyncStat() { return &SyncStat; } 
 
 CSIFU::CSIFU(CPULSCALC& rPulsCalc, CRegManager& rReg_manager, CFaultCtrlP& rFault_p, CEEPSettings& rSettings, 
-             CREM_OSC& rRemOsc, CGPIO& gpio_sum, CGPIO& gpio_puls, LPC_IOCON_TypeDef* IOCON) 
+             CREM_OSC& rRemOsc, CGPIO& gpio_sum, CGPIO& gpio_puls, LPC_IOCON_TypeDef* iocon, LPC_PWM_TypeDef* puls_pwm) 
 : rPulsCalc(rPulsCalc), rReg_manager(rReg_manager), rFault_p(rFault_p), 
-  rSettings(rSettings), rRemOsc(rRemOsc), gpio_sum(gpio_sum), gpio_puls(gpio_puls), IOCON(IOCON) {}   
+  rSettings(rSettings), rRemOsc(rRemOsc), gpio_sum(gpio_sum), gpio_puls(gpio_puls), iocon(iocon), puls_pwm(puls_pwm) {}   
 
 void CSIFU::init_and_start(CProxyPointerVar& PPV) {
   
@@ -325,7 +325,6 @@ void CSIFU::init_and_start(CProxyPointerVar& PPV) {
                    cd::Alpha, 
                    NProxyVar::Unit::Deg);
   
-  IOCON->P2_23 = IOCON_T3_CAP1;   // T3 CAP1
   LPC_TIM3->MCR = 0x00000000;        // Compare TIM3 с MR0 и MR1, с прерываниями (disabled)
   LPC_TIM3->IR = 0xFFFFFFFF;         // Очистка флагов прерываний
   LPC_TIM3->TCR |= TIM3_TCR_START;   // Старт таймера TIM3

@@ -7,7 +7,7 @@ CDin_cpu::CDin_cpu(CGPIO& gpio) : gpio(gpio) {
 
 void CDin_cpu::input_Pi0() {
   // Входные данные порта Pi0
-  data_din_Pi0 = ~static_cast<unsigned char>(gpio.get_pin() >> P::B0_PORT_IN);
+  data_din_Pi0 = ~static_cast<unsigned char>(gpio.get_pin() >> bg::B0_PORT_IN);
   // Фильтр (интегратор входного сигнала) и фиксация в CDIN_STORAGE
   unsigned int dT = LPC_TIM0->TC - prev_TC0;
   prev_TC0 = LPC_TIM0->TC;

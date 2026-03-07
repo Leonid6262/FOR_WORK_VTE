@@ -2889,9 +2889,6 @@
                 <name>$PROJ_DIR$\SRC\INIT\emc.hpp</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\SRC\INIT\Ports_init.hpp</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\SRC\INIT\SDCard_init.cpp</name>
             </file>
             <file>
@@ -2901,7 +2898,13 @@
         <group>
             <name>PERIPHERIALS</name>
             <file>
+                <name>$PROJ_DIR$\SRC\PERIPHERIALS\ControlBits.hpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\SRC\PERIPHERIALS\Peripherals.hpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\PERIPHERIALS\Ports_init.hpp</name>
             </file>
         </group>
         <group>

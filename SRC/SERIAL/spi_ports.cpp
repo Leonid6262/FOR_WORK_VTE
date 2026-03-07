@@ -31,10 +31,10 @@ void CSPI_ports::rw() {
   }
 
   // Захват din и обновление dout (1->0->1 HOLD bit).
-  gpio.clr(P::HOLD);
+  gpio.clr(bg::HOLD);
   for (short Counter = 0x10; Counter > 0; Counter--) {
   }
-  gpio.set(P::HOLD);
+  gpio.set(bg::HOLD);
 }
 
 CSPI_ports::CSPI_ports(LPC_SSP_TypeDef* SSP, CGPIO& gpio) : SSP(SSP), gpio(gpio) {  
@@ -44,6 +44,6 @@ CSPI_ports::CSPI_ports(LPC_SSP_TypeDef* SSP, CGPIO& gpio) : SSP(SSP), gpio(gpio)
   }
   rw();
   // Активизация выходных регистров (перевод из 3-го состояния в активное)
-  gpio.set(P::OUT_E);
+  gpio.set(bg::OUT_E);
   prev_TC0 = LPC_TIM0->TC;
 }
