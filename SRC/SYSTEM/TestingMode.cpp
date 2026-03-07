@@ -55,12 +55,12 @@ void CTestingMode::StartPhase() {
 
   phases_test = EPhasesTest::Forcing;
   PK_STATUS = StatusRet::SUCCESS;
-  prev_TC0_Phase = LPC_TIM0->TC;  
+  prev_TC0_Phase = SysT::TC();  
 }
 
 // Форсировка, переключение на рабочий мост и проверк открытого состояния ПК
 void CTestingMode::Forcing() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   if (dTrsPhase >= rSet.getSettings().set_pusk.TFors * TICK_SEC) { 
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
     rSIFU.main_bridge_pulses_On();
@@ -69,33 +69,33 @@ void CTestingMode::Forcing() {
       SWarning::setMessage(EWarningId::PK_NOT_OPEN);
       PK_STATUS = StatusRet::ERROR;
     }
-    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
   }  
 }
 
 // Включение реле "Возбуждение подано" после паузы
 void CTestingMode::RelayExOn() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   if (dTrsPhase >= BRIDGE_CHANGAE) {
     rDinStr.Relay_Ex_Applied(State::ON);
     phases_test = EPhasesTest::RelayPause;
-    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
   }  
 }
 
 // Пауза на включение реле и включение режима СИФУ "Через один"
 void CTestingMode::RelayPause() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   if (dTrsPhase >= RELAY_PAUSE_OFF) {
     rSIFU.execute_mode_Wone();
     phases_test = EPhasesTest::ClosingKey;
-    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
   }
 }
 
 // Проверка закрытого состояния ПК
 void CTestingMode::ClosingKey() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) {
     rSIFU.rReg_manager.rCurrent_reg.ResPusk = RPusk::DISCONNECT; 
     phases_test = EPhasesTest::ControlKey;
@@ -103,7 +103,7 @@ void CTestingMode::ClosingKey() {
       SWarning::setMessage(EWarningId::PK_NOT_CLOSE);
       PK_STATUS = StatusRet::ERROR;
     }
-    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
   }  
 }
 
@@ -116,22 +116,22 @@ void CTestingMode::ControlKey() {
     phases_test = EPhasesTest::Regulation;
     SWork::clrMessage(EWorkId::TESTING);
     SWork::setMessage(EWorkId::TESTING_OK);
-    prev_TC0_Phase = LPC_TIM0->TC;
-    prev_TC0_Reg = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
+    prev_TC0_Reg = SysT::TC();
   }
 }
 
 // Регулирование до окончания режима
 void CTestingMode::Regulation() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   if (dTrsPhase >= rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
     StopTest();
     return;
   }
   
-  dTrsReg = LPC_TIM0->TC - prev_TC0_Reg;
+  dTrsReg = SysT::TC() - prev_TC0_Reg;
   if (dTrsReg >= ChangeInterval * TICK_SEC ) {
-    prev_TC0_Reg = LPC_TIM0->TC;
+    prev_TC0_Reg = SysT::TC();
        
     if(rDinStr.Setting_More()) { Iset += dIset; }   
     if(rDinStr.Setting_Less()) { Iset -= dIset; }

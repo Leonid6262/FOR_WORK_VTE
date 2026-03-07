@@ -19,10 +19,7 @@ class CSET_SPI {
   static constexpr unsigned int Hz_SPI1 = 10000000;
   static constexpr unsigned int Hz_SPI2 = 1000000;
 
-
-
   static constexpr unsigned int RXDMAE = 1UL << 0;
   static constexpr unsigned int TXDMAE = 1UL << 1;
 
-  LPC_SSP_TypeDef* SSP;
 };

@@ -52,9 +52,9 @@ void CWorkMode::work(bool Permission) {
 // Задание тока
 void CWorkMode::CurrentSetting() {
   
-  dTrsReg = LPC_TIM0->TC - prev_TC0_Reg;
+  dTrsReg = SysT::TC() - prev_TC0_Reg;
   if (dTrsReg >= ChangeInterval * TICK_SEC ) {
-    prev_TC0_Reg = LPC_TIM0->TC;
+    prev_TC0_Reg = SysT::TC();
 
     if(rDinStr.Setting_More()) { Iset += dIset; }   
     if(rDinStr.Setting_Less()) { Iset -= dIset; }

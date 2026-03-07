@@ -7,8 +7,8 @@ class CSET_UART{
 public:    
   enum class EUartInstance {
     UART_0,              
-    UART_1,             
-    UART_2              
+    UART_2,             
+    UART_3              
   };
   
   static LPC_UART_TypeDef* configure(EUartInstance);
@@ -44,7 +44,6 @@ private:
     FIFOEN       = 0x07,        // b2-очистка TXFIFO, b1-очистка RXFIFO, b0-вкл FIFO
     TXEN         = 1UL << 7     // Разрешение передачи
   };  
-  
-  LPC_UART_TypeDef* UART;
+
 };
 

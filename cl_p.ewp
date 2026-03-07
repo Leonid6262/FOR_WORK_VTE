@@ -2163,26 +2163,14 @@
         </group>
         <group>
             <name>INIT</name>
-            <file>
-                <name>$PROJ_DIR$\SRC\INIT\emac.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\SRC\INIT\emac.hpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\SRC\INIT\emc.hpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\SRC\INIT\SDCard_init.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\SRC\INIT\Timers_init.hpp</name>
-            </file>
         </group>
         <group>
             <name>PERIPHERIALS</name>
             <file>
                 <name>$PROJ_DIR$\SRC\PERIPHERIALS\ControlBits.hpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\PERIPHERIALS\emc.hpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\PERIPHERIALS\Peripherals.hpp</name>
@@ -2226,9 +2214,6 @@
         </group>
         <group>
             <name>SERIAL</name>
-            <file>
-                <name>$PROJ_DIR$\SRC\SERIAL\can.cpp</name>
-            </file>
             <file>
                 <name>$PROJ_DIR$\SRC\SERIAL\set_spi.cpp</name>
             </file>

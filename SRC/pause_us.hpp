@@ -7,6 +7,6 @@
 #pragma inline = forced
 void Pause_us(unsigned int us) 
 {
-  unsigned int t = LPC_TIM0->TC;
-  while ((LPC_TIM0->TC - t) < (us * 10) );
+  unsigned int t = SysT::TC();
+  while ((SysT::TC() - t) < (us * 10) );
 }

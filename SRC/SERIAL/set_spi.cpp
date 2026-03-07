@@ -2,11 +2,11 @@
 #include "Peripherals.hpp"
 
 LPC_SSP_TypeDef* CSET_SPI::config(ESPIInstance SN) {
-  LPC_SSP_TypeDef* SSP = nullptr;
+  LPC_SSP_TypeDef* SSP;
 
   switch (SN) {
     case ESPIInstance::SPI_0:
-      SSP = LPC_SSP0;
+      SSP = P::SPI0;
       SSP->CR0 = 0;
       SSP->CR0 = 8 - 1;  // (8 - 1) -> 8 bits
       SSP->CR1 = 0;
@@ -14,7 +14,7 @@ LPC_SSP_TypeDef* CSET_SPI::config(ESPIInstance SN) {
       SSP->CR1 |= SPI_Config::CR1_SSP_EN;
       break;
     case ESPIInstance::SPI_1:
-      SSP = LPC_SSP1;
+      SSP = P::SPI1;
       SSP->CR0 = 0;
       SSP->CR0 = 16 - 1;  // (16 - 1) -> 16 bits
       SSP->CR1 = 0;
@@ -22,7 +22,7 @@ LPC_SSP_TypeDef* CSET_SPI::config(ESPIInstance SN) {
       SSP->CR1 |= SPI_Config::CR1_SSP_EN;
       break;
     case ESPIInstance::SPI_2:
-      SSP = LPC_SSP2;
+      SSP = P::SPI2;
       SSP->CR0 = 0;
       SSP->CR0 = 16 - 1;  // (16 - 1) -> 16 bits
       SSP->CR1 = 0;

@@ -16,11 +16,8 @@ void CFactory::Peripherals_init() {
     cpi.initDOutputs();
     cpi.powerON();
     cpi.initIOCON();
-       
-    // Сброс настроек и флагов EXTINT
-    P::SC->EXTINT = 0xF; 
-    P::SC->EXTMODE = 0x0;
-    P::SC->EXTPOLAR = 0x0;
+    cpi.initTimers();
+    cpi.initEXTINT();
 }
 
 CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                         // For the control class
@@ -50,7 +47,7 @@ CRegManager CFactory::createRegManager() {
 // ModBus slave
 CMBSLAVE CFactory::create_MBslave() {
   static CDMAcontroller cont_dma;     // Управление каналами DMA
-  return CMBSLAVE(cont_dma, CSET_UART::configure(EUART::UART_1));
+  return CMBSLAVE(cont_dma, CSET_UART::configure(EUART::UART_2));
 }
 
 // Запуск всей системы: System Manager + СИФУ 
@@ -60,7 +57,7 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   
   // --- СИФУ и его окружение ---
   static CADC adc(CSET_SPI::config(ESPI::SPI_1), CADC_STORAGE::getInstance());
-  static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance(), P::PWM1);
+  static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance(), P::PWM_DAC);
   dac_cos.conv(dac_cos.DAC_PWM_MAX_VAL / 2);
   static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos, reg_manager, CADC_STORAGE::getInstance()); 
   static CFaultCtrlP fault_ctrl_p(CADC_STORAGE::getInstance(), ESET::getInstance());                      
@@ -98,7 +95,6 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   CProxyHandlerEINT2::getInstance().set_pFaultCtrl(&fault_ctrl_f);
   fault_ctrl_p.setSysManager(&sys_manager); 
   
-  fault_ctrl_f.initEINT2();
   return sys_manager;
 }
 

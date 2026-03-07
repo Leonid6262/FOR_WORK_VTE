@@ -55,19 +55,9 @@ void CProxyHandlerEINT2::set_pFaultCtrl(CFaultCtrlF* pFaultCtrl) {
 // Handler EINT2
 extern "C" {  
   void  EINT2_IRQHandler( void ) {
-    P::SC->EXTINT |= CFaultCtrlF::EINT2_BIT_MARK;
+    P::SC->EXTINT |= bf::EINT2_BIT_MARK;
     SFault::setMessage(EFaultId::ID_MAX_HARD);
     CProxyHandlerEINT2::getInstance().pFaultCtrl->fault_stop();
   }
 }
 
-// Инициализация прерывания EINT2
-void CFaultCtrlF::initEINT2() {
-     
-  P::SC->EXTMODE |= (1 << LineEINT2);      // EDGE
-  P::SC->EXTPOLAR &= ~(1 << LineEINT2);    // FALLING 
-  P::SC->EXTINT |= 0x0F;
-  
-  NVIC_EnableIRQ(EINT2_IRQn);
-
-}

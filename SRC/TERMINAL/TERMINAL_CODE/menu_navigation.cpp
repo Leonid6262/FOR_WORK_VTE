@@ -312,7 +312,7 @@ void CMenuNavigation::Key_Handler(EKey_code key) {
     
   case EKey_code::NONE:
   default: {
-    unsigned int dTrs = LPC_TIM0->TC - prev_TC0;
+    unsigned int dTrs = SysT::TC() - prev_TC0;
     
     static ETitleType currentTitle = ETitleType::TitleName;
     static unsigned int elapsed_ms = 0;
@@ -324,7 +324,7 @@ void CMenuNavigation::Key_Handler(EKey_code key) {
         rRTC.setDateTime(rRTC.DateTimeForSet);
       }
       
-      prev_TC0 = LPC_TIM0->TC;
+      prev_TC0 = SysT::TC();
       elapsed_ms += dTrs / 10000; // пересчёт в мс      
       d.delta_timer_ms += dTrs / 10000;
       

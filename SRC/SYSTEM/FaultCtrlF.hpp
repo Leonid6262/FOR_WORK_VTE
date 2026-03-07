@@ -15,12 +15,8 @@ public:
   F Fault = F::NOT_FAULT;
   
   void setSysManager(CSystemManager*);
-  void initEINT2();
   void control(bool);
   void fault_stop();
-  
-  static constexpr unsigned int LineEINT2 = 2;
-  static constexpr unsigned int EINT2_BIT_MARK = 0x04;
   
 private:
   CSystemManager* pSys_manager;

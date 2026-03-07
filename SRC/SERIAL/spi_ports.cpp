@@ -5,8 +5,8 @@
 #include "system_LPC177x.h"
 
 void CSPI_ports::rw() {
-  unsigned int dT = LPC_TIM0->TC - prev_TC0;  // Текущая дельта [0.1*mks]
-  prev_TC0 = LPC_TIM0->TC;
+  unsigned int dT = SysT::TC() - prev_TC0;  // Текущая дельта [0.1*mks]
+  prev_TC0 = SysT::TC();
 
   auto& settings = CEEPSettings::getInstance().getSettings();
   CDIN_STORAGE& s_instans = CDIN_STORAGE::getInstance();
@@ -45,5 +45,5 @@ CSPI_ports::CSPI_ports(LPC_SSP_TypeDef* SSP, CGPIO& gpio) : SSP(SSP), gpio(gpio)
   rw();
   // Активизация выходных регистров (перевод из 3-го состояния в активное)
   gpio.set(bg::OUT_E);
-  prev_TC0 = LPC_TIM0->TC;
+  prev_TC0 = SysT::TC();
 }

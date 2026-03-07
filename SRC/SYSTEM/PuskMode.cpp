@@ -25,7 +25,7 @@ void CPuskMode::pusk(bool Permission) {
     is_confirm_cnt = 0;
     rSIFU.set_alpha(rSet.getSettings().set_reg.A0);
     phases_pusk = EPhasesPusk::CheckISctrlPK;
-    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
     return;
   } 
   
@@ -49,7 +49,7 @@ void CPuskMode::pusk(bool Permission) {
 
 // --- Контроль наличия тока статора, проверка работы ПК и датчика напряжения --- 
 void CPuskMode::CheckISctrlPK() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   if(dTrsPhase < CHECK_IS) {
     PK_Status = switching_check_pk(Check::CHECK);
     PuskIS = control_IS();
@@ -99,7 +99,7 @@ void CPuskMode::CheckISctrlPK() {
     rSIFU.rPulsCalc.clearDetectRotorPhase();
     phases_pusk = EPhasesPusk::WaitISdrop;
     SWork::setMessage(EWorkId::PUSK);
-    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
   }
   
 }
@@ -111,7 +111,7 @@ void CPuskMode::WaitISdrop() {
   if (rSIFU.rPulsCalc.getSlipEvent()) rSIFU.rPulsCalc.resSlipEvent();
   
   // Ток не снизился. Затянувшийся пуск
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   if(dTrsPhase > rSet.getSettings().set_pusk.TPusk * TICK_SEC) {
     SFault::setMessage(EFaultId::LONG_PUSK);
     rSIFU.rPulsCalc.stopDetectRotorPhase();
@@ -122,7 +122,7 @@ void CPuskMode::WaitISdrop() {
   // Ток снизился. Переход к фазе самосинхронизации
   if(*rSIFU.rPulsCalc.getPointer_istator_rms() <= rSet.getSettings().set_pusk.ISPusk) {
     phases_pusk = EPhasesPusk::SelfSync;
-    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
     return;
   } 
   
@@ -130,7 +130,7 @@ void CPuskMode::WaitISdrop() {
 
 // ---Фаза самосинхронизации и определенпе типа пуска---
 void CPuskMode::SelfSync() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   
   bool isNewSlipData = rSIFU.rPulsCalc.getSlipEvent();
   bool isNewU0Data = rSIFU.rPulsCalc.getU0Event();
@@ -199,34 +199,34 @@ void CPuskMode::StartEx() {
   rSIFU.rReg_manager.setCurrent(State::ON);    
 
   phases_pusk = EPhasesPusk::Forcing;
-  prev_TC0_Phase = LPC_TIM0->TC;
+  prev_TC0_Phase = SysT::TC();
 }
 
 // ---Форсировка---
 void CPuskMode::Forcing() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   if (dTrsPhase >= rSet.getSettings().set_pusk.TFors * TICK_SEC) { 
     rSIFU.rReg_manager.rCurrent_reg.set_Iset(rSet.getSettings().work_set.Iset_0);
     rSIFU.main_bridge_pulses_On();
     phases_pusk = EPhasesPusk::Pause;
-    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
   }  
 }
 
 // ---Пауза перед закрытием ПК---
 void CPuskMode::Pause() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   rDinStr.Relay_Ex_Applied(State::ON);
   if (dTrsPhase >= PAUSE) { 
     rSIFU.execute_mode_Wone();
     phases_pusk = EPhasesPusk::ClosingKey;
-    prev_TC0_Phase = LPC_TIM0->TC;
+    prev_TC0_Phase = SysT::TC();
   }
 }
 
 // ---Закрытие ПК и переход в режим Работа---
 void CPuskMode::ClosingKey() {
-  dTrsPhase = LPC_TIM0->TC - prev_TC0_Phase;
+  dTrsPhase = SysT::TC() - prev_TC0_Phase;
   if (dTrsPhase >= CLOSING_KEY) { 
     if(!rDinStr.CU_from_testing()) {
       SFault::setMessage(EFaultId::PK_NOT_CLOSED);

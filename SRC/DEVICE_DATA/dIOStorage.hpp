@@ -157,11 +157,11 @@ class CDIN_STORAGE {
         (curStatusHVS != StatusHVS::PROCESS) && (curStatusHVS != StatusHVS::ERR_BC)) 
     { 
       curStatusHVS = StatusHVS::PROCESS;
-      prev_TC0 = LPC_TIM0->TC;
+      prev_TC0 = SysT::TC();
     }
     // Фаза ожидания переключения
     if(curStatusHVS == StatusHVS::PROCESS) {
-      unsigned int dTrsPhase = LPC_TIM0->TC - prev_TC0;
+      unsigned int dTrsPhase = SysT::TC() - prev_TC0;
       if(dTrsPhase > SWITCHING_TIME) {
         // Время отведенное на переключение вышло. Статус - ERR_BC
         curStatusHVS = StatusHVS::ERR_BC;

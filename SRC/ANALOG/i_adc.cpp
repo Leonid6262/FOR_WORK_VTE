@@ -14,9 +14,9 @@ StatusRet CIADC::measure_5V() {
   // Измерение напряжение питания +5V
   LPC_ADC->CNR &= CLEAR;
   LPC_ADC->CNR |= ((1UL << CH_P5) | START);
-  unsigned int prev_TC0 = LPC_TIM0->TC;
+  unsigned int prev_TC0 = SysT::TC();
   while (!(LPC_ADC->GDR & DONE)) {
-    if ((LPC_TIM0->TC - prev_TC0) > DELAY) {
+    if ((SysT::TC() - prev_TC0) > DELAY) {
       adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_P5, 0);
       adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_N5, 0);
       return StatusRet::ERROR;
@@ -30,9 +30,9 @@ StatusRet CIADC::measure_5V() {
   // Измерение напряжение питания -5V
   LPC_ADC->CNR &= CLEAR;
   LPC_ADC->CNR |= ((1UL << CH_N5) | START);
-  prev_TC0 = LPC_TIM0->TC;
+  prev_TC0 = SysT::TC();
   while (!(LPC_ADC->GDR & DONE)) {
-    if ((LPC_TIM0->TC - prev_TC0) > DELAY) {
+    if ((SysT::TC() - prev_TC0) > DELAY) {
       adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_P5, 0);
       adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_N5, 0);
       return StatusRet::ERROR;

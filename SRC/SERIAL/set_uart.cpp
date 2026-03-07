@@ -2,11 +2,12 @@
 #include "Peripherals.hpp"
 
 LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN) {
-  LPC_UART_TypeDef* UART = nullptr;
+  
+  LPC_UART_TypeDef* UART;
 
   switch (UN) {
     case EUartInstance::UART_0:
-      UART = LPC_UART0;
+      UART = P::UART0;
       /* Настройка частоты */
       UART->TER = 0x00;         // Запрет передачи на момент настройки
       UART->LCR = LCR_DLAB_ON;  // b7 - DLAB вкл.
@@ -14,8 +15,8 @@ LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN) {
       UART->DLL = baud_19200.DLL;
       UART->FDR = baud_19200.FDR;
       break;
-    case EUartInstance::UART_1:
-      UART = LPC_UART2;
+    case EUartInstance::UART_2:
+      UART = P::UART2;
       UART->RS485CTRL = DCTRL;                // Автоматическое переключение OE
       UART->RS485CTRL |= OINV;                // Инверсия OE
       /* Настройка частоты */
@@ -25,8 +26,8 @@ LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN) {
       UART->DLL = baud_115200.DLL;
       UART->FDR = baud_115200.FDR;
       break;
-    case EUartInstance::UART_2:
-      UART = LPC_UART3;
+    case EUartInstance::UART_3:
+      UART = P::UART3;
       UART->RS485CTRL = DCTRL;                // Автоматическое переключение OE
       UART->RS485CTRL |= OINV;                // Инверсия OE
       /* Настройка частоты */

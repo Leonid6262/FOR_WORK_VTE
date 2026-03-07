@@ -157,9 +157,9 @@ void CMessageDisplay::Key_Handler(EKey_code key) {
     break;
   case EKey_code::NONE:
   default: {
-    unsigned int dTrs = LPC_TIM0->TC - prev_TC0;
+    unsigned int dTrs = SysT::TC() - prev_TC0;
     if (dTrs >= MESSAGE_PERIOD_TICKS) { 
-      prev_TC0 = LPC_TIM0->TC;
+      prev_TC0 = SysT::TC();
       if (first_call) {
         unsigned char led_off[] = {static_cast<unsigned char>(ELED::LED_OFF), '\r'};
         uartDrv.sendBuffer(led_off, sizeof(led_off));

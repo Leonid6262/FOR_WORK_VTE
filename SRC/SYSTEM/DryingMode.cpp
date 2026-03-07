@@ -10,7 +10,7 @@ void CDryingMode::dry(bool Permission) {
     cur_status = State::OFF; 
     pSys_manager->set_bsWorkDry(State::OFF);
     SWork::clrMessage(EWorkId::DRYING);
-    prev_TC0 = LPC_TIM0->TC - RELAY_PAUSE_OFF;
+    prev_TC0 = SysT::TC() - RELAY_PAUSE_OFF;
     return; 
   }
   
@@ -40,7 +40,7 @@ void CDryingMode::dry(bool Permission) {
 void CDryingMode::StartDrain(){
   rDinStr.Relay_Ex_Applied(State::ON);
   rDinStr.Relay_Premission(State::OFF);
-  unsigned int dTrs = LPC_TIM0->TC - prev_TC0;
+  unsigned int dTrs = SysT::TC() - prev_TC0;
   if (dTrs >= RELAY_PAUSE_OFF) { 
     rSIFU.set_alpha(rSIFU.s_const.AMax);
     rSIFU.main_bridge_pulses_On();
