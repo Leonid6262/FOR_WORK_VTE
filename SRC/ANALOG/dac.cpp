@@ -8,9 +8,7 @@ CDAC0::CDAC0(CEEPSettings& rSet, LPC_DAC_TypeDef* DAC) : rSet(rSet) {
 }
 
 CDAC_PWM::CDAC_PWM(EPWM_DAC DN, CEEPSettings& rSet, LPC_PWM_TypeDef* PWM_DAC) : rSet(rSet), PWM_DAC(PWM_DAC) {
-  LPC_SC->PCONP |= CLKPWR_PCONP_PCPWM1;  // PWM1 power/clock control bit.
   PWM_DAC->PR = PWM_div_1 - 1;           // при PWM_div=6, F=60МГц/6=10МГц, 1тик=0.1мкс
-
   PWM_DAC->TCR = 0x000;  // Сброс регистра таймера
   PWM_DAC->TCR = 0x002;  // Сброс таймера
 

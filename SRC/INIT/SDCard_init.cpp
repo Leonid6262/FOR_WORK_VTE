@@ -15,7 +15,7 @@ StatusRet CSDCard::init() {
   P::IOCON->P1_11 = IOCON_SD_DAT2;
   P::IOCON->P1_12 = IOCON_SD_DAT3;
 
-  LPC_SC->PCONP |= PCONP_PCSDC;  // Включаем питание модуля
+  P::SC->PCONP |= PCONP_PCSDC;  // Включаем питание модуля
 
   LPC_MCI->POWER = 0x00;  // Отключаем питание карты
   Pause_us(2000);

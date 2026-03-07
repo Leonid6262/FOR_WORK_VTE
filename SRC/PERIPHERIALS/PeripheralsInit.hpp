@@ -1,9 +1,10 @@
 #pragma once
 #include "LPC407x_8x_177x_8x.h"
+#include "lpc177x_8x_clkpwr.h"
 #include "Peripherals.hpp"
 #include "ControlBits.hpp"
 
-class CSET_PORTS {
+class CPERIPHERIALS_INIT {
 private:
     CGPIO gpio0;
     CGPIO gpio1;
@@ -12,11 +13,13 @@ private:
     CGPIO gpio4;
     CGPIO gpio5;
     
+    CPCONP pconp;
     CIOCON iocon;
     
 public:
-  CSET_PORTS() : gpio0(P::G0), gpio1(P::G1), gpio2(P::G2), gpio3(P::G3), 
-                 gpio4(P::G4), gpio5(P::G5), iocon(P::IOCON) {}
+  CPERIPHERIALS_INIT() : 
+    gpio0(P::G0), gpio1(P::G1), gpio2(P::G2), gpio3(P::G3), 
+    gpio4(P::G4), gpio5(P::G5), iocon(P::IOCON), pconp(P::SC) {}
           
     void initDOutputs() {
       
@@ -43,6 +46,31 @@ public:
       gpio3.dirOut(0x3F3F0000);
       gpio4.dirOut(0x00000000);
       gpio5.dirOut(0x00000008);
+    }
+    
+    void powerON() {
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCPWM1;
+     
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCTIM0;
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCTIM1;
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCTIM2;
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCTIM3;
+      
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCAN1;
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCAN2;
+      
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCADC;
+      
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCUART0;  
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCUART2;  
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCUART3;  
+      
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCSSP0; 
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCSSP1;    
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCSSP2; 
+      
+      pconp.sc->PCONP |= CLKPWR_PCONP_PCGPDMA;
+      
     }
     
     void initIOCON() {

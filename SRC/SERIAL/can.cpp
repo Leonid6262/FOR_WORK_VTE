@@ -8,8 +8,7 @@ CCAN::CCAN(ECAN_Id_Instance CAN_Id) {
   switch (CAN_Id) {
     case ECAN_Id_Instance::CAN1_Id:
       CAN_N = LPC_CAN1;
-
-      P::SC->PCONP |= CLKPWR_PCONP_PCAN1;
+     
       resetController();
       clearAFTable();
       setBaudrate(baudrate_can1, PeripheralClock);
@@ -18,7 +17,6 @@ CCAN::CCAN(ECAN_Id_Instance CAN_Id) {
     case ECAN_Id_Instance::CAN2_Id:
       CAN_N = LPC_CAN2;
 
-      P::SC->PCONP |= CLKPWR_PCONP_PCAN2;
       resetController();
       clearAFTable();
       setBaudrate(baudrate_can2, PeripheralClock);

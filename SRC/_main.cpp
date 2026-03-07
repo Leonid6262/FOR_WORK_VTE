@@ -5,7 +5,7 @@ void UserStartInit() {
 }
 
 void main(void) {
-  CFactory::init_ports();                               // Инициализация дискретных выходов микроконтроллера (pins) 
+  CFactory::Peripherals_init();                         // Инициализация периферии
   CDIN_STORAGE::UserLedOn();                            // Визуальный контроль начала инициализации   
   Priorities::initPriorities();                         // Распределение векторов по группам. см. в файле IntPriority.h
   CSET_TIMER::initTimers();                             // Инициализация таймеров.

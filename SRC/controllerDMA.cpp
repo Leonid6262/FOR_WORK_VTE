@@ -3,7 +3,6 @@
 #include "IntPriority.hpp"
 
 CDMAcontroller::CDMAcontroller() {
-  LPC_SC->PCONP |= CLKPWR_PCONP_PCGPDMA;
   for (unsigned char i = 0; i < MaxChannels; ++i) {
     DmaChannels[i]->CConfig = 0;
   }

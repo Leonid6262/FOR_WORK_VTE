@@ -7,7 +7,6 @@ LPC_SSP_TypeDef* CSET_SPI::config(ESPIInstance SN) {
   switch (SN) {
     case ESPIInstance::SPI_0:
       SSP = LPC_SSP0;
-      P::SC->PCONP |= CLKPWR_PCONP_PCSSP0;      // Включение питания SPI0
       SSP->CR0 = 0;
       SSP->CR0 = 8 - 1;  // (8 - 1) -> 8 bits
       SSP->CR1 = 0;
@@ -16,7 +15,6 @@ LPC_SSP_TypeDef* CSET_SPI::config(ESPIInstance SN) {
       break;
     case ESPIInstance::SPI_1:
       SSP = LPC_SSP1;
-      P::SC->PCONP |= CLKPWR_PCONP_PCSSP1;           // Включение питания SPI1
       SSP->CR0 = 0;
       SSP->CR0 = 16 - 1;  // (16 - 1) -> 16 bits
       SSP->CR1 = 0;
@@ -25,7 +23,6 @@ LPC_SSP_TypeDef* CSET_SPI::config(ESPIInstance SN) {
       break;
     case ESPIInstance::SPI_2:
       SSP = LPC_SSP2;
-      P::SC->PCONP |= CLKPWR_PCONP_PCSSP2;  // Включение питания SPI2
       SSP->CR0 = 0;
       SSP->CR0 = 16 - 1;  // (16 - 1) -> 16 bits
       SSP->CR1 = 0;

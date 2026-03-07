@@ -6,8 +6,6 @@
 #include "Peripherals.hpp"
 
 CIADC::CIADC(CADC_STORAGE& adstr) : adstr(adstr) {
-
-  LPC_SC->PCONP |= CLKPWR_PCONP_PCADC;
   LPC_ADC->CNR = (((PeripheralClock / OSC_CLK) - 1) << SB_CLKDIV) | PDN;
 };
 

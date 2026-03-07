@@ -11,10 +11,12 @@ using ESET = CEEPSettings;
 using EUART = CSET_UART::EUartInstance;
 using ESPI = CSET_SPI::ESPIInstance;
 
-void CFactory::init_ports() {
-    CSET_PORTS csp; 
-    csp.initDOutputs();
-    csp.initIOCON();
+void CFactory::Peripherals_init() {
+    CPERIPHERIALS_INIT cpi; 
+    cpi.initDOutputs();
+    cpi.powerON();
+    cpi.initIOCON();
+       
     // Сброс настроек и флагов EXTINT
     P::SC->EXTINT = 0xF; 
     P::SC->EXTMODE = 0x0;

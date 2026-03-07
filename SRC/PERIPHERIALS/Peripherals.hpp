@@ -21,7 +21,14 @@ namespace P {
   constexpr LPC_PWM_TypeDef* puls_pwm = LPC_PWM0;  // PWM ИУ
 }
 
-// Инициализация IOCON
+// Включение питания (PCONP)
+class CPCONP {
+public:
+  LPC_SC_TypeDef* sc;
+  CPCONP(LPC_SC_TypeDef* sc) : sc(sc) {}
+};
+
+// Инициализация функционала (IOCON)
 class CIOCON {
 public:
   LPC_IOCON_TypeDef* base;
@@ -40,8 +47,8 @@ public:
   void set(unsigned int mask)   { port->SET = mask; }
   void clr(unsigned int mask)   { port->CLR = mask; }
   void dirOut(unsigned int mask){ port->DIR |= mask; }
-  void dirIn(unsigned int mask) { port->DIR &= ~mask; }
+  void dirIn(unsigned int mask) { port->DIR &= ~mask; }  
+  unsigned int get_pin()        { return port->PIN; }
   
-  unsigned int get_pin() { return port->PIN; }  
 };
 

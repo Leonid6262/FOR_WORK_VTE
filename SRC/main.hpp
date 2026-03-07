@@ -4,7 +4,7 @@
 //extern "C" struct mallinfo __iar_dlmallinfo(void); 
 //extern "C" void __iar_dlmalloc_stats(void);
 
-#include "Ports_init.hpp"
+#include "PeripheralsInit.hpp"
 #include "emc.hpp"
 #include "Timers_init.hpp"
 #include "AdcStorage.hpp"

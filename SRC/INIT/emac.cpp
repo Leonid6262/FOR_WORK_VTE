@@ -119,7 +119,7 @@ StatusRet CEMAC_DRV::initPHY() {
 
 // Инициализация EMAC
 StatusRet CEMAC_DRV::initEMAC() {
-  LPC_SC->PCONP |= CLKPWR_PCONP_PCENET;  // Включить питание, Настроить MDC частоту для MDIO (максимум 2.5 МГц)
+  P::SC->PCONP |= CLKPWR_PCONP_PCENET;  // Включить питание, Настроить MDC частоту для MDIO (максимум 2.5 МГц)
   LPC_EMAC->MCFG = MCFG_RES_MII | MCFG_CLK_DIV48;  // сброс MII-логики
   LPC_EMAC->MCFG &= ~MCFG_RES_MII;
 

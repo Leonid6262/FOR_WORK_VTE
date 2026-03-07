@@ -7,7 +7,6 @@ LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN) {
   switch (UN) {
     case EUartInstance::UART_0:
       UART = LPC_UART0;
-      P::SC->PCONP |= CLKPWR_PCONP_PCUART0;  // Включение питания UART0
       /* Настройка частоты */
       UART->TER = 0x00;         // Запрет передачи на момент настройки
       UART->LCR = LCR_DLAB_ON;  // b7 - DLAB вкл.
@@ -17,7 +16,6 @@ LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN) {
       break;
     case EUartInstance::UART_1:
       UART = LPC_UART2;
-      P::SC->PCONP |= CLKPWR_PCONP_PCUART2;  // Включение питания UART2
       UART->RS485CTRL = DCTRL;                // Автоматическое переключение OE
       UART->RS485CTRL |= OINV;                // Инверсия OE
       /* Настройка частоты */
@@ -29,7 +27,6 @@ LPC_UART_TypeDef* CSET_UART::configure(EUartInstance UN) {
       break;
     case EUartInstance::UART_2:
       UART = LPC_UART3;
-      P::SC->PCONP |= CLKPWR_PCONP_PCUART3;  // Включение питания UART3
       UART->RS485CTRL = DCTRL;                // Автоматическое переключение OE
       UART->RS485CTRL |= OINV;                // Инверсия OE
       /* Настройка частоты */
