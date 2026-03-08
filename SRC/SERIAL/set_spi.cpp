@@ -2,6 +2,7 @@
 #include "Peripherals.hpp"
 
 LPC_SSP_TypeDef* CSET_SPI::config(ESPIInstance SN) {
+  
   LPC_SSP_TypeDef* SSP;
 
   switch (SN) {

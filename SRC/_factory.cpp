@@ -32,6 +32,7 @@ CDin_cpu CFactory::createDINcpu() {    // Дискретные входы кон
 }                                
 CSPI_ports CFactory::createSPIports() { // R/W  dIO доступные по SPI
   static CGPIO gpio(P::G0);
+  static CSPI_driver drv_spi(CSET_SPI::config(ESPI::SPI_0));
   return CSPI_ports(CSET_SPI::config(ESPI::SPI_0), gpio); 
 } 
 CIsoMeas CFactory::createIsoMeas()    { return CIsoMeas(); }                                // Измерение сопротивления изоляции 

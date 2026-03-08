@@ -4,6 +4,7 @@
 #include "settings_eep.hpp"
 #include "set_uart.hpp"
 #include "set_spi.hpp"
+#include "drv_spi.hpp"
 #include "spi_ports.hpp"
 #include "can.hpp"
 #include "dac.hpp"

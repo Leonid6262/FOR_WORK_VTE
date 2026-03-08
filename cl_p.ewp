@@ -2162,9 +2162,6 @@
             </file>
         </group>
         <group>
-            <name>INIT</name>
-        </group>
-        <group>
             <name>PERIPHERIALS</name>
             <file>
                 <name>$PROJ_DIR$\SRC\PERIPHERIALS\ControlBits.hpp</name>
@@ -2215,13 +2212,13 @@
         <group>
             <name>SERIAL</name>
             <file>
+                <name>$PROJ_DIR$\SRC\SERIAL\drv_spi.hpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\SRC\SERIAL\set_spi.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\SERIAL\set_uart.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\SRC\SERIAL\spi_ports.cpp</name>
             </file>
         </group>
         <group>
@@ -2325,6 +2322,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\SRC\settings_eep.hpp</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\SRC\spi_ports.cpp</name>
         </file>
     </group>
     <file>
