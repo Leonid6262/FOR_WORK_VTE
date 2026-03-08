@@ -28,6 +28,8 @@ namespace P {
   constexpr LPC_SC_TypeDef* SC = LPC_SC;           // System Control
   constexpr LPC_EMC_TypeDef* EMC = LPC_EMC;        // EMC
   
+  constexpr LPC_ADC_TypeDef* IADC = LPC_ADC;       // Внутреннее АЦП
+  
   constexpr LPC_DAC_TypeDef* DAC = LPC_DAC;        // DAC0
   constexpr LPC_PWM_TypeDef* PWM_DAC = LPC_PWM1;   // PWM1 DAC_PWM
   

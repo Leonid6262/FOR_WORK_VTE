@@ -23,7 +23,7 @@ void CFactory::Peripherals_init() {
 CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                         // For the control class
 CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance(), P::DAC); }  // DAC0. For system test
  
-CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance()); }  // Внутренее ADC.
+CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance(), P::IADC); }  // Внутренее ADC.
 StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }  // Загрузка уставок
 
 CDin_cpu CFactory::createDINcpu() {    // Дискретные входы контроллера

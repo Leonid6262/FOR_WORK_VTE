@@ -5,40 +5,40 @@
 #include "system_LPC177x.h"
 #include "Peripherals.hpp"
 
-CIADC::CIADC(CADC_STORAGE& adstr) : adstr(adstr) {
-  LPC_ADC->CNR = (((PeripheralClock / OSC_CLK) - 1) << SB_CLKDIV) | PDN;
+CIADC::CIADC(CADC_STORAGE& adstr, LPC_ADC_TypeDef* pIadc) : adstr(adstr), pIadc(pIadc) {
+  pIadc->CNR = (((PeripheralClock / OSC_CLK) - 1) << SB_CLKDIV) | PDN;
 };
 
 StatusRet CIADC::measure_5V() {
   
   // Измерение напряжение питания +5V
-  LPC_ADC->CNR &= CLEAR;
-  LPC_ADC->CNR |= ((1UL << CH_P5) | START);
+  pIadc->CNR &= CLEAR;
+  pIadc->CNR |= ((1UL << CH_P5) | START);
   unsigned int prev_TC0 = SysT::TC();
-  while (!(LPC_ADC->GDR & DONE)) {
+  while (!(pIadc->GDR & DONE)) {
     if ((SysT::TC() - prev_TC0) > DELAY) {
       adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_P5, 0);
       adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_N5, 0);
       return StatusRet::ERROR;
     }
   }
-  P5_cur = K_P5 * ((LPC_ADC->DR[CH_P5] >> 4) & 0xFFF);
+  P5_cur = K_P5 * ((pIadc->DR[CH_P5] >> 4) & 0xFFF);
   float P5_A = adstr.getInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_P5);
   P5_A = (P5_A + P5_cur) / 2.0f;
   adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_P5, P5_A);
 
   // Измерение напряжение питания -5V
-  LPC_ADC->CNR &= CLEAR;
-  LPC_ADC->CNR |= ((1UL << CH_N5) | START);
+  pIadc->CNR &= CLEAR;
+  pIadc->CNR |= ((1UL << CH_N5) | START);
   prev_TC0 = SysT::TC();
-  while (!(LPC_ADC->GDR & DONE)) {
+  while (!(pIadc->GDR & DONE)) {
     if ((SysT::TC() - prev_TC0) > DELAY) {
       adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_P5, 0);
       adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_N5, 0);
       return StatusRet::ERROR;
     }
   }
-  N5_cur = (K_N5 * ((LPC_ADC->DR[CH_N5] >> 4) & 0xFFF)) - (3 * P5_A);
+  N5_cur = (K_N5 * ((pIadc->DR[CH_N5] >> 4) & 0xFFF)) - (3 * P5_A);
   float N5_A = adstr.getInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_N5);
   N5_A = (N5_A + N5_cur) / 2.0f;
   adstr.setInternal(CADC_STORAGE::EIADC_NameCh::SUPPLY_N5, N5_A);

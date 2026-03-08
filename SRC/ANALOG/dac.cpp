@@ -3,8 +3,8 @@
 #include "system_LPC177x.h"
 #include "Peripherals.hpp"
 
-CDAC0::CDAC0(CEEPSettings& rSet, LPC_DAC_TypeDef* DAC) : rSet(rSet) { 
-  DAC->CNR = ((DAC0_MAX_VAL - DAC0_MIN_VAL) >> 1) << START_BITS_VALUE;
+CDAC0::CDAC0(CEEPSettings& rSet, LPC_DAC_TypeDef* dac) : rSet(rSet) { 
+  dac->CNR = ((DAC0_MAX_VAL - DAC0_MIN_VAL) >> 1) << START_BITS_VALUE;
 }
 
 CDAC_PWM::CDAC_PWM(EPWM_DAC DN, CEEPSettings& rSet, LPC_PWM_TypeDef* PWM_DAC) : rSet(rSet), PWM_DAC(PWM_DAC) {

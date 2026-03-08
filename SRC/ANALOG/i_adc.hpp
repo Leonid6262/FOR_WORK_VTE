@@ -7,6 +7,7 @@ class CIADC{
   
 private:
   CADC_STORAGE& adstr;
+  LPC_ADC_TypeDef* pIadc;
   
   static constexpr unsigned short CH_P5 = 0;           // +5V
   static constexpr unsigned short CH_N5 = 1;           // -5V 
@@ -27,7 +28,7 @@ private:
  
 public:
   
-  CIADC(CADC_STORAGE&);
+  CIADC(CADC_STORAGE&, LPC_ADC_TypeDef*);
   
   float P5_cur;
   float N5_cur;
