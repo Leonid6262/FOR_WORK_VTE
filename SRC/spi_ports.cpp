@@ -1,7 +1,7 @@
 #include "spi_ports.hpp"
-
 #include "dIOStorage.hpp"
 #include "spi_init.hpp"
+#include "drv_spi.hpp"
 #include "system_LPC177x.h"
 
 void CSPI_ports::rw() {
@@ -15,9 +15,8 @@ void CSPI_ports::rw() {
 
   for (char byte = 0; byte < G_CONST::BYTES_RW_REAL; byte++) {
     // Запись в dout с учётом инверсии
-    
-    SSP->DR = s_instans.UData_dout[byte + (G_CONST::BYTES_RW_MAX - G_CONST::BYTES_RW_REAL)].all ^
-              settings.dout_spi_invert[byte + (G_CONST::BYTES_RW_MAX - G_CONST::BYTES_RW_REAL)];
+    spi_drv.writeByte(s_instans.UData_dout[byte + (G_CONST::BYTES_RW_MAX - G_CONST::BYTES_RW_REAL)].all ^
+              settings.dout_spi_invert[byte + (G_CONST::BYTES_RW_MAX - G_CONST::BYTES_RW_REAL)]);
 
     // Фильтр (интегратор входного сигнала) и фиксация в CDIN_STORAGE
     s_instans.filter(data_din[byte], dT, n_for_storage + byte, CEEPSettings::getInstance());
@@ -25,19 +24,18 @@ void CSPI_ports::rw() {
     // После окончание операции r/w считываем байт din порта.
     // учитывая, что процесс фильтрации происходит на фоне транзакции spi,ожидания
     // при частотах spi до 900 кГц в while (SSP->SR & SR_BSY){} - не происходит
-    while (SSP->SR & SPI_Config::SR_BSY) {
-    }
-    data_din[byte] = ~SSP->DR;
+    
+    while (spi_drv.statusBSY()) {}
+    data_din[byte] = ~spi_drv.readByte();
   }
 
   // Захват din и обновление dout (1->0->1 HOLD bit).
   gpio.clr(bg::HOLD);
-  for (short Counter = 0x10; Counter > 0; Counter--) {
-  }
+  for (short Counter = 0x10; Counter > 0; Counter--) {}
   gpio.set(bg::HOLD);
 }
 
-CSPI_ports::CSPI_ports(LPC_SSP_TypeDef* SSP, CGPIO& gpio) : SSP(SSP), gpio(gpio) {  
+CSPI_ports::CSPI_ports(CSPI_DRIVER& spi_drv, CGPIO& gpio) : spi_drv(spi_drv), gpio(gpio) {  
   // Обнуление случайных значений в выходных регистрах.
   for (char byte = 0; byte < G_CONST::BYTES_RW_MAX; byte++) {
     CDIN_STORAGE::getInstance().UData_dout[byte].all = 0;
