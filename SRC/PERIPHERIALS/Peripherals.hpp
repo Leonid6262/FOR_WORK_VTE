@@ -26,6 +26,8 @@ namespace P {
   
   constexpr LPC_CAN_TypeDef* CAN1 = LPC_CAN1;
   constexpr LPC_CAN_TypeDef* CAN2 = LPC_CAN2;
+  constexpr LPC_CANAF_TypeDef* CANAF = LPC_CANAF;
+  constexpr LPC_CANAF_RAM_TypeDef* CANAF_RAM = LPC_CANAF_RAM;
     
   constexpr LPC_IOCON_TypeDef* IOCON = LPC_IOCON;  // IOCON 
   constexpr LPC_SC_TypeDef* SC = LPC_SC;           // System Control
@@ -37,6 +39,9 @@ namespace P {
   constexpr LPC_PWM_TypeDef* PWM_DAC = LPC_PWM1;   // PWM1 DAC_PWM
   
   constexpr LPC_PWM_TypeDef* PULS_PWM = LPC_PWM0;  // PWM ИУ
+  
+  constexpr LPC_RTC_TypeDef* RTC = LPC_RTC;
+  constexpr LPC_EEPROM_TypeDef* EEPROM = LPC_EEPROM;
 
 }
 

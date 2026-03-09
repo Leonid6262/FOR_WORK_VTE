@@ -24,7 +24,11 @@ CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                   
 CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance(), P::DAC); }  // DAC0. For system test
  
 CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance(), P::IADC); }   // Внутренее ADC.
-StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }            // Загрузка уставок
+
+StatusRet CFactory::load_settings() {   // Загрузка уставок
+  ESET::getInstance().get_pEEP(P::EEPROM);
+  return ESET::getInstance().loadSettings(); 
+}            
 
 CDin_cpu CFactory::createDINcpu() {    // Дискретные входы контроллера
   static CGPIO gpio(P::G2);
@@ -118,7 +122,7 @@ CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {
   cd::cdr.Q  = cd::cdr.P;
   cd::cdr.S  = cd::cdr.P;  
   
-  static CRTC rt_clock;                                                                 // Системные часы
+  static CRTC rt_clock(P::RTC);                                                         // Системные часы
   static CMenuNavigation menu_navigation(udrv, rSysMgr, rt_clock, ESET::getInstance()); // Пультовый терминал (навигация по меню).
   static CMessageDisplay mes_display(udrv, rSysMgr, rt_clock);                          // Пультовый терминал (индикация сообщений).
   static CTerminalManager terminal_manager(menu_navigation, mes_display);               // Управление режимами пультового терминал

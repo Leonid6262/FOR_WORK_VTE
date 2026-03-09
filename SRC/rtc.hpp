@@ -1,11 +1,12 @@
 #pragma once
+#include "LPC407x_8x_177x_8x.h"
 
 class CRTC
 { 
 
 public:
   
-  CRTC();
+  CRTC(LPC_RTC_TypeDef*);
   
   struct SDateTime {
     unsigned short  year;
@@ -34,7 +35,7 @@ private:
   bool isDateTimeValid();               // Проверка корректности данных при включеии питания
   
   SDateTime date_now;                   // Кэш актуального времени  
- 
+  LPC_RTC_TypeDef* RTC;
   
 };
 

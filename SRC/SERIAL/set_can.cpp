@@ -23,7 +23,7 @@ CCAN::CCAN(ECAN_Id_Instance CAN_Id) {
   CAN_N->MOD = CAN_MOD_RM;              // Enter Reset Mode
   // CAN_N->MOD |= CAN_MOD_STM;         // Set Self Test Mode
   CAN_N->MOD &= ~CAN_MOD_RM;            // Clear Reset Mode
-  LPC_CANAF->AFMR = CAN_ACC_BP;         // Acceptance Fileter Bypass Mode
+  P::CANAF->AFMR = CAN_ACC_BP;          // Acceptance Fileter Bypass Mode
 }
 
 void CCAN::resetController() {
@@ -36,16 +36,16 @@ void CCAN::resetController() {
 }
 
 void CCAN::clearAFTable() {
-  LPC_CANAF->AFMR = 0x01;
+  P::CANAF->AFMR = 0x01;
   for (uint16_t i = 0; i < 512; ++i) {
-    LPC_CANAF_RAM->mask[i] = 0x00;
+    P::CANAF_RAM->mask[i] = 0x00;
   }
-  LPC_CANAF->SFF_sa = 0;
-  LPC_CANAF->SFF_GRP_sa = 0;
-  LPC_CANAF->EFF_sa = 0;
-  LPC_CANAF->EFF_GRP_sa = 0;
-  LPC_CANAF->ENDofTable = 0;
-  LPC_CANAF->AFMR = 0x00;
+  P::CANAF->SFF_sa = 0;
+  P::CANAF->SFF_GRP_sa = 0;
+  P::CANAF->EFF_sa = 0;
+  P::CANAF->EFF_GRP_sa = 0;
+  P::CANAF->ENDofTable = 0;
+  P::CANAF->AFMR = 0x00;
 }
 
 void CCAN::setBaudrate(unsigned int baudrate, unsigned int PClock) {

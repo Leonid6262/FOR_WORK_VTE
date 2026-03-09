@@ -179,6 +179,8 @@ class CEEPSettings {
   CEEPSettings();                                         // Приватный конструктор
   CEEPSettings(const CEEPSettings&) = delete;             // Запрещаем копирование
   CEEPSettings& operator=(const CEEPSettings&) = delete;  // Запрещаем присваивание
+  
+  LPC_EEPROM_TypeDef* EEP;
 
   // Приватные методы для работы с EEP  ---
   StatusRet readFromEEPInternal(WorkSettings& outSettings);  // Чтение в WorkSettings
@@ -191,6 +193,8 @@ class CEEPSettings {
  public:
 
   static CEEPSettings& getInstance();
+  
+  void get_pEEP(LPC_EEPROM_TypeDef*);
 
   // Загрузки/сохранения уставок ---
   StatusRet loadSettings();  // Загружает из EEP. Если ошибка CRC - остаются дефолтные.

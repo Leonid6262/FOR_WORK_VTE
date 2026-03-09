@@ -1,17 +1,17 @@
 #include "rtc.hpp"
 #include "LPC407x_8x_177x_8x.h"
 
-CRTC::CRTC() {
-  if ((LPC_RTC->RTC_AUX & RTC_OSCF) || !isDateTimeValid()) {
+CRTC::CRTC(LPC_RTC_TypeDef* RTC) : RTC(RTC) {
+  if ((RTC->RTC_AUX & RTC_OSCF) || !isDateTimeValid()) {
     setDefault();                  // Установка дефолтных значений если была остановка
-    LPC_RTC->RTC_AUX |= RTC_OSCF;  // генератора или прочитанные значения не корректные
+    RTC->RTC_AUX |= RTC_OSCF;  // генератора или прочитанные значения не корректные
   }
   DateTimeForSet = {0,0,0,0,0,0};
 }
 
 bool CRTC::isDateTimeValid() {
-  unsigned int t = LPC_RTC->CTIME0;
-  unsigned int d = LPC_RTC->CTIME1;
+  unsigned int t = RTC->CTIME0;
+  unsigned int d = RTC->CTIME1;
 
   unsigned char month = static_cast<unsigned char>((d >> 8) & 0x0F);  // MONTH
   unsigned char day = static_cast<unsigned char>(d & 0x1F);           // DAY
@@ -23,8 +23,8 @@ bool CRTC::isDateTimeValid() {
 }
 
 void CRTC::update_now() {
-  unsigned int t = LPC_RTC->CTIME0;
-  unsigned int d = LPC_RTC->CTIME1;
+  unsigned int t = RTC->CTIME0;
+  unsigned int d = RTC->CTIME1;
 
   date_now.year = static_cast<unsigned char>((d >> 16) & 0x7F);   // YEAR
   date_now.month = static_cast<unsigned char>((d >> 8) & 0x0F);   // MONTH
@@ -45,20 +45,20 @@ void CRTC::update_now() {
 const CRTC::SDateTime& CRTC::get_now() const { return date_now; }
 
 void CRTC::setDateTime(const SDateTime& dt) {
-  LPC_RTC->CCR &= ~CLKEN;  // Stop Clock
+  RTC->CCR &= ~CLKEN;  // Stop Clock
 
-  LPC_RTC->YEAR = dt.year;
-  LPC_RTC->MONTH = dt.month;
-  LPC_RTC->DOM = dt.day;
-  LPC_RTC->HOUR = dt.hour;
-  LPC_RTC->MIN = dt.minute;
-  LPC_RTC->SEC = dt.second;
+  RTC->YEAR = dt.year;
+  RTC->MONTH = dt.month;
+  RTC->DOM = dt.day;
+  RTC->HOUR = dt.hour;
+  RTC->MIN = dt.minute;
+  RTC->SEC = dt.second;
 
-  LPC_RTC->CCR |= CLKEN;  // Start Clock
+  RTC->CCR |= CLKEN;  // Start Clock
 }
 
 void CRTC::setDefault() {
-  LPC_RTC->CCR |= CCALDS;  // Отключение калибратора
+  RTC->CCR |= CCALDS;  // Отключение калибратора
   setDateTime({
       25,  // Default year
       6,   // Default month
