@@ -23,6 +23,9 @@ namespace P {
   constexpr LPC_SSP_TypeDef* SPI0 = LPC_SSP0;
   constexpr LPC_SSP_TypeDef* SPI1 = LPC_SSP1;
   constexpr LPC_SSP_TypeDef* SPI2 = LPC_SSP2;
+  
+  constexpr LPC_CAN_TypeDef* CAN1 = LPC_CAN1;
+  constexpr LPC_CAN_TypeDef* CAN2 = LPC_CAN2;
     
   constexpr LPC_IOCON_TypeDef* IOCON = LPC_IOCON;  // IOCON 
   constexpr LPC_SC_TypeDef* SC = LPC_SC;           // System Control

@@ -1,5 +1,4 @@
-#include "can.hpp"
-
+#include "set_can.hpp"
 #include "lpc177x_8x_can.h"
 #include "system_LPC177x.h"
 #include "Peripherals.hpp"
@@ -7,28 +6,24 @@
 CCAN::CCAN(ECAN_Id_Instance CAN_Id) {
   switch (CAN_Id) {
     case ECAN_Id_Instance::CAN1_Id:
-      CAN_N = LPC_CAN1;
-     
+      CAN_N = P::CAN1;     
       resetController();
       clearAFTable();
       setBaudrate(baudrate_can1, PeripheralClock);
-
       break;
     case ECAN_Id_Instance::CAN2_Id:
-      CAN_N = LPC_CAN2;
-
+      CAN_N = P::CAN2;
       resetController();
       clearAFTable();
       setBaudrate(baudrate_can2, PeripheralClock);
-
       break;
   }
-  CAN_N->TFI1 = 2UL << 16;  // 2 bytes
-  CAN_N->TID1 = 0x00;       // TID1 = 0;
-  CAN_N->MOD = CAN_MOD_RM;  // Enter Reset Mode
-  // CAN_N->MOD |= CAN_MOD_STM;                        // Set Self Test Mode
-  CAN_N->MOD &= ~CAN_MOD_RM;     // Clear Reset Mode
-  LPC_CANAF->AFMR = CAN_ACC_BP;  // Acceptance Fileter Bypass Mode
+  CAN_N->TFI1 = 2UL << 16;              // 2 bytes
+  CAN_N->TID1 = 0x00;                   // TID1 = 0;
+  CAN_N->MOD = CAN_MOD_RM;              // Enter Reset Mode
+  // CAN_N->MOD |= CAN_MOD_STM;         // Set Self Test Mode
+  CAN_N->MOD &= ~CAN_MOD_RM;            // Clear Reset Mode
+  LPC_CANAF->AFMR = CAN_ACC_BP;         // Acceptance Fileter Bypass Mode
 }
 
 void CCAN::resetController() {

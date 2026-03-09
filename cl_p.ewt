@@ -2928,7 +2928,16 @@
         <group>
             <name>SERIAL</name>
             <file>
+                <name>$PROJ_DIR$\SRC\SERIAL\drv_can.hpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\SRC\SERIAL\drv_spi.hpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\SERIAL\drv_uart.hpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\SRC\SERIAL\set_can.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\SRC\SERIAL\set_spi.cpp</name>

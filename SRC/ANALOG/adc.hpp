@@ -3,15 +3,15 @@
 #include "settings_eep.hpp"
 #include "AdcStorage.hpp"
 #include "spi_init.hpp"
+#include "drv_spi.hpp"
 #include <array>
 #include <initializer_list>
 
 class CADC{ 
   
 private:
-  
-  LPC_SSP_TypeDef* SSP;
   CADC_STORAGE& adstr;
+  CSPI_DRIVER& spi_drv;
   /* 
   cN_CH - данные для запуска конвертации (формат - см. док.) 
   000m.0ccc.c000.0000 m - Manual mode, cccc - N channel (0...15)
@@ -24,7 +24,7 @@ private:
 
 public:
   
-  CADC(LPC_SSP_TypeDef*, CADC_STORAGE&);
+  CADC(CADC_STORAGE&, CSPI_DRIVER&);
   
   // Метод конвертации
   void conv_tnf(std::initializer_list<char>);

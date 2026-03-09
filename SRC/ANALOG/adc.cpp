@@ -16,8 +16,8 @@ void CADC::conv_tnf(std::initializer_list<char> list) {
   while (true) {
     // Запись
     if (index_wr < N_ch) {
-      if (SSP->SR & SPI_Config::SR_TNF) {
-        SSP->DR = cN_CH[*(list.begin() + index_wr)];
+      if (spi_drv.statusTNF()) {
+        spi_drv.writeShort(cN_CH[*(list.begin() + index_wr)]);       
         adstr.setTimings(timing_index, LPC_TIM3->TC);
         index_wr++;
         timing_index++;
@@ -26,7 +26,7 @@ void CADC::conv_tnf(std::initializer_list<char> list) {
       // Выталкиваем два последних байта из FIFO
       if (ending_index < 2) {
         ending_index++;
-        SSP->DR = cN_CH[CADC_STORAGE::ch_HRf];
+        spi_drv.writeShort(cN_CH[CADC_STORAGE::ch_HRf]);        
         adstr.setTimings(timing_index, LPC_TIM3->TC);
         timing_index++;
       }
@@ -34,8 +34,8 @@ void CADC::conv_tnf(std::initializer_list<char> list) {
 
     // Чтение
     if (index_rd < (N_ch + 2)) {
-      if (SSP->SR & SPI_Config::SR_RNE) {
-        raw_adc_data = SSP->DR;
+      if (spi_drv.statusRNE()) {             
+        raw_adc_data = spi_drv.readShort();
         Nch = (raw_adc_data & 0xF000) >> 12;
         if (Nch < G_CONST::NUMBER_CHANNELS) {
           adstr.setExternal(Nch, (raw_adc_data & 0x0FFF));
@@ -49,22 +49,14 @@ void CADC::conv_tnf(std::initializer_list<char> list) {
   }
 
   // Контрольная очистка FIFO
-  while (SSP->SR & SPI_Config::SR_RNE) {
-    raw_adc_data = SSP->DR;
-  }
+  while (spi_drv.statusRNE()) { raw_adc_data = spi_drv.readShort(); }
 }
 
-CADC::CADC(LPC_SSP_TypeDef* SSP, CADC_STORAGE& adstr) : SSP(SSP), adstr(adstr) {
+CADC::CADC(CADC_STORAGE& adstr, CSPI_DRIVER& spi_drv) : adstr(adstr), spi_drv(spi_drv) {
   unsigned short tmp_dat;
-  SSP->DR = (1UL << 12) | (1UL << 11);  // 0x1800 - manual mode and prog b0...b6
-  while (SSP->SR & SPI_Config::SR_RNE) {
-    tmp_dat = SSP->DR;
-  }
-  SSP->DR = cN_CH[0];
-  while (SSP->SR & SPI_Config::SR_BSY) {
-    tmp_dat = SSP->DR;
-  }
-  while (SSP->SR & SPI_Config::SR_RNE) {
-    tmp_dat = SSP->DR;
-  }
+  spi_drv.writeShort((1UL << 12) | (1UL << 11)); // 0x1800 - manual mode and prog b0...b6
+  while (spi_drv.statusRNE()) { tmp_dat = spi_drv.readShort(); }
+  spi_drv.writeShort(cN_CH[0]);
+  while (spi_drv.statusBSY()) { tmp_dat = spi_drv.readShort(); }
+  while (spi_drv.statusRNE()) { tmp_dat = spi_drv.readShort(); }
 };

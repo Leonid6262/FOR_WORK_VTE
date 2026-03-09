@@ -23,8 +23,8 @@ void CFactory::Peripherals_init() {
 CEMAC_DRV CFactory::createEMACdrv()   { return CEMAC_DRV(); }                         // For the control class
 CDAC0 CFactory::createDAC0()          { return CDAC0(ESET::getInstance(), P::DAC); }  // DAC0. For system test
  
-CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance(), P::IADC); }  // Внутренее ADC.
-StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }  // Загрузка уставок
+CIADC CFactory::createIADC()          { return CIADC(CADC_STORAGE::getInstance(), P::IADC); }   // Внутренее ADC.
+StatusRet CFactory::load_settings()   { return ESET::getInstance().loadSettings(); }            // Загрузка уставок
 
 CDin_cpu CFactory::createDINcpu() {    // Дискретные входы контроллера
   static CGPIO gpio(P::G2);
@@ -57,7 +57,8 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
   static auto reg_manager = CFactory::createRegManager();
   
   // --- СИФУ и его окружение ---
-  static CADC adc(CSET_SPI::config(ESPI::SPI_1), CADC_STORAGE::getInstance());
+  static CSPI_DRIVER drv_spi(CSET_SPI::config(ESPI::SPI_1));
+  static CADC adc(CADC_STORAGE::getInstance(), drv_spi);
   static CDAC_PWM dac_cos(CDAC_PWM::EPWM_DAC::PWM_DAC1, ESET::getInstance(), P::PWM_DAC);
   dac_cos.conv(dac_cos.DAC_PWM_MAX_VAL / 2);
   static CPULSCALC puls_calc(adc, CProxyPointerVar::getInstance(), dac_cos, reg_manager, CADC_STORAGE::getInstance()); 
@@ -103,7 +104,9 @@ CSystemManager& CFactory::start_system(CMBSLAVE& rModBusSlave) {
 CTerminalManager& CFactory::createTM(CSystemManager& rSysMgr) {   
   // Конфигурация и инициализация UART-0 - пультовый терминал 
   auto& udrv = CTerminalUartDriver::getInstance();
-  udrv.init(CSET_UART::configure(EUART::UART_0), UART0_IRQn);                       
+  static CUART_DRIVER drv_uart(CSET_UART::configure(EUART::UART_0)); 
+  udrv.init(&drv_uart);
+  NVIC_EnableIRQ(UART0_IRQn);
   
   // Вычисление коэффициентов отображения в системе СИ
   auto& set = ESET::getInstance().getSettings();
